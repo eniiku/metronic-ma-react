@@ -1,13 +1,18 @@
-import {useIntl} from 'react-intl'
-import {MenuItem} from './MenuItem'
-import {MenuInnerWithSub} from './MenuInnerWithSub'
-import {MegaMenu} from './MegaMenu'
+import { useIntl } from 'react-intl'
+import { MenuItem } from './MenuItem'
+import { MenuInnerWithSub } from './MenuInnerWithSub'
+import { MegaMenu } from './MegaMenu'
 
 export function MenuInner() {
   const intl = useIntl()
   return (
     <>
-      <MenuItem title={intl.formatMessage({id: 'MENU.DASHBOARD'})} to='/dashboard' />
+      <MenuItem
+        title={intl.formatMessage({ id: 'MENU.DASHBOARD' })}
+        to='/dashboard'
+      />
+      <MenuItem title='My Feed' to='/feed' />
+      <MenuItem title='Wall Post' to='/wall-post' />
       <MenuItem title='Layout Builder' to='/builder' />
       <MenuInnerWithSub
         title='Crafted'
@@ -32,10 +37,26 @@ export function MenuInner() {
             menuPlacement='right-start'
             menuTrigger={`{default:'click', lg: 'hover'}`}
           >
-            <MenuItem to='/crafted/pages/profile/overview' title='Overview' hasBullet={true} />
-            <MenuItem to='/crafted/pages/profile/projects' title='Projects' hasBullet={true} />
-            <MenuItem to='/crafted/pages/profile/campaigns' title='Campaigns' hasBullet={true} />
-            <MenuItem to='/crafted/pages/profile/documents' title='Documents' hasBullet={true} />
+            <MenuItem
+              to='/crafted/pages/profile/overview'
+              title='Overview'
+              hasBullet={true}
+            />
+            <MenuItem
+              to='/crafted/pages/profile/projects'
+              title='Projects'
+              hasBullet={true}
+            />
+            <MenuItem
+              to='/crafted/pages/profile/campaigns'
+              title='Campaigns'
+              hasBullet={true}
+            />
+            <MenuItem
+              to='/crafted/pages/profile/documents'
+              title='Documents'
+              hasBullet={true}
+            />
             <MenuItem
               to='/crafted/pages/profile/connections'
               title='Connections'
@@ -50,8 +71,16 @@ export function MenuInner() {
             menuPlacement='right-start'
             menuTrigger={`{default:'click', lg: 'hover'}`}
           >
-            <MenuItem to='/crafted/pages/wizards/horizontal' title='Horizontal' hasBullet={true} />
-            <MenuItem to='/crafted/pages/wizards/vertical' title='Vertical' hasBullet={true} />
+            <MenuItem
+              to='/crafted/pages/wizards/horizontal'
+              title='Horizontal'
+              hasBullet={true}
+            />
+            <MenuItem
+              to='/crafted/pages/wizards/vertical'
+              title='Vertical'
+              hasBullet={true}
+            />
           </MenuInnerWithSub>
         </MenuInnerWithSub>
 
@@ -64,8 +93,16 @@ export function MenuInner() {
           menuPlacement='right-start'
           menuTrigger={`{default:'click', lg: 'hover'}`}
         >
-          <MenuItem to='/crafted/account/overview' title='Overview' hasBullet={true} />
-          <MenuItem to='/crafted/account/settings' title='Settings' hasBullet={true} />
+          <MenuItem
+            to='/crafted/account/overview'
+            title='Overview'
+            hasBullet={true}
+          />
+          <MenuItem
+            to='/crafted/account/settings'
+            title='Settings'
+            hasBullet={true}
+          />
         </MenuInnerWithSub>
 
         {/* ERRORS */}
@@ -90,16 +127,45 @@ export function MenuInner() {
           menuPlacement='right-start'
           menuTrigger={`{default:'click', lg: 'hover'}`}
         >
-          <MenuItem to='/crafted/widgets/lists' title='Lists' hasBullet={true} />
-          <MenuItem to='/crafted/widgets/statistics' title='Statistics' hasBullet={true} />
-          <MenuItem to='/crafted/widgets/charts' title='Charts' hasBullet={true} />
-          <MenuItem to='/crafted/widgets/mixed' title='Mixed' hasBullet={true} />
-          <MenuItem to='/crafted/widgets/tables' title='Tables' hasBullet={true} />
-          <MenuItem to='/crafted/widgets/feeds' title='Feeds' hasBullet={true} />
+          <MenuItem
+            to='/crafted/widgets/lists'
+            title='Lists'
+            hasBullet={true}
+          />
+          <MenuItem
+            to='/crafted/widgets/statistics'
+            title='Statistics'
+            hasBullet={true}
+          />
+          <MenuItem
+            to='/crafted/widgets/charts'
+            title='Charts'
+            hasBullet={true}
+          />
+          <MenuItem
+            to='/crafted/widgets/mixed'
+            title='Mixed'
+            hasBullet={true}
+          />
+          <MenuItem
+            to='/crafted/widgets/tables'
+            title='Tables'
+            hasBullet={true}
+          />
+          <MenuItem
+            to='/crafted/widgets/feeds'
+            title='Feeds'
+            hasBullet={true}
+          />
         </MenuInnerWithSub>
       </MenuInnerWithSub>
 
-      <MenuInnerWithSub title='Apps' to='/apps' menuPlacement='bottom-start' menuTrigger='click'>
+      <MenuInnerWithSub
+        title='Apps'
+        to='/apps'
+        menuPlacement='bottom-start'
+        menuTrigger='click'
+      >
         {/* PAGES */}
         <MenuInnerWithSub
           title='Chat'
@@ -109,11 +175,27 @@ export function MenuInner() {
           menuPlacement='right-start'
           menuTrigger={`{default:'click', lg: 'hover'}`}
         >
-          <MenuItem to='/apps/chat/private-chat' title='Private Chat' hasBullet={true} />
-          <MenuItem to='/apps/chat/group-chat' title='Group Chart' hasBullet={true} />
-          <MenuItem to='/apps/chat/drawer-chat' title='Drawer Chart' hasBullet={true} />
+          <MenuItem
+            to='/apps/chat/private-chat'
+            title='Private Chat'
+            hasBullet={true}
+          />
+          <MenuItem
+            to='/apps/chat/group-chat'
+            title='Group Chart'
+            hasBullet={true}
+          />
+          <MenuItem
+            to='/apps/chat/drawer-chat'
+            title='Drawer Chart'
+            hasBullet={true}
+          />
         </MenuInnerWithSub>
-        <MenuItem icon='abstract-28' to='/apps/user-management/users' title='User management' />
+        <MenuItem
+          icon='abstract-28'
+          to='/apps/user-management/users'
+          title='User management'
+        />
       </MenuInnerWithSub>
 
       <MenuInnerWithSub
