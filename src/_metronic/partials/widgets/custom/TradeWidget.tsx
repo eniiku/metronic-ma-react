@@ -20,9 +20,20 @@ const btnClass =
 const btnIconClass = 'fs-1 text-white-gray-600 -ms-5'
 
 const TradeWidget = ({ user, className, reason, trade }: Props) => (
-  <div className={`card card-flush ${className}`}>
+  <div className={`card card-flush ${className} bg-muted`}>
     <div className='p-2 pb-0 d-flex align-items-center justify-content-between w-xl-75'>
-      <div className='text-white-gray-600 fw-bolder fs-2'>{trade.title}</div>
+      <div className='d-flex align-items-center gap-3'>
+        <div className='text-white-gray-600 fw-bolder fs-2'>{trade.title}</div>
+        <img
+          alt='Trade Icon'
+          src={
+            trade.percent < 0
+              ? toAbsoluteUrl('media/custom/bull.png')
+              : toAbsoluteUrl('media/custom/bear.png')
+          }
+          className='h-20px h-lg-30px'
+        />
+      </div>
 
       <div className='fw-bold'>
         <div className='text-success'>BOUGHT</div>
