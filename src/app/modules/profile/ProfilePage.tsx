@@ -1,11 +1,11 @@
-import {Navigate, Routes, Route, Outlet} from 'react-router-dom'
-import {PageLink, PageTitle} from '../../../_metronic/layout/core'
-import {Overview} from './components/Overview'
-import {Projects} from './components/Projects'
-import {Campaigns} from './components/Campaigns'
-import {Documents} from './components/Documents'
-import {Connections} from './components/Connections'
-import {ProfileHeader} from './ProfileHeader'
+import { Routes, Route, Outlet } from 'react-router-dom'
+import { PageLink, PageTitle } from '../../../_metronic/layout/core'
+import { Overview } from './components/Overview'
+import { Projects } from './components/Projects'
+import { Campaigns } from './components/Campaigns'
+import { Documents } from './components/Documents'
+// import { Connections } from './components/Connections'
+import { ProfileHeader } from './ProfileHeader'
 
 const profileBreadCrumbs: Array<PageLink> = [
   {
@@ -33,7 +33,7 @@ const ProfilePage = () => (
       }
     >
       <Route
-        path='overview'
+        index
         element={
           <>
             <PageTitle breadcrumbs={profileBreadCrumbs}>Overview</PageTitle>
@@ -42,7 +42,7 @@ const ProfilePage = () => (
         }
       />
       <Route
-        path='projects'
+        path='log'
         element={
           <>
             <PageTitle breadcrumbs={profileBreadCrumbs}>Projects</PageTitle>
@@ -51,7 +51,7 @@ const ProfilePage = () => (
         }
       />
       <Route
-        path='campaigns'
+        path='performance'
         element={
           <>
             <PageTitle breadcrumbs={profileBreadCrumbs}>Campaigns</PageTitle>
@@ -60,7 +60,7 @@ const ProfilePage = () => (
         }
       />
       <Route
-        path='documents'
+        path='wall-post'
         element={
           <>
             <PageTitle breadcrumbs={profileBreadCrumbs}>Documents</PageTitle>
@@ -68,16 +68,6 @@ const ProfilePage = () => (
           </>
         }
       />
-      <Route
-        path='connections'
-        element={
-          <>
-            <PageTitle breadcrumbs={profileBreadCrumbs}>Connections</PageTitle>
-            <Connections />
-          </>
-        }
-      />
-      <Route index element={<Navigate to='/crafted/pages/profile/overview' />} />
     </Route>
   </Routes>
 )
