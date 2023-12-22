@@ -5,7 +5,7 @@ import { HeaderWrapper } from './components/header'
 import { ScrollTop } from './components/scroll-top'
 import { Content } from './components/content'
 import { FooterWrapper } from './components/footer'
-import { Sidebar } from './components/sidebar'
+// import { Sidebar } from './components/sidebar'
 import {
   ActivityDrawer,
   DrawerMessenger,
@@ -14,7 +14,7 @@ import {
 } from '../partials'
 import { PageDataProvider } from './core'
 import { reInitMenu } from '../helpers'
-import { ToolbarWrapper } from './components/toolbar'
+// import { ToolbarWrapper } from './components/toolbar'
 
 const MasterLayout = () => {
   const location = useLocation()
@@ -37,7 +37,8 @@ const MasterLayout = () => {
               id='kt_app_main'
             >
               <div className='d-flex flex-column flex-column-fluid'>
-                <ToolbarWrapper />
+                {/* <ToolbarWrapper /> */}
+                <div className='h-15px'></div>
                 <Content>
                   <Outlet />
                 </Content>
