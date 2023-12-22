@@ -1,30 +1,33 @@
 import { FC } from 'react'
 import { useIntl } from 'react-intl'
-import { toAbsoluteUrl } from '../../../_metronic/helpers'
+// import { toAbsoluteUrl } from '../../../_metronic/helpers'
 import { PageTitle } from '../../../_metronic/layout/core'
-import {
-  ListsWidget2,
-  ListsWidget3,
-  ListsWidget4,
-  ListsWidget6,
-  TablesWidget5,
-  TablesWidget10,
-  MixedWidget8,
-  CardsWidget7,
-  CardsWidget17,
-  CardsWidget20,
-  ListsWidget26,
-  EngageWidget10,
-} from '../../../_metronic/partials/widgets'
+// import {
+// ListsWidget2,
+// ListsWidget3,
+// ListsWidget4,
+// ListsWidget6,
+// TablesWidget5,
+// TablesWidget10,
+// MixedWidget8,
+// CardsWidget7,
+// CardsWidget17,
+// CardsWidget20,
+// ListsWidget26,
+// EngageWidget10,
+// } from '../../../_metronic/partials/widgets'
 import { useQuery } from 'react-query'
 import { fetchAllTradeSummary } from '../../../services/api'
 import { ToolbarWrapper } from '../../../_metronic/layout/components/toolbar'
 import { TradeWidget } from '../../../_metronic/partials/widgets/custom/TradeWidget'
+// import { toAbsoluteUrl } from '../../../_metronic/helpers'
 
 const DashboardPage: FC = () => {
-  console.log('Trades')
-  const { data: summary } = useQuery('summary', fetchAllTradeSummary)
-  console.log(summary)
+  const {
+    data: summary,
+    isLoading,
+    isError,
+  } = useQuery('summary', fetchAllTradeSummary)
 
   return (
     <>
@@ -32,18 +35,23 @@ const DashboardPage: FC = () => {
 
       {/* custom begin::Row */}
       <div className='row gy-5 g-xl-8 mb-5 mb-xl-10'>
-        <div>
-          <TradeWidget
-            user={{ image: 'media/avatars/300-2.jpg', name: 'MyDesiArtist' }}
-            trade={{
-              title: 'SPXU',
-              percent: -98.07,
-              price: 24.37,
-            }}
-            className='card-xl-stretch mb-xl-8 justify-content-between gap-xl-5 flex-xl-row align-items-xl-center'
-          />
-        </div>
-        <div>
+        {isLoading ? (
+          <div>Loading...</div>
+        ) : (
+          summary.data.summary_data.map((summary: any) => (
+            <div>
+              <TradeWidget
+                key={summary._id}
+                data={summary}
+                className='card-xl-stretch mb-xl-8 justify-content-between gap-xl-5 flex-xl-row align-items-xl-center'
+              />
+            </div>
+          ))
+        )}
+
+        {isError ? <div>Error Loading Trades</div> : null}
+
+        {/* <div>
           <TradeWidget
             user={{ image: 'media/avatars/300-1.jpg', name: 'Henry Kiwa' }}
             className='card-xl-stretch mb-xl-8 justify-content-between gap-xl-5 flex-xl-row align-items-xl-center'
@@ -65,12 +73,12 @@ const DashboardPage: FC = () => {
             }}
             className='card-xl-stretch mb-xl-8 justify-content-between gap-xl-5 flex-xl-row align-items-xl-center'
           />
-        </div>
+        </div> */}
       </div>
       {/* custom end::Row */}
 
       {/* custom begin::Row */}
-      <div className='row gy-5 g-xl-8 mb-5 mb-xl-10'>
+      {/* <div className='row gy-5 g-xl-8 mb-5 mb-xl-10'>
         <div>
           <TradeWidget
             user={{ image: 'media/avatars/300-4.jpg', name: 'Willy Wonka' }}
@@ -109,7 +117,7 @@ const DashboardPage: FC = () => {
             reason
           />
         </div>
-      </div>
+      </div> */}
       {/* custom end::Row */}
     </>
   )
