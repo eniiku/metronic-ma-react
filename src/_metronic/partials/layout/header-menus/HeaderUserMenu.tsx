@@ -39,9 +39,9 @@ const HeaderUserMenu: FC = () => {
       </div>
 
       <div className='menu-item px-5'>
-        <a href='#' className='menu-link px-5'>
+        <Link to='/trade-ideas' className='menu-link px-5'>
           My Trade Ideas
-        </a>
+        </Link>
       </div>
 
       <div className='separator my-2'></div>
