@@ -6,17 +6,17 @@ import { toAbsoluteUrl } from '../../../helpers'
 import { KTIcon } from '../../../helpers'
 import { getTradePrice, getForexTicker } from '../../../../lib/utils'
 
-type TradeWidgetProps = {
-  className: string
-  data: any
-}
+// type TradeWidgetProps = {
+//   className: string
+//   data: any
+// }
 
 const itemClass = ''
 const btnClass =
   'btn btn-icon btn-custom btn-icon-gray-600 btn-active-gray-600 btn-active-color-primary w-35px h-35px'
 const btnIconClass = 'fs-1 text-white-gray-600 -ms-5'
 
-const TradeWidget: React.FC<TradeWidgetProps> = ({ className, data }) => {
+const TradeWidget = ({ className, data }) => {
   const username = _.result(data, 'user.username', '')
   const profilePicture = _.result(data, 'user.profilePicture', '')
   const equityType = _.result(data, 'equityType', '')
@@ -39,7 +39,7 @@ const TradeWidget: React.FC<TradeWidgetProps> = ({ className, data }) => {
     _.result(data, 'tradeDirection', '') === 'BTO' ? 'BULLISH' : 'BEARISH'
   const isOpen = _.result(data, 'isOpen', false)
 
-  let tradeDirection: string
+  let tradeDirection
 
   const tickerName = ticker?.split('_')[0]
   const month = ticker?.substring(1, 2)
@@ -129,7 +129,7 @@ const TradeWidget: React.FC<TradeWidgetProps> = ({ className, data }) => {
 
       {/* Data Display */}
       <div className='p-2 w-100'>
-        {data.tradeData.slice(0, 2).map((option: any) => (
+        {data.tradeData.slice(0, 2).map((option) => (
           <div
             key={option._id}
             className='d-flex align-items-center justify-content-between mb-2'
@@ -172,11 +172,11 @@ const TradeWidget: React.FC<TradeWidgetProps> = ({ className, data }) => {
       </div>
 
       {/* Conditional ... */}
-      {data?.tradeData?.find((x: any) => x?.comment)?.comment ? (
+      {data?.tradeData?.find((x) => x?.comment)?.comment ? (
         <div className='fw-bold text-warning p-2 pt-0 text-nowrap'>
           Reason:{' '}
           <span className='text-white-gray-600'>
-            {data?.tradeData?.find((x: any) => x?.comment)?.comment}
+            {data?.tradeData?.find((x) => x?.comment)?.comment}
           </span>
         </div>
       ) : (
