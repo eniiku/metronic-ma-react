@@ -1,13 +1,13 @@
 /* eslint-disable no-prototype-builtins */
 import clsx from 'clsx'
-import {useEffect, useRef} from 'react'
-import {ILayout, useLayout} from '../../core'
-import {SidebarMenu} from './sidebar-menu/SidebarMenu'
-import {SidebarFooter} from './SidebarFooter'
-import {SidebarLogo} from './SidebarLogo'
+import { useEffect, useRef } from 'react'
+import { ILayout, useLayout } from '../../core'
+import { SidebarMenu } from './sidebar-menu/SidebarMenu'
+import { SidebarFooter } from './SidebarFooter'
+import { SidebarLogo } from './SidebarLogo'
 
 const Sidebar = () => {
-  const {config} = useLayout()
+  const { config } = useLayout()
   const sidebarRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -20,7 +20,8 @@ const Sidebar = () => {
 
   return (
     <>
-      {(config.layoutType === 'dark-sidebar' || config.layoutType === 'light-sidebar') && (
+      {(config.layoutType === 'dark-sidebar' ||
+        config.layoutType === 'light-sidebar') && (
         <div
           ref={sidebarRef}
           id='kt_app_sidebar'
@@ -36,7 +37,10 @@ const Sidebar = () => {
 }
 
 const updateDOM = (config: ILayout) => {
-  if (config.layoutType === 'dark-sidebar' || config.layoutType === 'light-sidebar') {
+  if (
+    config.layoutType === 'dark-sidebar' ||
+    config.layoutType === 'light-sidebar'
+  ) {
     if (config.app?.sidebar?.default?.minimize?.desktop?.enabled) {
       if (config.app?.sidebar?.default?.minimize?.desktop?.default) {
         document.body.setAttribute('data-kt-app-sidebar-minimize', 'on')
@@ -53,7 +57,10 @@ const updateDOM = (config: ILayout) => {
       }
 
       if (config.app?.sidebar?.default?.minimize?.mobile?.hoverable) {
-        document.body.setAttribute('data-kt-app-sidebar-hoverable-mobile', 'true')
+        document.body.setAttribute(
+          'data-kt-app-sidebar-hoverable-mobile',
+          'true'
+        )
       }
     }
 
@@ -93,18 +100,22 @@ const updateDOM = (config: ILayout) => {
       config.app?.sidebar?.default?.fixed?.desktop?.toString() || ''
     )
 
-    const appSidebarDefaultDrawerEnabled = config.app?.sidebar?.default?.drawer?.enabled
-    let appSidebarDefaultDrawerAttributes: {[attrName: string]: string} = {}
+    const appSidebarDefaultDrawerEnabled =
+      config.app?.sidebar?.default?.drawer?.enabled
+    let appSidebarDefaultDrawerAttributes: { [attrName: string]: string } = {}
     if (appSidebarDefaultDrawerEnabled) {
-      appSidebarDefaultDrawerAttributes = config.app?.sidebar?.default?.drawer?.attributes as {
+      appSidebarDefaultDrawerAttributes = config.app?.sidebar?.default?.drawer
+        ?.attributes as {
         [attrName: string]: string
       }
     }
 
-    const appSidebarDefaultStickyEnabled = config.app?.sidebar?.default?.sticky?.enabled
-    let appSidebarDefaultStickyAttributes: {[attrName: string]: string} = {}
+    const appSidebarDefaultStickyEnabled =
+      config.app?.sidebar?.default?.sticky?.enabled
+    let appSidebarDefaultStickyAttributes: { [attrName: string]: string } = {}
     if (appSidebarDefaultStickyEnabled) {
-      appSidebarDefaultStickyAttributes = config.app?.sidebar?.default?.sticky?.attributes as {
+      appSidebarDefaultStickyAttributes = config.app?.sidebar?.default?.sticky
+        ?.attributes as {
         [attrName: string]: string
       }
     }
@@ -116,12 +127,17 @@ const updateDOM = (config: ILayout) => {
         const sidebarAttributes = sidebarElement
           .getAttributeNames()
           .filter((t) => t.indexOf('data-') > -1)
-        sidebarAttributes.forEach((attr) => sidebarElement.removeAttribute(attr))
+        sidebarAttributes.forEach((attr) =>
+          sidebarElement.removeAttribute(attr)
+        )
 
         if (appSidebarDefaultDrawerEnabled) {
           for (const key in appSidebarDefaultDrawerAttributes) {
             if (appSidebarDefaultDrawerAttributes.hasOwnProperty(key)) {
-              sidebarElement.setAttribute(key, appSidebarDefaultDrawerAttributes[key])
+              sidebarElement.setAttribute(
+                key,
+                appSidebarDefaultDrawerAttributes[key]
+              )
             }
           }
         }
@@ -129,7 +145,10 @@ const updateDOM = (config: ILayout) => {
         if (appSidebarDefaultStickyEnabled) {
           for (const key in appSidebarDefaultStickyAttributes) {
             if (appSidebarDefaultStickyAttributes.hasOwnProperty(key)) {
-              sidebarElement.setAttribute(key, appSidebarDefaultStickyAttributes[key])
+              sidebarElement.setAttribute(
+                key,
+                appSidebarDefaultStickyAttributes[key]
+              )
             }
           }
         }
@@ -138,4 +157,4 @@ const updateDOM = (config: ILayout) => {
   }
 }
 
-export {Sidebar}
+export { Sidebar }
