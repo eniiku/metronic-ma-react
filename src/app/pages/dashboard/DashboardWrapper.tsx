@@ -20,6 +20,7 @@ import { useQuery } from 'react-query'
 import { fetchAllTradeSummary } from '../../../services/api'
 import { ToolbarWrapper } from '../../../_metronic/layout/components/toolbar'
 import { TradeWidget } from '../../../_metronic/partials/widgets/custom/TradeWidget'
+
 // import { toAbsoluteUrl } from '../../../_metronic/helpers'
 
 const DashboardPage: FC = () => {

@@ -16,30 +16,36 @@ const btnClass =
   'btn btn-icon btn-custom btn-icon-gray-600 btn-active-gray-600 btn-active-color-primary w-35px h-35px'
 const btnIconClass = 'fs-1 text-white-gray-600 -ms-5'
 
-const TradeWidget = ({ className, data }) => {
+export function TradeWidget({
+  className,
+  data,
+}: {
+  className: string
+  data: any
+}) {
   const username = _.result(data, 'user.username', '')
   const profilePicture = _.result(data, 'user.profilePicture', '')
-  const equityType = _.result(data, 'equityType', '')
+  // const equityType = _.result(data, 'equityType', '')
+  const equityType = data.equityType
   const entryPrice = _.result(data, 'entryPrice', 0)
     ? equityType === 'Crypto'
       ? _.result(data, 'entryPrice', 0)?.toFixed(3)
       : _.result(data, 'entryPrice', 0)?.toFixed(2)
     : '0'
 
-  const profitOrLossPercentage = _.result(data, 'profitOrLossPercentage', 0)
-    ? _.result(data, 'profitOrLossPercentage', 0)?.toFixed(1)
-    : '0'
+  const profitOrLossPercentage = data.profitOrLossPercentage
+    ? data.profitOrLossPercentage?.toFixed(1)
+    : 0
 
-  const profitOrLossDifference = _.result(data, 'profitOrLossDifference', 0)
-    ? _.result(data, 'profitOrLossDifference', 0)?.toFixed(1).toString()
-    : '0'
+  const profitOrLossDifference = data.profitOrLossDifference
+    ? data.profitOrLossDifference.toFixed(1)
+    : 0
+
+  let tradeDirection = data.tradeDirection
 
   const ticker = _.result(data, 'ticker', '')
-  const sentiment =
-    _.result(data, 'tradeDirection', '') === 'BTO' ? 'BULLISH' : 'BEARISH'
+  const sentiment = tradeDirection === 'BTO' ? 'BULLISH' : 'BEARISH'
   const isOpen = _.result(data, 'isOpen', false)
-
-  let tradeDirection
 
   const tickerName = ticker?.split('_')[0]
   const month = ticker?.substring(1, 2)
@@ -50,10 +56,7 @@ const TradeWidget = ({ className, data }) => {
     tradeDirection = ticker?.substring(5, 7)
   } else {
     tradeDirection =
-      _.result(data, 'tradeDirection', '') !== '' &&
-      _.result(data, 'tradeDirection', '') === 'BTO'
-        ? 'C'
-        : 'P'
+      tradeDirection !== '' && tradeDirection === 'BTO' ? 'C' : 'P'
   }
 
   const strikePrice = ticker?.substring(6)
@@ -95,32 +98,18 @@ const TradeWidget = ({ className, data }) => {
         <div className='d-flex align-items-center fw-bold fs-8'>
           <div className='bg-white-gray-600 bg-opacity-50 text-white-gray-600 rounded-start-2 p-2 text-center'>
             <div className='opacity-50 text-gray-600'>Price Loss</div>
-            {isOpen ? (
-              <div className='fs-5'>{`$${getTradePrice(
-                equityType,
-                profitOrLossDifference.profitOrLoss
-              )}`}</div>
-            ) : (
-              <div className='fs-5'>{`$${getTradePrice(
-                equityType,
-                profitOrLossDifference
-              )}`}</div>
-            )}
+
+            <div className='fs-5'>{`$${getTradePrice(
+              equityType,
+              profitOrLossDifference
+            )}`}</div>
           </div>
 
           <div className='bg-gray-600 bg-opacity-25 text-gray-600 p-2 rounded-end-2 text-center'>
             <div className='fs-5 text-danger'>{`${profitOrLossPercentage}%`}</div>
-            {isOpen ? (
-              <div className='text-white-gray-600 opacity-50'>
-                {`% ${
-                  profitOrLossPercentage.percentage >= 0 ? 'Profit' : 'Loss'
-                }`}
-              </div>
-            ) : (
-              <div className='text-white-gray-600 opacity-50'>
-                {`% ${profitOrLossPercentage >= 0 ? 'Profit' : 'Loss'}`}
-              </div>
-            )}
+            <div className='text-white-gray-600 opacity-50'>
+              {`% ${profitOrLossPercentage >= 0 ? 'Profit' : 'Loss'}`}
+            </div>
           </div>
         </div>
       </div>
@@ -129,7 +118,7 @@ const TradeWidget = ({ className, data }) => {
 
       {/* Data Display */}
       <div className='p-2 w-100'>
-        {data.tradeData.slice(0, 2).map((option) => (
+        {data.tradeData.slice(0, 2).map((option: any) => (
           <div
             key={option._id}
             className='d-flex align-items-center justify-content-between mb-2'
@@ -172,11 +161,11 @@ const TradeWidget = ({ className, data }) => {
       </div>
 
       {/* Conditional ... */}
-      {data?.tradeData?.find((x) => x?.comment)?.comment ? (
+      {data?.tradeData?.find((x: any) => x?.comment)?.comment ? (
         <div className='fw-bold text-warning p-2 pt-0 text-nowrap'>
           Reason:{' '}
           <span className='text-white-gray-600'>
-            {data?.tradeData?.find((x) => x?.comment)?.comment}
+            {data?.tradeData?.find((x: any) => x?.comment)?.comment}
           </span>
         </div>
       ) : (
@@ -232,4 +221,3 @@ const TradeWidget = ({ className, data }) => {
     </div>
   )
 }
-export { TradeWidget }

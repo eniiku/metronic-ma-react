@@ -2,11 +2,11 @@ import _ from 'lodash'
 
 export const getTradePrice = (
   equityType: string,
-  profitLosssPercent: string
+  profitLosssPercent: number
 ) => {
   let price = ''
   if (equityType == 'Option') {
-    price = (profitLosssPercent as unknown as number) * 100 + ''
+    price = profitLosssPercent * 100 + ''
   } else price = profitLosssPercent + ''
   if (price.includes('-')) price = price.replace('-', '')
   else price
@@ -25,7 +25,11 @@ export function getForexTicker(ticker: string) {
   } else return ticker
 }
 
-export function calculateDifference(btcOrStc, regularMarketPrice, avgPrice) {
+export function calculateDifference(
+  btcOrStc: string,
+  regularMarketPrice: number,
+  avgPrice: number
+) {
   let profitOrLossOperatorMultiplier = 1
   if (btcOrStc == 'BTC') {
     if (regularMarketPrice < avgPrice) {

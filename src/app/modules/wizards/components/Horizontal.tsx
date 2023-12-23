@@ -1,23 +1,29 @@
-import {FC, useEffect, useRef, useState} from 'react'
-import {Step1} from './steps/Step1'
-import {Step2} from './steps/Step2'
-import {Step3} from './steps/Step3'
-import {Step4} from './steps/Step4'
-import {Step5} from './steps/Step5'
-import {KTIcon} from '../../../../_metronic/helpers'
-import {StepperComponent} from '../../../../_metronic/assets/ts/components'
-import {Form, Formik, FormikValues} from 'formik'
-import {createAccountSchemas, ICreateAccount, inits} from './CreateAccountWizardHelper'
+import { FC, useEffect, useRef, useState } from 'react'
+import { Step1 } from './steps/Step1'
+import { Step2 } from './steps/Step2'
+import { Step3 } from './steps/Step3'
+import { Step4 } from './steps/Step4'
+import { Step5 } from './steps/Step5'
+import { KTIcon } from '../../../../_metronic/helpers'
+import { StepperComponent } from '../../../../_metronic/assets/ts/components'
+import { Form, Formik, FormikValues } from 'formik'
+import {
+  createAccountSchemas,
+  ICreateAccount,
+  inits,
+} from './CreateAccountWizardHelper'
 
 const Horizontal: FC = () => {
   const stepperRef = useRef<HTMLDivElement | null>(null)
-  const [ stepper, setStepper ] = useState<StepperComponent | null>(null)
+  const [stepper, setStepper] = useState<StepperComponent | null>(null)
   const [currentSchema, setCurrentSchema] = useState(createAccountSchemas[0])
   const [initValues] = useState<ICreateAccount>(inits)
   const [isSubmitButton, setSubmitButton] = useState(false)
 
   const loadStepper = () => {
-    setStepper(StepperComponent.createInsance(stepperRef.current as HTMLDivElement))
+    setStepper(
+      StepperComponent.createInsance(stepperRef.current as HTMLDivElement)
+    )
   }
 
   const prevStep = () => {
@@ -46,7 +52,7 @@ const Horizontal: FC = () => {
 
     setSubmitButton(stepper.currentStepIndex === stepper.totalStepsNumber)
 
-    console.log(values);
+    console.log(values)
 
     setCurrentSchema(createAccountSchemas[stepper.currentStepIndex - 1])
   }
@@ -89,9 +95,17 @@ const Horizontal: FC = () => {
             </div>
           </div>
 
-          <Formik validationSchema={currentSchema} initialValues={initValues} onSubmit={submitStep}>
+          <Formik
+            validationSchema={currentSchema}
+            initialValues={initValues}
+            onSubmit={submitStep}
+          >
             {() => (
-              <Form className='mx-auto mw-600px w-100 pt-15 pb-10' id='kt_create_account_form'>
+              <Form
+                placeholder=''
+                className='mx-auto mw-600px w-100 pt-15 pb-10'
+                id='kt_create_account_form'
+              >
                 <div className='current' data-kt-stepper-element='content'>
                   <Step1 />
                 </div>
@@ -126,11 +140,17 @@ const Horizontal: FC = () => {
                   </div>
 
                   <div>
-                    <button type='submit' className='btn btn-lg btn-primary me-3'>
+                    <button
+                      type='submit'
+                      className='btn btn-lg btn-primary me-3'
+                    >
                       <span className='indicator-label'>
                         {!isSubmitButton && 'Continue'}
                         {isSubmitButton && 'Submit'}
-                        <KTIcon iconName='arrow-right' className='fs-3 ms-2 me-0' />
+                        <KTIcon
+                          iconName='arrow-right'
+                          className='fs-3 ms-2 me-0'
+                        />
                       </span>
                     </button>
                   </div>
@@ -144,4 +164,4 @@ const Horizontal: FC = () => {
   )
 }
 
-export {Horizontal}
+export { Horizontal }

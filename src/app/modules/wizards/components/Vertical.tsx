@@ -1,22 +1,28 @@
-import {useEffect, useRef, useState} from 'react'
-import {KTIcon} from '../../../../_metronic/helpers'
-import {Step1} from './steps/Step1'
-import {Step2} from './steps/Step2'
-import {Step3} from './steps/Step3'
-import {Step4} from './steps/Step4'
-import {Step5} from './steps/Step5'
-import {StepperComponent} from '../../../../_metronic/assets/ts/components'
-import {Form, Formik, FormikValues} from 'formik'
-import {createAccountSchemas, ICreateAccount, inits} from './CreateAccountWizardHelper'
+import { useEffect, useRef, useState } from 'react'
+import { KTIcon } from '../../../../_metronic/helpers'
+import { Step1 } from './steps/Step1'
+import { Step2 } from './steps/Step2'
+import { Step3 } from './steps/Step3'
+import { Step4 } from './steps/Step4'
+import { Step5 } from './steps/Step5'
+import { StepperComponent } from '../../../../_metronic/assets/ts/components'
+import { Form, Formik, FormikValues } from 'formik'
+import {
+  createAccountSchemas,
+  ICreateAccount,
+  inits,
+} from './CreateAccountWizardHelper'
 
 const Vertical = () => {
   const stepperRef = useRef<HTMLDivElement | null>(null)
-  const [ stepper, setStepper ] = useState<StepperComponent | null>(null)
+  const [stepper, setStepper] = useState<StepperComponent | null>(null)
   const [currentSchema, setCurrentSchema] = useState(createAccountSchemas[0])
   const [initValues] = useState<ICreateAccount>(inits)
 
   const loadStepper = () => {
-    setStepper(StepperComponent.createInsance(stepperRef.current as HTMLDivElement))
+    setStepper(
+      StepperComponent.createInsance(stepperRef.current as HTMLDivElement)
+    )
   }
 
   const prevStep = () => {
@@ -41,7 +47,7 @@ const Vertical = () => {
       actions.resetForm()
     }
 
-    console.log(values);
+    console.log(values)
 
     setCurrentSchema(createAccountSchemas[stepper.currentStepIndex - 1])
   }
@@ -81,7 +87,9 @@ const Vertical = () => {
                 <div className='stepper-label'>
                   <h3 className='stepper-title'>Account Type</h3>
 
-                  <div className='stepper-desc fw-semibold'>Setup Your Account Details</div>
+                  <div className='stepper-desc fw-semibold'>
+                    Setup Your Account Details
+                  </div>
                 </div>
                 {/* end::Label*/}
               </div>
@@ -107,7 +115,9 @@ const Vertical = () => {
                 {/* begin::Label*/}
                 <div className='stepper-label'>
                   <h3 className='stepper-title'>Account Settings</h3>
-                  <div className='stepper-desc fw-semibold'>Setup Your Account Settings</div>
+                  <div className='stepper-desc fw-semibold'>
+                    Setup Your Account Settings
+                  </div>
                 </div>
                 {/* end::Label*/}
               </div>
@@ -133,7 +143,9 @@ const Vertical = () => {
                 {/* begin::Label*/}
                 <div className='stepper-label'>
                   <h3 className='stepper-title'>Business Info</h3>
-                  <div className='stepper-desc fw-semibold'>Your Business Related Info</div>
+                  <div className='stepper-desc fw-semibold'>
+                    Your Business Related Info
+                  </div>
                 </div>
                 {/* end::Label*/}
               </div>
@@ -159,7 +171,9 @@ const Vertical = () => {
                 {/* begin::Label*/}
                 <div className='stepper-label'>
                   <h3 className='stepper-title'>Billing Details</h3>
-                  <div className='stepper-desc fw-semibold'>Set Your Payment Methods</div>
+                  <div className='stepper-desc fw-semibold'>
+                    Set Your Payment Methods
+                  </div>
                 </div>
                 {/* end::Label*/}
               </div>
@@ -185,7 +199,9 @@ const Vertical = () => {
                 {/* begin::Label*/}
                 <div className='stepper-label'>
                   <h3 className='stepper-title'>Completed</h3>
-                  <div className='stepper-desc fw-semibold'>Woah, we are here</div>
+                  <div className='stepper-desc fw-semibold'>
+                    Woah, we are here
+                  </div>
                 </div>
                 {/* end::Label*/}
               </div>
@@ -200,9 +216,18 @@ const Vertical = () => {
       {/* begin::Aside*/}
 
       <div className='d-flex flex-row-fluid flex-center bg-body rounded'>
-        <Formik validationSchema={currentSchema} initialValues={initValues} onSubmit={submitStep}>
+        <Formik
+          validationSchema={currentSchema}
+          initialValues={initValues}
+          onSubmit={submitStep}
+        >
           {() => (
-            <Form className='py-20 w-100 w-xl-700px px-9' noValidate id='kt_create_account_form'>
+            <Form
+              placeholder={''}
+              className='py-20 w-100 w-xl-700px px-9'
+              noValidate
+              id='kt_create_account_form'
+            >
               <div className='current' data-kt-stepper-element='content'>
                 <Step1 />
               </div>
@@ -239,9 +264,14 @@ const Vertical = () => {
                 <div>
                   <button type='submit' className='btn btn-lg btn-primary me-3'>
                     <span className='indicator-label'>
-                      {stepper?.currentStepIndex !== ((stepper?.totalStepsNumber || 2) - 1) && 'Continue'}
-                      {stepper?.currentStepIndex === ((stepper?.totalStepsNumber || 2) - 1) && 'Submit'}
-                      <KTIcon iconName='arrow-right' className='fs-3 ms-2 me-0' />
+                      {stepper?.currentStepIndex !==
+                        (stepper?.totalStepsNumber || 2) - 1 && 'Continue'}
+                      {stepper?.currentStepIndex ===
+                        (stepper?.totalStepsNumber || 2) - 1 && 'Submit'}
+                      <KTIcon
+                        iconName='arrow-right'
+                        className='fs-3 ms-2 me-0'
+                      />
                     </span>
                   </button>
                 </div>
@@ -254,4 +284,4 @@ const Vertical = () => {
   )
 }
 
-export {Vertical}
+export { Vertical }
