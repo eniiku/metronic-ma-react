@@ -1,6 +1,6 @@
 import { useQuery } from 'react-query'
-import { fetchUserTradeSummary } from '../../../../services/api'
-import { TradeWidget } from '../../../../_metronic/partials/widgets/custom/TradeWidget'
+import { fetchUserTradeSummary } from '../../../../../services/api'
+import { TradeWidget } from '../../../../../_metronic/partials/widgets/custom/TradeWidget'
 
 const TradeLog = () => {
   const {

@@ -1,17 +1,21 @@
 import { FC } from 'react'
 import { KTIcon, toAbsoluteUrl } from '../../../_metronic/helpers'
 import { Link, useLocation } from 'react-router-dom'
+import { useAuth } from '../auth'
 // import { Dropdown1 } from '../../../_metronic/partials'
 
-// import { useQuery } from 'react-query'
-// import { fetchAllUsers, fetchUserData } from '../../../services/api'
+import { useQuery } from 'react-query'
+import { fetchUserData } from '../../../services/api'
 
 const ProfileHeader: FC = () => {
   const location = useLocation()
 
-  // const { data: user } = useQuery('user', fetchUserData('831861797824495646'))
-  // const { data: users } = useQuery('users', fetchAllUsers)
-  // console.log(user)
+  const { currentUser } = useAuth()
+
+  const { data: user, isLoading } = useQuery('user', () =>
+    fetchUserData(currentUser?.firebaseUserId ?? '')
+  )
+  console.log(user)
 
   return (
     <div className='card mb-5 mb-xl-10'>
@@ -34,7 +38,7 @@ const ProfileHeader: FC = () => {
                   href='#'
                   className='text-gray-800 text-hover-primary fs-2 fw-bolder me-1'
                 >
-                  Max Smith
+                  {isLoading ? '...' : user?.data?.username}
                 </a>
 
                 <div className='d-flex flex-wrap fw-bold fs-6 mb-4 pe-2'>
@@ -43,7 +47,7 @@ const ProfileHeader: FC = () => {
                     className='d-flex align-items-center text-gray-500 text-hover-primary mb-2'
                   >
                     <KTIcon iconName='sms' className='fs-4 me-1' />
-                    max@kt.com
+                    {isLoading ? '...' : user?.data?.email}
                   </a>
                 </div>
               </div>
