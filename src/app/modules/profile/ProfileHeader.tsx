@@ -15,7 +15,6 @@ const ProfileHeader: FC = () => {
   const { data: user, isLoading } = useQuery('user', () =>
     fetchUserData(currentUser?.firebaseUserId ?? '')
   )
-  console.log(user)
 
   return (
     <div className='card mb-5 mb-xl-10'>

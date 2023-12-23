@@ -9,7 +9,6 @@ const TradeLog = () => {
     isError,
   } = useQuery('trades', fetchUserTradeSummary)
 
-  console.log(trades)
   return (
     <div>
       <div className='row gy-5 g-xl-8 mb-5 mb-xl-10'>

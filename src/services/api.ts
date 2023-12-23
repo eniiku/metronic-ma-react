@@ -32,7 +32,6 @@ export const fetchUserData = async (id: string): Promise<any> => {
         firebaseUserId: id,
       },
     })
-    console.log(response.data)
     return response.data
   } catch (error) {
     throw new Error('Error fetching users')
@@ -53,7 +52,6 @@ export const fetchAllTradeSummary = async (): Promise<any> => {
         },
       }
     )
-    console.log(response.data)
     return response.data
   } catch (error) {
     throw new Error('Error fetching users')
@@ -71,7 +69,6 @@ export const fetchStatistics = async (): Promise<any> => {
       //   limit: 10,
       // },
     })
-    console.log(response.data)
     return response.data
   } catch (error) {
     throw new Error('Error fetching users')
@@ -93,7 +90,6 @@ export const fetchUserTradeSummary = async (): Promise<any> => {
         },
       }
     )
-    console.log(response.data)
     return response.data
   } catch (error) {
     throw new Error('Error fetching users')
@@ -111,7 +107,6 @@ export const fetchWallPosts = async (): Promise<any> => {
         limit: 10,
       },
     })
-    console.log(response.data)
     return response.data
   } catch (error) {
     throw new Error('Error fetching users')
@@ -129,7 +124,6 @@ export const fetchCumulativeStats = async (): Promise<any> => {
       //   limit: 10,
       // },
     })
-    console.log(response.data)
     return response.data
   } catch (error) {
     throw new Error('Error fetching users')

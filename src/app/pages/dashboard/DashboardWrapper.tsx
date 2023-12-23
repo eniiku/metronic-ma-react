@@ -39,10 +39,10 @@ const DashboardPage: FC = () => {
         {isLoading ? (
           <div>Loading...</div>
         ) : (
-          summary.data.summary_data.map((summary: any, index) => (
+          summary.data.summary_data.map((summary: any) => (
             <div>
               <TradeWidget
-                key={summary._id ? summary._id : index}
+                key={summary._id}
                 data={summary}
                 className='card-xl-stretch mb-xl-8 justify-content-between gap-xl-5 flex-xl-row align-items-xl-center'
               />
