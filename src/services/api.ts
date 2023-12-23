@@ -2,7 +2,7 @@
 import axios, { AxiosResponse } from 'axios'
 
 const api = axios.create({
-  baseURL: 'https://api.marketaction.net/api',
+  baseURL: 'http://localhost:3100/api',
 })
 
 const BEARER_TOKEN =

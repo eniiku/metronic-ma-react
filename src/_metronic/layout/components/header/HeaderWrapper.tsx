@@ -35,20 +35,20 @@ export function HeaderWrapper() {
             {config.layoutType === 'dark-header' ? (
               <img
                 alt='Logo'
-                src={toAbsoluteUrl('media/logos/default-dark.svg')}
-                className='h-20px h-lg-30px app-sidebar-logo-default'
+                src={toAbsoluteUrl('images/market_action_logo.png')}
+                className='h-50px h-lg-60px app-sidebar-logo-default'
               />
             ) : (
               <>
                 <img
                   alt='Logo'
-                  src={toAbsoluteUrl('media/logos/default-small-dark.svg')}
-                  className='h-20px h-lg-30px app-sidebar-logo-default theme-light-show'
+                  src={toAbsoluteUrl('images/market_action_logo.png')}
+                  className='h-50px h-lg-60px app-sidebar-logo-default theme-light-show'
                 />
                 <img
                   alt='Logo'
-                  src={toAbsoluteUrl('media/logos/default-small-dark.svg')}
-                  className='h-20px h-lg-30px app-sidebar-logo-default theme-dark-show'
+                  src={toAbsoluteUrl('images/market_action_logo.png')}
+                  className='h-50px h-lg-60px app-sidebar-logo-default theme-dark-show'
                 />
               </>
             )}

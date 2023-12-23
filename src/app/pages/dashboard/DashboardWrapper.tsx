@@ -39,7 +39,7 @@ const DashboardPage: FC = () => {
         {isLoading ? (
           <div>Loading...</div>
         ) : (
-          summary.data.summary_data.map((summary: any) => (
+          summary?.data.summary_data.map((summary: any) => (
             <div>
               <TradeWidget
                 key={summary._id}

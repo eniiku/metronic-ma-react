@@ -6,6 +6,7 @@ import {
   Search,
   ThemeModeSwitcher,
 } from '../../../partials'
+import { useAuth } from '../../../../app/modules/auth'
 // import { useLayout } from '../../core'
 
 const itemClass = 'ms-1 ms-md-4'
@@ -16,6 +17,7 @@ const btnIconClass = 'fs-2'
 
 const Navbar = () => {
   // const { config } = useLayout()
+  const { currentUser, logout } = useAuth()
   return (
     <div className='app-navbar flex-shrink-0'>
       <div className={clsx('app-navbar-item align-items-stretch', itemClass)}>
@@ -63,7 +65,7 @@ const Navbar = () => {
           data-kt-menu-attach='parent'
           data-kt-menu-placement='bottom-end'
         >
-          <img src={toAbsoluteUrl('media/avatars/300-3.jpg')} alt='' />
+          <img src={currentUser?.pic ? `${currentUser.pic}` : toAbsoluteUrl('media/avatars/300-3.jpg')} alt='' />
         </div>
         <HeaderUserMenu />
       </div>
