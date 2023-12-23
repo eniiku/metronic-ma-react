@@ -6,6 +6,7 @@ import { Campaigns } from './components/Campaigns'
 import { Documents } from './components/Documents'
 // import { Connections } from './components/Connections'
 import { ProfileHeader } from './ProfileHeader'
+import TradeLog from '../auth/components/TradeLog'
 
 const profileBreadCrumbs: Array<PageLink> = [
   {
@@ -36,7 +37,6 @@ const ProfilePage = () => (
         index
         element={
           <>
-            <PageTitle breadcrumbs={profileBreadCrumbs}>Overview</PageTitle>
             <Overview />
           </>
         }
@@ -44,17 +44,15 @@ const ProfilePage = () => (
       <Route
         path='log'
         element={
-          <>
-            <PageTitle breadcrumbs={profileBreadCrumbs}>Projects</PageTitle>
-            <Projects />
-          </>
+          // <>
+          <TradeLog />
+          // </>
         }
       />
       <Route
         path='performance'
         element={
           <>
-            <PageTitle breadcrumbs={profileBreadCrumbs}>Campaigns</PageTitle>
             <Campaigns />
           </>
         }
@@ -63,7 +61,6 @@ const ProfilePage = () => (
         path='wall-post'
         element={
           <>
-            <PageTitle breadcrumbs={profileBreadCrumbs}>Documents</PageTitle>
             <Documents />
           </>
         }

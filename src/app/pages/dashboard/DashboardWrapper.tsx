@@ -39,10 +39,10 @@ const DashboardPage: FC = () => {
         {isLoading ? (
           <div>Loading...</div>
         ) : (
-          summary.data.summary_data.map((summary: any) => (
+          summary.data.summary_data.map((summary: any, index) => (
             <div>
               <TradeWidget
-                key={summary._id}
+                key={summary._id ? summary._id : index}
                 data={summary}
                 className='card-xl-stretch mb-xl-8 justify-content-between gap-xl-5 flex-xl-row align-items-xl-center'
               />
@@ -125,12 +125,12 @@ const DashboardPage: FC = () => {
 }
 
 const DashboardWrapper: FC = () => {
-  const intl = useIntl()
+  // const intl = useIntl()
   return (
     <>
-      <PageTitle breadcrumbs={[]}>
+      {/* <PageTitle breadcrumbs={[]}>
         {intl.formatMessage({ id: 'MENU.DASHBOARD' })}
-      </PageTitle>
+      </PageTitle> */}
       <DashboardPage />
     </>
   )
