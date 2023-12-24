@@ -1,26 +1,10 @@
 import { Routes, Route, Outlet } from 'react-router-dom'
-import { PageLink, PageTitle } from '../../../_metronic/layout/core'
-import { Overview } from './components/Overview'
-import { Projects } from './components/Projects'
-import { Campaigns } from './components/Campaigns'
-import { Documents } from './components/Documents'
-// import { Connections } from './components/Connections'
 import { ProfileHeader } from './ProfileHeader'
-
-const profileBreadCrumbs: Array<PageLink> = [
-  {
-    title: 'Profile',
-    path: '/crafted/pages/profile/overview',
-    isSeparator: false,
-    isActive: false,
-  },
-  {
-    title: '',
-    path: '',
-    isSeparator: true,
-    isActive: false,
-  },
-]
+// import custom components
+import TradeLog from './components/custom/TradeLog'
+import Performance from './components/custom/Performance'
+import WallPost from '../../pages/custom/WallPost'
+import Profile from './components/custom/Profile'
 
 const ProfilePage = () => (
   <Routes>
@@ -32,42 +16,10 @@ const ProfilePage = () => (
         </>
       }
     >
-      <Route
-        index
-        element={
-          <>
-            <PageTitle breadcrumbs={profileBreadCrumbs}>Overview</PageTitle>
-            <Overview />
-          </>
-        }
-      />
-      <Route
-        path='log'
-        element={
-          <>
-            <PageTitle breadcrumbs={profileBreadCrumbs}>Projects</PageTitle>
-            <Projects />
-          </>
-        }
-      />
-      <Route
-        path='performance'
-        element={
-          <>
-            <PageTitle breadcrumbs={profileBreadCrumbs}>Campaigns</PageTitle>
-            <Campaigns />
-          </>
-        }
-      />
-      <Route
-        path='wall-post'
-        element={
-          <>
-            <PageTitle breadcrumbs={profileBreadCrumbs}>Documents</PageTitle>
-            <Documents />
-          </>
-        }
-      />
+      <Route index element={<Profile />} />
+      <Route path='log' element={<TradeLog />} />
+      <Route path='performance' element={<Performance />} />
+      <Route path='wall-post' element={<WallPost />} />
     </Route>
   </Routes>
 )

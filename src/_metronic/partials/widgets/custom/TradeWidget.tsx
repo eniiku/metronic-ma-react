@@ -43,21 +43,17 @@ export function TradeWidget({
 
   let tradeDirection = data.tradeDirection;
 
-  const ticker = _.result(data, "ticker", "");
-  const sentiment = tradeDirection === "BTO" ? "BULLISH" : "BEARISH";
-  const isOpen = _.result(data, "isOpen", false);
+  const ticker = _.result(data, 'ticker', '')
+  const sentiment = tradeDirection === 'BTO' ? 'BULLISH' : 'BEARISH'
+  const transactionType = _.result(data, 'transactionType', '') as string
+  const isOpen = _.result(data, 'isOpen', false)
 
   const tickerName = ticker?.split("_")[0];
   const month = ticker?.substring(1, 2);
   const date = ticker?.substring(2, 4);
   const year = ticker?.substring(4, 6);
 
-  if (equityType === "Option") {
-    tradeDirection = ticker?.substring(5, 7);
-  } else {
-    tradeDirection =
-      tradeDirection !== "" && tradeDirection === "BTO" ? "C" : "P";
-  }
+  tradeDirection = tradeDirection !== '' && tradeDirection === 'BTO' ? 'C' : 'P'
 
   const strikePrice = ticker?.substring(6);
   const expiryDate = `${month}/${date}/${year}`;
@@ -73,11 +69,11 @@ export function TradeWidget({
   const crTime = moment(updatedAt).format("hh:mm A");
 
   return (
-    <div className={`card card-flush ${className} bg-muted`}>
-      <div className="p-2 pb-0 d-flex align-items-center justify-content-between w-xl-75">
-        <div className="d-flex align-items-center gap-3">
-          <div className="text-white-gray-600 fw-bolder fs-2">
-            {equityType === "Forex" ? getForexTicker(tickerName) : tickerName}
+    <div className={`card card-flush ${className} bg-muted h-lg-100px`}>
+      <div className='p-2 pb-0 d-flex align-items-center justify-content-between w-xl-75'>
+        <div className='d-flex align-items-center gap-3'>
+          <div className='text-white-gray-600 fw-bolder fs-2'>
+            {equityType === 'Forex' ? getForexTicker(tickerName) : tickerName}
           </div>
           <img
             alt="Trade Icon"
@@ -90,9 +86,15 @@ export function TradeWidget({
           />
         </div>
 
-        <div className="fw-bold">
-          <div className="text-success">BOUGHT</div>
-          <div className="text-warning">OPTION</div>
+        <div className='fw-bold'>
+          <div
+            className={
+              transactionType === 'Debit' ? 'text-success' : 'text-danger'
+            }
+          >
+            {transactionType === 'Debit' ? 'BOUGHT' : 'SOLD'}
+          </div>
+          <div className='text-warning text-uppercase'>{equityType}</div>
         </div>
 
         <div className="d-flex align-items-center fw-bold fs-8">
