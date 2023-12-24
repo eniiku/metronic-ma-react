@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios, { AxiosResponse } from 'axios'
+import { getFromCookies } from '../lib/utils'
 
 const api = axios.create({
   // baseURL: 'https://api.marketaction.net/api',
   baseURL: 'http://localhost:3000/api',
 })
 
-const BEARER_TOKEN =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NTdiNWQ0YThmM2YzODE4MmY1NzhkOWEiLCJlbWFpbCI6Im9sYW1pZG90dW4yMjVAZ21haWwuY29tIiwidWlkIjoiNm9WbHUzT2tXZVVtempqVmJxOXc2cVFqamtSMiIsInVzZXJuYW1lIjpudWxsLCJwcm9maWxlUGljdHVyZSI6bnVsbCwicGhvbmVOdW1iZXIiOm51bGwsImZpcmViYXNlVXNlcklkIjoiNm9WbHUzT2tXZVVtempqVmJxOXc2cVFqamtSMiIsInBsYXRmb3JtIjoiIiwiZmNtVG9rZW4iOiIiLCJpYXQiOjE3MDMzMTcyODIsImV4cCI6MTcwMzkyMjA4Mn0.PrJgeZ9EqJKlngSqrOVc501EZ3sFXLp9byVBb3yyCO0'
+const BEARER_TOKEN = getFromCookies()?.api_token
+console.log(BEARER_TOKEN)
 
 export const fetchAllUsers = async (): Promise<any> => {
   try {

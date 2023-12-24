@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import { AuthModel } from '../app/modules/auth'
 
 export const getTradePrice = (
   equityType: string,
@@ -67,4 +68,24 @@ export function calculateDifference(
     ).toFixed(2),
     // profitOrLoss: priceDiff.includes("-") ? priceDiff.replace("-", "") : priceDiff
   }
+}
+
+// Save to Cookies
+export const saveToCookies = (auth: AuthModel) => {
+  document.cookie = `auth=${JSON.stringify(auth)}; secure; samesite=strict`
+  console.log('Saved to cookies')
+}
+
+// Get from Cookies
+export const getFromCookies = (): AuthModel | undefined => {
+  const name = 'auth='
+  const decodedCookie = decodeURIComponent(document.cookie)
+  const cookieParts = decodedCookie.split(';')
+  for (let i = 0; i < cookieParts.length; i++) {
+    const part = cookieParts[i].trim()
+    if (part.indexOf(name) === 0) {
+      return JSON.parse(part.substring(name.length, part.length))
+    }
+  }
+  return undefined
 }
