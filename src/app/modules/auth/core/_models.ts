@@ -48,4 +48,5 @@ export interface UserModel {
   username: string
   email: string
   firebaseUserId: string
+  pic: string
 }

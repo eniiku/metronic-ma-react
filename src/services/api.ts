@@ -3,8 +3,7 @@ import axios, { AxiosResponse } from 'axios'
 import { getFromCookies } from '../lib/utils'
 
 const api = axios.create({
-  // baseURL: 'https://api.marketaction.net/api',
-  baseURL: 'http://localhost:3000/api',
+  baseURL: 'http://localhost:3100/api',
 })
 
 const BEARER_TOKEN = getFromCookies()?.api_token

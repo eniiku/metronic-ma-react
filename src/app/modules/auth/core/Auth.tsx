@@ -87,11 +87,18 @@ const AuthInit: FC<WithChildren> = ({ children }) => {
   // We should request user by authToken (IN OUR EXAMPLE IT'S API_TOKEN) before rendering the application
   useEffect(() => {
     const requestUser = async (apiToken: string) => {
+      console.log('requestUser', apiToken)
       try {
         if (!currentUser) {
           const { data } = await getUserByToken(apiToken)
           if (data) {
-            setCurrentUser(data)
+            setCurrentUser({
+              id: data.data.id,
+              username: data.data.username,
+              email: data.data.email,
+              firebaseUserId: data.data.firebaseUserId,
+              pic: data.data.profilePicture,
+            })
           }
         }
       } catch (error) {

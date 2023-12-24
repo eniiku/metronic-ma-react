@@ -52,6 +52,7 @@ export function Registration() {
         username: data.data.data.username,
         email: data.data.data.email,
         firebaseUserId: data.data.data.firebaseUserId,
+        pic: data.data.data.profilePicture,
       });
     } catch (error) {
       console.error(error);
