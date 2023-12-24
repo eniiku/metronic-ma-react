@@ -38,7 +38,6 @@ const MasterLayout = () => {
             >
               <div className='d-flex flex-column flex-column-fluid'>
                 {/* <ToolbarWrapper /> */}
-                <div className='h-15px'></div>
                 <Content>
                   <Outlet />
                 </Content>
