@@ -1,8 +1,9 @@
 import clsx from 'clsx'
 import { useState } from 'react'
 import { KTIcon } from '../../../../helpers'
-import { CreateAppModal, Dropdown1 } from '../../../../partials'
+import { CreateAppModal } from '../../../../partials'
 import { useLayout } from '../../../core'
+import { DropdownCustom } from '../../../../partials/content/dropdown/DropdownCustom'
 
 const ToolbarCustom = () => {
   const { config } = useLayout()
@@ -30,7 +31,8 @@ const ToolbarCustom = () => {
             <KTIcon iconName='filter' className='fs-6 text-muted me-1' />
             Filter
           </a>
-          <Dropdown1 />
+
+          <DropdownCustom />
         </div>
       )}
 
