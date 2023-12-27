@@ -23,8 +23,6 @@ const Search: FC = () => {
 
     // Updated list with filtered data
     setFilteredUsers(filteredData)
-    console.log('SearchTerm', searchTerm)
-    console.log('filteredUsers', filteredUsers)
 
     // Show/hide results and error based on filtered data
     if (filteredData && filteredData.length > 0) {
