@@ -1,6 +1,12 @@
-import { FC } from 'react'
+import { FC, useState } from 'react'
 import { KTIcon } from '../../../helpers'
 import { TradeWidgetCustom2 } from './TradeWidgetCustom2'
+import { useQuery } from 'react-query'
+import {
+  fetchWallPostsDetails,
+  handleLikeWallPost,
+} from '../../../../services/api'
+import { useAuth } from '../../../../app/modules/auth'
 // import { Dropdown1 } from '../../content/dropdown/Dropdown1'
 
 type Props = {
@@ -9,6 +15,31 @@ type Props = {
 }
 
 export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
+  const { data: wallpostDetails } = useQuery(
+    'wallpostDetails',
+    () => fetchWallPostsDetails(data._id), // Pass the wallpostId as a parameter
+    {
+      enabled: !!data._id, // Enable the query only when data._id is truthy
+    }
+  )
+
+  const { currentUser } = useAuth()
+
+  const [isLiked, setIsLiked] = useState(
+    wallpostDetails?.data.likes.includes(currentUser?.username)
+  )
+
+  const handleLikeClick = async () => {
+    try {
+      await handleLikeWallPost(data?._id)
+      // Refresh the post details after a like
+      // refetch()
+      setIsLiked(!isLiked) // Toggle the like status
+    } catch (error) {
+      console.error('Error liking post', error)
+    }
+  }
+
   return (
     <div className={`card ${className}`}>
       {/* begin::Body */}
@@ -86,16 +117,18 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
               className='btn btn-sm btn-light btn-color-muted btn-active-light-success px-4 py-2 me-4'
             >
               <KTIcon iconName='message-text-2' className='fs-3' />
-              89
+              {wallpostDetails?.data.comments.length}
             </a>
 
-            <a
-              href='#'
-              className='btn btn-sm btn-light btn-color-muted btn-active-light-danger px-4 py-2'
+            <button
+              onClick={handleLikeClick}
+              className={`btn btn-sm btn-light btn-color-muted btn-active-light-danger px-4 py-2 ${
+                isLiked ? 'btn-active-light-danger' : ''
+              }`}
             >
               <KTIcon iconName='heart' className='fs-2' />
-              29
-            </a>
+              {wallpostDetails?.data.likes.length}
+            </button>
           </div>
           {/* end::Toolbar */}
         </div>

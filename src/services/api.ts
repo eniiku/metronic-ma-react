@@ -54,7 +54,7 @@ export const fetchAllTradeSummary = async (): Promise<any> => {
     )
     return response.data
   } catch (error) {
-    throw new Error('Error fetching users')
+    throw new Error('Error fetching all trade summary')
   }
 }
 
@@ -71,7 +71,7 @@ export const fetchStatistics = async (): Promise<any> => {
     })
     return response.data
   } catch (error) {
-    throw new Error('Error fetching users')
+    throw new Error('Error fetching statistics')
   }
 }
 
@@ -92,7 +92,7 @@ export const fetchUserTradeSummary = async (): Promise<any> => {
     )
     return response.data
   } catch (error) {
-    throw new Error('Error fetching users')
+    throw new Error('Error fetching users trade summary')
   }
 }
 
@@ -109,7 +109,38 @@ export const fetchWallPosts = async (): Promise<any> => {
     })
     return response.data
   } catch (error) {
-    throw new Error('Error fetching users')
+    throw new Error('Error fetching wallposts')
+  }
+}
+
+export const fetchWallPostsDetails = async (
+  wallpostId: string
+): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.get(`/wallposts/${wallpostId}`, {
+      headers: {
+        Authorization: `Bearer ${BEARER_TOKEN}`,
+      },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error('Error fetching Wallpost details')
+  }
+}
+
+export const handleLikeWallPost = async (wallpostId: string): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.put(
+      `/wallposts/${wallpostId}/likes/likeUnlikePost`,
+      {
+        headers: {
+          Authorization: `Bearer ${BEARER_TOKEN}`,
+        },
+      }
+    )
+    return response.data
+  } catch (error) {
+    throw new Error('Failed to like wall post ')
   }
 }
 
