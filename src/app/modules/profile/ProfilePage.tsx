@@ -3,8 +3,8 @@ import { ProfileHeader } from './ProfileHeader'
 // import custom components
 import TradeLog from './components/custom/TradeLog'
 import Performance from './components/custom/Performance'
-import WallPost from '../../pages/custom/WallPost'
 import Profile from './components/custom/Profile'
+import UserWallPost from './components/custom/UserWallPost'
 
 const ProfilePage = () => (
   <Routes>
@@ -19,7 +19,7 @@ const ProfilePage = () => (
       <Route index element={<Profile />} />
       <Route path='log' element={<TradeLog />} />
       <Route path='performance' element={<Performance />} />
-      <Route path='wall-post' element={<WallPost />} />
+      <Route path='wall-post' element={<UserWallPost />} />
     </Route>
   </Routes>
 )
