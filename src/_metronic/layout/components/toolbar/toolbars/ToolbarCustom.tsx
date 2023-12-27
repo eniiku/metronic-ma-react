@@ -1,9 +1,9 @@
 import clsx from 'clsx'
 import { useState } from 'react'
 import { KTIcon } from '../../../../helpers'
-import { CreateAppModal } from '../../../../partials'
 import { useLayout } from '../../../core'
 import { DropdownCustom } from '../../../../partials/content/dropdown/DropdownCustom'
+import { CustomModal } from '../../../../partials/modals/create-app-stepper/CustomModal'
 
 const ToolbarCustom = () => {
   const { config } = useLayout()
@@ -65,7 +65,7 @@ const ToolbarCustom = () => {
           Post Idea
         </a>
       )}
-      <CreateAppModal
+      <CustomModal
         show={showCreateAppModal}
         handleClose={() => setShowCreateAppModal(false)}
       />

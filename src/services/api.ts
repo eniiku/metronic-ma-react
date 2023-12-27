@@ -3,11 +3,11 @@ import axios, { AxiosResponse } from 'axios'
 import { getFromCookies } from '../lib/utils'
 
 const api = axios.create({
-  baseURL: 'http://localhost:3100/api',
+  // baseURL: 'http://localhost:3100/api',
+  baseURL: 'http://localhost:3000/api',
 })
 
 const BEARER_TOKEN = getFromCookies()?.api_token
-console.log(BEARER_TOKEN)
 
 export const fetchAllUsers = async (): Promise<any> => {
   try {
@@ -123,6 +123,35 @@ export const fetchCumulativeStats = async (): Promise<any> => {
       //   page: 1,
       //   limit: 10,
       // },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error('Error fetching users')
+  }
+}
+
+export const postTrades = async (message: string): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.post('/trades/post-trades-data', {
+      headers: {
+        Authorization: `Bearer ${BEARER_TOKEN}`,
+      },
+      params: {
+        message: message,
+      },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error('Failed to send trade idea')
+  }
+}
+
+export const fetchNotifications = async (): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.get('/profile/notifications', {
+      headers: {
+        Authorization: `Bearer ${BEARER_TOKEN}`,
+      },
     })
     return response.data
   } catch (error) {
