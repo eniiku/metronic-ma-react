@@ -1,14 +1,12 @@
-
-
-import {useState, useEffect} from 'react'
-import {useFormik} from 'formik'
+import { useState, useEffect } from 'react'
+import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import clsx from 'clsx'
-import {getUserByToken, loginWithGoogle, register} from '../core/_requests'
-import {Link} from 'react-router-dom'
-import {toAbsoluteUrl} from '../../../../_metronic/helpers'
-import {PasswordMeterComponent} from '../../../../_metronic/assets/ts/components'
-import {useAuth} from '../core/Auth'
+import { getUserByToken, loginWithGoogle, register } from '../core/_requests'
+import { Link } from 'react-router-dom'
+import { toAbsoluteUrl } from '../../../../_metronic/helpers'
+import { PasswordMeterComponent } from '../../../../_metronic/assets/ts/components'
+import { useAuth } from '../core/Auth'
 
 const initialValues = {
   username: '',
@@ -34,46 +32,44 @@ const registrationSchema = Yup.object().shape({
 
 export function Registration() {
   const [loading, setLoading] = useState(false)
-  const {saveAuth, setCurrentUser} = useAuth()
-
+  const { saveAuth, setCurrentUser } = useAuth()
 
   const signInWithGoogle = async () => {
     try {
-      const auth = await loginWithGoogle();
+      const auth = await loginWithGoogle()
       const newAuth = {
         api_token: auth ? auth : '',
         refreshToken: '',
       }
       saveAuth(newAuth)
-      const data = await getUserByToken(auth ? auth : '');
-      console.log(data);
+      const data = await getUserByToken(auth ? auth : '')
+      console.log(data)
       setCurrentUser({
-        id: data.data.data.id,
+        id: data.data.data._id,
         username: data.data.data.username,
         email: data.data.data.email,
         firebaseUserId: data.data.data.firebaseUserId,
         pic: data.data.data.profilePicture,
-      });
+      })
     } catch (error) {
-      console.error(error);
-      saveAuth(undefined);
+      console.error(error)
+      saveAuth(undefined)
     }
   }
-
 
   const formik = useFormik({
     initialValues,
     validationSchema: registrationSchema,
-    onSubmit: async (values, {setStatus, setSubmitting}) => {
+    onSubmit: async (values, { setStatus, setSubmitting }) => {
       setLoading(true)
       try {
-        const {data: auth} = await register(
+        const { data: auth } = await register(
           values.email,
           values.username,
-          values.password,
+          values.password
         )
         saveAuth(auth)
-        const {data: user} = await getUserByToken(auth.api_token)
+        const { data: user } = await getUserByToken(auth.api_token)
         setCurrentUser(user)
       } catch (error) {
         console.error(error)
@@ -111,7 +107,7 @@ export function Registration() {
           {/* begin::Google link */}
           <a
             onClick={() => {
-              signInWithGoogle();
+              signInWithGoogle()
             }}
             className='btn btn-flex btn-outline btn-text-gray-700 btn-active-color-primary bg-state-light flex-center text-nowrap w-100'
           >
@@ -129,12 +125,16 @@ export function Registration() {
       {/* end::Login options */}
 
       <div className='separator separator-content my-14'>
-        <span className='w-125px text-gray-500 fw-semibold fs-7'>Or with email</span>
+        <span className='w-125px text-gray-500 fw-semibold fs-7'>
+          Or with email
+        </span>
       </div>
 
       {/* begin::Form group Firstname */}
       <div className='fv-row mb-8'>
-        <label className='form-label fw-bolder text-gray-900 fs-6'>Username</label>
+        <label className='form-label fw-bolder text-gray-900 fs-6'>
+          Username
+        </label>
         <input
           placeholder='Username'
           type='text'
@@ -170,7 +170,7 @@ export function Registration() {
           {...formik.getFieldProps('email')}
           className={clsx(
             'form-control bg-transparent',
-            {'is-invalid': formik.touched.email && formik.errors.email},
+            { 'is-invalid': formik.touched.email && formik.errors.email },
             {
               'is-valid': formik.touched.email && !formik.errors.email,
             }
@@ -189,7 +189,9 @@ export function Registration() {
       {/* begin::Form group Password */}
       <div className='fv-row mb-8' data-kt-password-meter='true'>
         <div className='mb-1'>
-          <label className='form-label fw-bolder text-gray-900 fs-6'>Password</label>
+          <label className='form-label fw-bolder text-gray-900 fs-6'>
+            Password
+          </label>
           <div className='position-relative mb-3'>
             <input
               type='password'
@@ -199,10 +201,12 @@ export function Registration() {
               className={clsx(
                 'form-control bg-transparent',
                 {
-                  'is-invalid': formik.touched.password && formik.errors.password,
+                  'is-invalid':
+                    formik.touched.password && formik.errors.password,
                 },
                 {
-                  'is-valid': formik.touched.password && !formik.errors.password,
+                  'is-valid':
+                    formik.touched.password && !formik.errors.password,
                 }
               )}
             />
@@ -242,7 +246,7 @@ export function Registration() {
         >
           {!loading && <span className='indicator-label'>Submit</span>}
           {loading && (
-            <span className='indicator-progress' style={{display: 'block'}}>
+            <span className='indicator-progress' style={{ display: 'block' }}>
               Please wait...{' '}
               <span className='spinner-border spinner-border-sm align-middle ms-2'></span>
             </span>
