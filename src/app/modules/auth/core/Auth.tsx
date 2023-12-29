@@ -93,7 +93,7 @@ const AuthInit: FC<WithChildren> = ({ children }) => {
           const { data } = await getUserByToken(apiToken)
           if (data) {
             setCurrentUser({
-              id: data.data.id,
+              id: data.data._id,
               username: data.data.username,
               email: data.data.email,
               firebaseUserId: data.data.firebaseUserId,

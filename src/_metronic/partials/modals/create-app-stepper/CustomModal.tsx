@@ -25,7 +25,6 @@ export const CustomModal = ({ show, handleClose }: Props) => {
 
     try {
       // Make a POST request using Axios
-      postTrades(message)
       await postTrades(message)
 
       // Close the modal

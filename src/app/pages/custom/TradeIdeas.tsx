@@ -16,9 +16,8 @@ const TradeIdeas = () => {
           <div>Loading...</div>
         ) : (
           trades?.data.summary_data.map((trade: any) => (
-            <div>
+            <div key={trade?._id}>
               <TradeWidget
-                key={trade?._id}
                 data={trade}
                 className='card-xl-stretch mb-xl-8 justify-content-between gap-xl-5 flex-xl-row align-items-xl-center'
               />
