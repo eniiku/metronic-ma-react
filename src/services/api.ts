@@ -7,7 +7,7 @@ const api = axios.create({
   baseURL: 'http://localhost:3000/api',
 })
 
-const BEARER_TOKEN = getFromCookies()?.api_token
+const BEARER_TOKEN = getFromCookies()?.api_token as string
 
 export const fetchAllUsers = async (): Promise<any> => {
   try {
@@ -32,13 +32,16 @@ export const fetchUserData = async (id: string): Promise<any> => {
         firebaseUserId: id,
       },
     })
+    console.log(response.data)
     return response.data
   } catch (error) {
     throw new Error('Error fetching users')
   }
 }
 
-export const fetchAllTradeSummary = async (): Promise<any> => {
+export const fetchAllTradeSummary = async (
+  filterParams?: object
+): Promise<any> => {
   try {
     const response: AxiosResponse = await api.get(
       '/trades/get-all-summary-data',
@@ -47,6 +50,7 @@ export const fetchAllTradeSummary = async (): Promise<any> => {
           Authorization: `Bearer ${BEARER_TOKEN}`,
         },
         params: {
+          ...filterParams,
           page: 1,
           limit: 10,
         },
@@ -131,7 +135,7 @@ export const fetchWallPostsDetails = async (
 export const handleLikeWallPost = async (wallpostId: string): Promise<any> => {
   try {
     const response: AxiosResponse = await api.put(
-      `/wallposts/${wallpostId}/likes/likeUnlikePost`,
+      `/wallposts/${wallpostId}/likes/likeUnLikePost`,
       {
         headers: {
           Authorization: `Bearer ${BEARER_TOKEN}`,
@@ -163,14 +167,22 @@ export const fetchCumulativeStats = async (): Promise<any> => {
 
 export const postTrades = async (message: string): Promise<any> => {
   try {
-    const response: AxiosResponse = await api.post('/trades/post-trades-data', {
-      headers: {
-        Authorization: `Bearer ${BEARER_TOKEN}`,
-      },
-      params: {
+    const response: AxiosResponse = await api.post(
+      '/trades/post-trades-data',
+      {
         message: message,
+        // channelId: 'any',
+        // guildId: 'any',
+        // discordId: 'any',
+        // platform: 'any',
       },
-    })
+      {
+        headers: {
+          Authorization: `Bearer ${BEARER_TOKEN}`,
+        },
+      }
+    )
+    console.log('API: poat', BEARER_TOKEN)
     return response.data
   } catch (error) {
     throw new Error('Failed to send trade idea')
