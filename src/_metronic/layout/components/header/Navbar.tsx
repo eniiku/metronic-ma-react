@@ -18,6 +18,7 @@ const btnIconClass = 'fs-2'
 const Navbar = () => {
   // const { config } = useLayout()
   const { currentUser, logout } = useAuth()
+
   return (
     <div className='app-navbar flex-shrink-0'>
       <div className={clsx('app-navbar-item align-items-stretch', itemClass)}>
@@ -65,7 +66,13 @@ const Navbar = () => {
           data-kt-menu-attach='parent'
           data-kt-menu-placement='bottom-end'
         >
-          <img src={currentUser?.pic ? `${currentUser.pic}` : toAbsoluteUrl('media/avatars/300-3.jpg')} alt='' />
+          {currentUser?.pic ? (
+            <img alt='User profile picture' src={currentUser.pic} />
+          ) : (
+            <div className='symbol-label fs-3 fw-bold bg-info text-inverse-info'>
+              {currentUser?.username.slice(0, 1)}
+            </div>
+          )}
         </div>
         <HeaderUserMenu />
       </div>

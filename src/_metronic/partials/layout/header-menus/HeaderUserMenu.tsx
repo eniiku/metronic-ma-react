@@ -1,7 +1,6 @@
 import { FC } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../../../app/modules/auth'
-import { toAbsoluteUrl } from '../../../helpers'
 
 const HeaderUserMenu: FC = () => {
   const { currentUser, logout } = useAuth()
@@ -15,14 +14,13 @@ const HeaderUserMenu: FC = () => {
       <div className='menu-item px-3'>
         <div className='menu-content d-flex align-items-center px-3'>
           <div className='symbol symbol-50px me-5'>
-            <img
-              alt='Logo'
-              src={
-                currentUser?.pic
-                  ? `${currentUser.pic}`
-                  : toAbsoluteUrl('media/avatars/300-3.jpg')
-              }
-            />
+            {currentUser?.pic ? (
+              <img alt='User profile picture' src={currentUser.pic} />
+            ) : (
+              <div className='symbol-label fs-2 fw-bold bg-info text-inverse-info'>
+                {currentUser?.username.slice(0, 1)}
+              </div>
+            )}
           </div>
 
           <div className='d-flex flex-column'>
