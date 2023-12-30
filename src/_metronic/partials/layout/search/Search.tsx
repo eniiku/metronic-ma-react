@@ -136,14 +136,16 @@ const Search: FC = () => {
                     className='d-flex text-gray-900 text-hover-primary align-items-center mb-5'
                   >
                     <div className='symbol symbol-40px me-4'>
-                      <img
-                        src={
-                          user
-                            ? user.profilePicture
-                            : toAbsoluteUrl('media/avatars/300-6.jpg')
-                        }
-                        alt=''
-                      />
+                      {user?.profilePicture ? (
+                        <img
+                          alt={`${user.username} Profile Pictute`}
+                          src={user.profilePicture}
+                        />
+                      ) : (
+                        <div className='symbol-label fs-2 fw-bold bg-info text-inverse-info'>
+                          {user.username.slice(0, 1)}
+                        </div>
+                      )}
                     </div>
 
                     <div className='d-flex flex-column justify-content-start fw-bold'>
