@@ -274,3 +274,50 @@ export const fetchNotifications = async (): Promise<any> => {
     throw new Error('Error fetching users')
   }
 }
+
+export const followUser = async (userId: string): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.post(
+      '/user/follow',
+      { follow_id: userId },
+      {
+        headers: {
+          Authorization: `Bearer ${BEARER_TOKEN}`,
+        },
+      }
+    )
+    return response.data
+  } catch (error) {
+    throw new Error('Error fetching users')
+  }
+}
+
+export const unFollowUser = async (userId: string): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.post(
+      '/user/unfollow',
+      { follow_id: userId },
+      {
+        headers: {
+          Authorization: `Bearer ${BEARER_TOKEN}`,
+        },
+      }
+    )
+    return response.data
+  } catch (error) {
+    throw new Error('Error fetching users')
+  }
+}
+
+export const fetchFollowingUserList = async (): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.get('/user/get-following-users', {
+      headers: {
+        Authorization: `Bearer ${BEARER_TOKEN}`,
+      },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error('Error fetching users')
+  }
+}

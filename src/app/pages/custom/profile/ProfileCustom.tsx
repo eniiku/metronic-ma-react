@@ -96,7 +96,7 @@ const ProfileCustom: React.FC<{ userId: string }> = ({ userId }) => {
             trades.data.summary_data
               .slice(0, 2)
               .map((trade: any, index: number) => (
-                <div className='col-6 col-xl-12'>
+                <div key={trade._id} className='col-6 col-xl-12'>
                   <TradeWidget
                     key={trade._id ? trade._id : index}
                     data={trade}
