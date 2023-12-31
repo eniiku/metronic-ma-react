@@ -180,6 +180,64 @@ export const fetchAdditionalStats = async (userId?: string): Promise<any> => {
   }
 }
 
+export const fetchTradeDirectionStats = async (
+  userId?: string
+): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.get(
+      '/statistics/trade-direction',
+      {
+        headers: {
+          Authorization: `Bearer ${BEARER_TOKEN}`,
+        },
+        params: {
+          userId: userId,
+        },
+      }
+    )
+    return response.data
+  } catch (error) {
+    throw new Error('Error fetching users')
+  }
+}
+
+export const fetchAssetsTradedStats = async (userId: string): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.get('/statistics/assets-trade', {
+      headers: {
+        Authorization: `Bearer ${BEARER_TOKEN}`,
+      },
+      params: {
+        user_id: userId,
+      },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error('Error fetching users')
+  }
+}
+
+export const fetchFrequentlyTradedStats = async (
+  userId?: string
+): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.get(
+      '/statistics/frequently-traded-tickers',
+      {
+        headers: {
+          Authorization: `Bearer ${BEARER_TOKEN}`,
+        },
+        params: {
+          userId: userId,
+        },
+      }
+    )
+    return response.data
+  } catch (error) {
+    throw new Error('Error fetching users')
+  }
+}
+
 export const postTrades = async (message: string): Promise<any> => {
   try {
     const response: AxiosResponse = await api.post(
