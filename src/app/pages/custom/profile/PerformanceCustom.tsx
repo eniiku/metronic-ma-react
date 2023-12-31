@@ -2,8 +2,10 @@ import { useQuery } from 'react-query'
 import {
   fetchAdditionalStats,
   fetchAllUsers,
+  fetchAssetsTradedStats,
   fetchCumulativeStats,
   fetchStatistics,
+  fetchTradeDirectionStats,
 } from '../../../../services/api'
 import { MixedWidgetCustom } from '../../../../_metronic/partials/widgets/custom/MixedWidgetCustom'
 import { TablesWidgetCustom } from '../../../../_metronic/partials/widgets/custom/TableWidgetCustom'
@@ -11,14 +13,14 @@ import { StatisticsWidget5 } from '../../../../_metronic/partials/widgets'
 import moment from 'moment'
 import { ChartsWidgetCustom } from '../../../../_metronic/partials/widgets/charts/ChartsWidgetCustom'
 
-type AdditionalProps = {
-  profitableWeeksPercentage: {
-    formatted: string
-    value: number
-  }
-  avgTradesPerWeek: number
-  avgHoldingTimeDays: number
-}
+// type AdditionalProps = {
+//   profitableWeeksPercentage: {
+//     formatted: string
+//     value: number
+//   }
+//   avgTradesPerWeek: number
+//   avgHoldingTimeDays: number
+// }
 
 const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
   const {
@@ -33,7 +35,21 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
     isError: isAdditionalError,
   } = useQuery('additionalStats', () => fetchAdditionalStats(userId))
 
-  console.log('Additional', additionalStats)
+  const {
+    data: tradeDirectionStats,
+    isLoading: istradeDirectionLoading,
+    isError: istradeDirectionError,
+  } = useQuery('tradeDirectionStats', () => fetchTradeDirectionStats(userId))
+
+  const {
+    data: assetsTradedStats,
+    isLoading: isAssetTradedLoading,
+    isError: isAssetTradedError,
+  } = useQuery('assetsTradedStats', () => fetchAssetsTradedStats(userId))
+
+  const assetsTradedStatsData = assetsTradedStats?.data.assetTrades
+
+  console.log('Assets', assetsTradedStats)
 
   // Get current displayed user info
   const { data: users } = useQuery('users', fetchAllUsers)
@@ -46,6 +62,36 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
   // console.log('CumulativeStats: ', CumulativeStats)
   return (
     <>
+      {/* Assets Traded */}
+      {isAssetTradedLoading ? (
+        <div>Loading...</div>
+      ) : isAssetTradedError ? (
+        <div>Error fetching additional statistics</div>
+      ) : (
+        <ChartsWidgetCustom
+          className='mb-8'
+          title='Trade Direction'
+          seriesData={[
+            {
+              name: 'Crypto',
+              data: [assetsTradedStatsData.cryptoValue.toFixed(2)],
+            },
+            {
+              name: 'Forex',
+              data: [assetsTradedStatsData.forexValue.toFixed(2)],
+            },
+            {
+              name: 'Option',
+              data: [assetsTradedStatsData.optionValue.toFixed(2)],
+            },
+            {
+              name: 'Stock',
+              data: [assetsTradedStatsData.stockValue.toFixed(2)],
+            },
+          ]}
+        />
+      )}
+
       {isLoading ? (
         <div>Loading...</div>
       ) : isError ? (
@@ -54,12 +100,33 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
         <TablesWidgetCustom className='mb-8' data={statistics.data} />
       )}
 
+      {/* Trade Direction */}
+      {istradeDirectionLoading ? (
+        <div>Loading...</div>
+      ) : istradeDirectionError ? (
+        <div>Error fetching additional statistics</div>
+      ) : (
+        <ChartsWidgetCustom
+          className='mb-8'
+          title='Trade Direction'
+          seriesData={[
+            {
+              name: 'Long',
+              data: [tradeDirectionStats.data.longPercentage.value],
+            },
+            {
+              name: 'Short',
+              data: [tradeDirectionStats.data.shortPercentage.value],
+            },
+          ]}
+        />
+      )}
+
       {/*  Additional Stats */}
       <div className='card card-flush'>
         <div className='card-header'>
           <h1 className='card-title fw-bold fs-3 mb-1'>Additional Stats</h1>
         </div>
-
         {/* begin::Row */}
         {isAdditionalLoading ? (
           <div>Loading...</div>
@@ -134,7 +201,6 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
             </div>
           </div>
         )}
-
         {/* end::Row */}
       </div>
     </>
