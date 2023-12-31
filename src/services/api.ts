@@ -62,16 +62,15 @@ export const fetchAllTradeSummary = async (
   }
 }
 
-export const fetchStatistics = async (): Promise<any> => {
+export const fetchStatistics = async (userId?: string): Promise<any> => {
   try {
     const response: AxiosResponse = await api.get('/statistics', {
       headers: {
         Authorization: `Bearer ${BEARER_TOKEN}`,
       },
-      // params: {
-      //   page: 1,
-      //   limit: 10,
-      // },
+      params: {
+        userId: userId,
+      },
     })
     return response.data
   } catch (error) {
@@ -79,7 +78,7 @@ export const fetchStatistics = async (): Promise<any> => {
   }
 }
 
-export const fetchUserTradeSummary = async (): Promise<any> => {
+export const fetchUserTradeSummary = async (id?: string): Promise<any> => {
   try {
     const response: AxiosResponse = await api.get(
       '/trades/get-user-summary-data',
@@ -88,7 +87,7 @@ export const fetchUserTradeSummary = async (): Promise<any> => {
           Authorization: `Bearer ${BEARER_TOKEN}`,
         },
         params: {
-          user_id: '657b5d4a8f3f38182f578d9a',
+          user_id: id,
           page: 1,
           limit: 10,
         },
@@ -158,6 +157,22 @@ export const fetchCumulativeStats = async (): Promise<any> => {
       //   page: 1,
       //   limit: 10,
       // },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error('Error fetching users')
+  }
+}
+
+export const fetchAdditionalStats = async (userId?: string): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.get('/statistics/additional', {
+      headers: {
+        Authorization: `Bearer ${BEARER_TOKEN}`,
+      },
+      params: {
+        userId: userId,
+      },
     })
     return response.data
   } catch (error) {
