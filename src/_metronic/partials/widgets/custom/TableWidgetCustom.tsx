@@ -1,5 +1,4 @@
 import React from 'react'
-import { KTIcon, toAbsoluteUrl } from '../../../helpers'
 
 type DataProps = {
   assetName: string
@@ -18,6 +17,14 @@ type Props = {
 }
 
 export const TablesWidgetCustom: React.FC<Props> = ({ className, data }) => {
+  const getTextColor = (value: number) => {
+    return value > 0
+      ? 'text-success'
+      : value < 0
+      ? 'text-danger'
+      : 'text-gray-900'
+  }
+
   return (
     <div className={`card ${className}`}>
       {/* begin::Header */}
@@ -54,32 +61,48 @@ export const TablesWidgetCustom: React.FC<Props> = ({ className, data }) => {
               {data.map((item) => (
                 <tr key={item.assetName}>
                   <td>
-                    <div className='text-gray-900 fw-bold text-hover-primary mb-1 fs-6'>
+                    <div className=' fw-bold text-hover-primary mb-1 fs-6'>
                       {item.assetName}
                     </div>
                   </td>
                   <td>
-                    <div className='text-gray-900 fw-bold text-hover-primary mb-1 fs-6'>
+                    <div className=' fw-bold text-hover-primary mb-1 fs-6'>
                       {item.trades}
                     </div>
                   </td>
                   <td>
-                    <div className='text-gray-900 fw-bold text-hover-primary mb-1 fs-6'>
+                    <div
+                      className={` fw-bold text-hover-primary mb-1 fs-6 ${getTextColor(
+                        item.averageLoss.value
+                      )}`}
+                    >
                       {item.averageLoss.formatted}
                     </div>
                   </td>
                   <td>
-                    <div className='text-gray-900 fw-bold text-hover-primary mb-1 fs-6'>
+                    <div
+                      className={`fw-bold text-hover-primary mb-1 fs-6 ${getTextColor(
+                        item.averageProfit.value
+                      )}`}
+                    >
                       {item.averageProfit.formatted}
                     </div>
                   </td>
                   <td>
-                    <div className='text-gray-900 fw-bold text-hover-primary mb-1 fs-6'>
+                    <div
+                      className={` fw-bold text-hover-primary mb-1 fs-6 ${getTextColor(
+                        item.averageReturnPerTrade.value
+                      )}`}
+                    >
                       {item.averageReturnPerTrade.formatted}
                     </div>
                   </td>
                   <td>
-                    <div className='text-gray-900 fw-bold text-hover-primary mb-1 fs-6'>
+                    <div
+                      className={` fw-bold text-hover-primary mb-1 fs-6 ${getTextColor(
+                        item.winRate.value
+                      )}`}
+                    >
                       {item.winRate.formatted}
                     </div>
                   </td>

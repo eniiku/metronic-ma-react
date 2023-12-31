@@ -4,7 +4,6 @@ import { useAuth } from '../../../../app/modules/auth'
 
 const HeaderUserMenu: FC = () => {
   const { currentUser, logout } = useAuth()
-  console.log(currentUser?.pic)
 
   return (
     <div
