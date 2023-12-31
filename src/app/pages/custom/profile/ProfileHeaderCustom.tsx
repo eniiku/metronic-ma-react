@@ -1,20 +1,16 @@
 import { FC } from 'react'
-import { KTIcon, toAbsoluteUrl } from '../../../../_metronic/helpers'
+import { KTIcon } from '../../../../_metronic/helpers'
 import { Link, useLocation } from 'react-router-dom'
-import { useAuth } from '../../../modules/auth'
-// import { Dropdown1 } from '../../../_metronic/partials'
 
 import { useQuery } from 'react-query'
-import { fetchUserData } from '../../../../services/api'
+import { fetchAllUsers } from '../../../../services/api'
 
-const ProfileHeaderCustom: FC = () => {
+const ProfileHeaderCustom: FC<{ userId: string }> = ({ userId }) => {
   const location = useLocation()
 
-  const { currentUser } = useAuth()
+  const { data: users } = useQuery('users', fetchAllUsers)
 
-  const { data: user, isLoading } = useQuery('user', () =>
-    fetchUserData(currentUser?.firebaseUserId ?? '')
-  )
+  const currentUser = users?.data.find((user: any) => user._id === userId)
 
   return (
     <div className='card mb-5 mb-xl-10'>
@@ -22,10 +18,16 @@ const ProfileHeaderCustom: FC = () => {
         <div className='d-flex flex-wrap flex-sm-nowrap mb-3'>
           <div className='me-7 mb-4'>
             <div className='symbol symbol-100px symbol-lg-160px symbol-fixed position-relative'>
-              <img
-                src={toAbsoluteUrl('media/avatars/300-1.jpg')}
-                alt='Metornic'
-              />
+              {currentUser?.profilePicture ? (
+                <img
+                  alt='User profile picture'
+                  src={currentUser.profilePicture}
+                />
+              ) : (
+                <div className='symbol-label fs-1 fw-bold bg-info text-inverse-info'>
+                  {currentUser?.username.slice(0, 1)}
+                </div>
+              )}
               <div className='position-absolute translate-middle bottom-0 start-100 mb-6 bg-success rounded-circle border border-4 border-white h-20px w-20px'></div>
             </div>
           </div>
@@ -33,22 +35,16 @@ const ProfileHeaderCustom: FC = () => {
           <div className='flex-grow-1'>
             <div className='d-flex justify-content-between align-items-start flex-wrap mb-2'>
               <div className='d-flex flex-column'>
-                <a
-                  href='#'
-                  className='text-gray-800 text-hover-primary fs-2 fw-bolder me-1'
-                >
-                  {isLoading ? '...' : user?.data?.username}
-                </a>
-
-                <div className='d-flex flex-wrap fw-bold fs-6 mb-4 pe-2'>
-                  <a
-                    href='#'
-                    className='d-flex align-items-center text-gray-500 text-hover-primary mb-2'
-                  >
-                    <KTIcon iconName='sms' className='fs-4 me-1' />
-                    {isLoading ? '...' : user?.data?.email}
-                  </a>
+                <div className='text-gray-800 fs-2 fw-bolder me-1'>
+                  {currentUser ? currentUser.username : 'Nil'}
                 </div>
+
+                {/* <div className='d-flex flex-wrap fs-7 mb-4 pe-2 mw-350px'>
+                  <p className='d-flex align-items-center text-gray-500 mb-2'>
+                    <KTIcon iconName='sms' className='fs-4 me-1' />
+                    {currentUser ? currentUser.profileDescription : 'NIl'}
+                  </p>
+                </div> */}
               </div>
 
               <div className='d-flex my-4'>
@@ -76,9 +72,9 @@ const ProfileHeaderCustom: FC = () => {
               <Link
                 className={
                   `nav-link text-active-primary me-6 ` +
-                  (location.pathname === 'profile' && 'active')
+                  (location.pathname === `/profile/${userId}` && 'active')
                 }
-                to='/profile'
+                to={`/profile/${userId}`}
               >
                 Profile
               </Link>
@@ -87,9 +83,9 @@ const ProfileHeaderCustom: FC = () => {
               <Link
                 className={
                   `nav-link text-active-primary me-6 ` +
-                  (location.pathname === 'log' && 'active')
+                  (location.pathname === `/profile/${userId}/log` && 'active')
                 }
-                to='/profile/log'
+                to={`/profile/${userId}/log`}
               >
                 Trade Log
               </Link>
@@ -98,9 +94,10 @@ const ProfileHeaderCustom: FC = () => {
               <Link
                 className={
                   `nav-link text-active-primary me-6 ` +
-                  (location.pathname === 'performance' && 'active')
+                  (location.pathname === `/profile/${userId}/performance` &&
+                    'active')
                 }
-                to='/profile/performance'
+                to={`/profile/${userId}/performance`}
               >
                 Performance
               </Link>
@@ -109,9 +106,10 @@ const ProfileHeaderCustom: FC = () => {
               <Link
                 className={
                   `nav-link text-active-primary me-6 ` +
-                  (location.pathname === 'wall-post' && 'active')
+                  (location.pathname === `/profile/${userId}/wall-post` &&
+                    'active')
                 }
-                to='/profile/wall-post'
+                to={`/profile/${userId}/wall-post`}
               >
                 Wall Post
               </Link>
