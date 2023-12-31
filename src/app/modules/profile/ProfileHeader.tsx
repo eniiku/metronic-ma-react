@@ -36,21 +36,15 @@ const ProfileHeader: FC = () => {
           <div className='flex-grow-1'>
             <div className='d-flex justify-content-between align-items-start flex-wrap mb-2'>
               <div className='d-flex flex-column'>
-                <a
-                  href='#'
-                  className='text-gray-800 text-hover-primary fs-2 fw-bolder me-1'
-                >
+                <div className='text-gray-800 fs-2 fw-bolder me-1'>
                   {isLoading ? '...' : user?.data?.username}
-                </a>
+                </div>
 
                 <div className='d-flex flex-wrap fw-bold fs-6 mb-4 pe-2'>
-                  <a
-                    href='#'
-                    className='d-flex align-items-center text-gray-500 text-hover-primary mb-2'
-                  >
+                  <div className='d-flex align-items-center text-gray-500 mb-2'>
                     <KTIcon iconName='sms' className='fs-4 me-1' />
                     {isLoading ? '...' : user?.data?.email}
-                  </a>
+                  </div>
                 </div>
               </div>
 
