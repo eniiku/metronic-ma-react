@@ -1,20 +1,13 @@
 import { useQuery } from 'react-query'
 import { fetchWallPosts } from '../../../../services/api'
 import { FeedsWidgetCustom } from '../../../../_metronic/partials/widgets/custom/FeedWidgetCustom'
-import { useAuth } from '../../../modules/auth'
 
-const UserWallPostCustom = () => {
+const UserWallPostCustom: React.FC<{ userId: string }> = ({ userId }) => {
   const { data: posts, isLoading, isError } = useQuery('posts', fetchWallPosts)
 
-  const { currentUser } = useAuth()
-
-  const user = currentUser?.username
-
   const filteredPosts = posts?.data.results.filter(
-    (item: any) => item?.author.username === user
+    (item: any) => item?.author._id === userId
   )
-
-  console.log(filteredPosts)
   return (
     <div className='row g-5 g-xxl-8 gap-1 justify-content-center'>
       {isLoading ? (
@@ -28,10 +21,12 @@ const UserWallPostCustom = () => {
           />
         ))
       ) : isError ? (
-        <div>Error fetching user wallpost</div>
+        <div className='text-center fs-2 py-5'>
+          Error fetching user's wallpost
+        </div>
       ) : (
         <div className='text-center fs-2 py-5'>
-          You have not created any wall posts.
+          This user has not created any wall posts.
         </div>
       )}
     </div>
