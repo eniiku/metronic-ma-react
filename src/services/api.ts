@@ -149,16 +149,31 @@ export const handleLikeWallPost = async (wallpostId: string): Promise<any> => {
   }
 }
 
-export const fetchCumulativeStats = async (): Promise<any> => {
+export const fetchCumulativeStats = async (userId: string): Promise<any> => {
   try {
     const response: AxiosResponse = await api.get('/statistics/cumulative-pl', {
       headers: {
         Authorization: `Bearer ${BEARER_TOKEN}`,
       },
-      // params: {
-      //   page: 1,
-      //   limit: 10,
-      // },
+      params: {
+        userId: userId,
+      },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error('Error fetching users')
+  }
+}
+
+export const fetchAvgRiskStats = async (userId: string): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.get('/statistics/average-risk', {
+      headers: {
+        Authorization: `Bearer ${BEARER_TOKEN}`,
+      },
+      params: {
+        userId: userId,
+      },
     })
     return response.data
   } catch (error) {

@@ -3,6 +3,7 @@ import {
   fetchAdditionalStats,
   fetchAllUsers,
   fetchAssetsTradedStats,
+  fetchAvgRiskStats,
   fetchCumulativeStats,
   fetchFrequentlyTradedStats,
   fetchStatistics,
@@ -13,6 +14,8 @@ import { StatisticsWidget5 } from '../../../../_metronic/partials/widgets'
 import moment from 'moment'
 import { ChartsWidgetCustom } from '../../../../_metronic/partials/widgets/charts/ChartsWidgetCustom'
 import { StatisticsWidgetCustom } from '../../../../_metronic/partials/widgets/statistics/StatisticsWidgetCustom'
+import { useEffect, useState } from 'react'
+import { ChartsWidgetCustom1 } from '../../../../_metronic/partials/widgets/charts/ChartsWidgetCustom1'
 
 // type AdditionalProps = {
 //   profitableWeeksPercentage: {
@@ -61,12 +64,79 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
 
   const currentUser = users?.data.find((user: any) => user._id === userId)
 
-  // const { data: CumulativeStats, isLoading: isCumulativeStatsLoading } =
-  //   useQuery('cumulativeStats', fetchCumulativeStats)
+  const {
+    data: cumulativeStats,
+    isLoading: isCumulativeStatsLoading,
+    isError: isCumulativeStatsError,
+  } = useQuery('cumulativeStats', () => fetchCumulativeStats(userId))
 
-  // console.log('CumulativeStats: ', CumulativeStats)
+  const {
+    data: avgRiskStats,
+    isLoading: isAvgRiskStatsLoading,
+    isError: isAvgRiskStatsError,
+  } = useQuery('avgRiskStats', () => fetchAvgRiskStats(userId))
+
+  console.log('CumulativeStats: ', cumulativeStats)
+  console.log('AvgStats: ', avgRiskStats)
+
+  const [comData, setComData] = useState({
+    labels: [],
+    datasets: [{ data: [] }],
+  })
+
+  const [avgRiskData, setAvgRiskData] = useState({
+    labels: [],
+    datasets: [{ data: [] }],
+  })
+
+  useEffect(() => {
+    if (cumulativeStats && cumulativeStats.data.length > 0) {
+      const labels: any = []
+      const datasets: any = [{ data: [] }]
+      cumulativeStats?.data.map((x: any) => {
+        labels.push(x.key)
+        datasets[0].data.push(x?.profitOrLossDifference.value)
+      })
+
+      setComData({ labels: labels, datasets: datasets })
+    } else {
+      setComData({ labels: [], datasets: [{ data: [] }] })
+    }
+    if (avgRiskStats) {
+      const labels: any = []
+      const datasets: any = [{ data: [] }]
+      labels.push('Daily Risk')
+      labels.push('Weekly Risk')
+      labels.push('Monthly Risk')
+      labels.push('Yearly Risk')
+      datasets[0].data.push(avgRiskStats?.data.dailyRisk?.average?.value)
+      datasets[0].data.push(avgRiskStats?.data.weeklyRisk?.average?.value)
+      datasets[0].data.push(avgRiskStats?.data.monthlyRisk?.average?.value)
+      datasets[0].data.push(avgRiskStats?.data.yearlyRisk?.average?.value)
+      setAvgRiskData({ labels: labels, datasets: datasets })
+    }
+  }, [cumulativeStats, avgRiskStats])
+
+  console.log('cumulative', comData)
+  console.log('avgRiskData: ', avgRiskData)
+
   return (
     <>
+      {/* Cumulative Pl */}
+      {isCumulativeStatsLoading ? (
+        <div>Loading...</div>
+      ) : isCumulativeStatsError ? (
+        <div>Error fetching cumulative pl</div>
+      ) : (
+        <ChartsWidgetCustom1
+          className='mb-8'
+          labels={comData.labels}
+          datasets={comData.datasets}
+          title='Cumulative P&L'
+          color='--bs-info'
+        />
+      )}
+
       {/* Assets Traded */}
       {isAssetTradedLoading ? (
         <div>Loading...</div>
@@ -246,6 +316,21 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
         </div>
         {/* end::Row */}
       </div>
+
+      {/* Avg Risk */}
+      {isAvgRiskStatsLoading ? (
+        <div>Loading...</div>
+      ) : isAvgRiskStatsError ? (
+        <div>Error fetching average statistics</div>
+      ) : (
+        <ChartsWidgetCustom1
+          className='mb-8'
+          labels={avgRiskData.labels}
+          datasets={avgRiskData.datasets}
+          title='Average Risk'
+          color='--bs-danger'
+        />
+      )}
     </>
   )
 }
