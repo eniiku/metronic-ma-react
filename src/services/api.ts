@@ -134,9 +134,11 @@ export const fetchWallPostsDetails = async (
 export const handleLikeWallPost = async (wallpostId: string): Promise<any> => {
   try {
     const response: AxiosResponse = await api.put(
-      `/wallposts/${wallpostId}/likes/likeUnLikePost`,
+      `/wallposts/${wallpostId}/likes/likeUnLikePost
+      `,
       {
         headers: {
+          accept: 'application/json',
           Authorization: `Bearer ${BEARER_TOKEN}`,
         },
       }
@@ -316,6 +318,22 @@ export const fetchFollowingUserList = async (): Promise<any> => {
         Authorization: `Bearer ${BEARER_TOKEN}`,
       },
     })
+    return response.data
+  } catch (error) {
+    throw new Error('Error fetching users')
+  }
+}
+
+export const handleDeleteAllNotifications = async (): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.put(
+      '/profile/notifications/deleteAll',
+      {
+        headers: {
+          Authorization: `Bearer ${BEARER_TOKEN}`,
+        },
+      }
+    )
     return response.data
   } catch (error) {
     throw new Error('Error fetching users')

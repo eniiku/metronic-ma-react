@@ -6,14 +6,10 @@ import { ScrollTop } from './components/scroll-top'
 import { Content } from './components/content'
 import { FooterWrapper } from './components/footer'
 // import { Sidebar } from './components/sidebar'
-import {
-  ActivityDrawer,
-  DrawerMessenger,
-  InviteUsers,
-  UpgradePlan,
-} from '../partials'
+import { DrawerMessenger, InviteUsers, UpgradePlan } from '../partials'
 import { PageDataProvider } from './core'
 import { reInitMenu } from '../helpers'
+import { ActivityDrawerCustom } from '../partials/layout/activity-drawer/ActivityDrawerCustom'
 // import { ToolbarWrapper } from './components/toolbar'
 
 const MasterLayout = () => {
@@ -49,7 +45,7 @@ const MasterLayout = () => {
       </div>
 
       {/* begin:: Drawers */}
-      <ActivityDrawer />
+      <ActivityDrawerCustom />
       {/*
       -- Uncomment this to enable the right toolbar (Help & Buy Now modals)
       <RightToolbar /> */}
