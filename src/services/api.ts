@@ -260,11 +260,11 @@ export const postTrades = async (message: string): Promise<any> => {
     const response: AxiosResponse = await api.post(
       '/trades/post-trades-data',
       {
-        message: message,
-        // channelId: 'any',
-        // guildId: 'any',
-        // discordId: 'any',
-        // platform: 'any',
+        message: `${message}`,
+        channelId: 'any',
+        guildId: 'any',
+        discordId: 'any',
+        platform: 'any',
       },
       {
         headers: {
@@ -272,9 +272,10 @@ export const postTrades = async (message: string): Promise<any> => {
         },
       }
     )
-    console.log('API: poat', BEARER_TOKEN)
     return response.data
   } catch (error) {
+    console.error('Error in postTrades:', error)
+
     throw new Error('Failed to send trade idea')
   }
 }

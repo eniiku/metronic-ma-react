@@ -22,7 +22,7 @@ const ActivityDrawerCustom: FC = () => {
       data-kt-drawer-name='activities'
       data-kt-drawer-activate='true'
       data-kt-drawer-overlay='true'
-      data-kt-drawer-width="{default:'300px', 'lg': '900px'}"
+      data-kt-drawer-width="{default:'300px', 'lg': '400px'}"
       data-kt-drawer-direction='end'
       data-kt-drawer-toggle='#kt_activities_toggle'
       data-kt-drawer-close='#kt_activities_close'
@@ -54,8 +54,8 @@ const ActivityDrawerCustom: FC = () => {
             <div className='timeline'>
               {isLoading ? (
                 <div>Loading...</div>
-              ) : notificationsData.length > 0 ? (
-                notificationsData.map((notification: any) => (
+              ) : notificationsData?.length > 0 ? (
+                notificationsData?.map((notification: any) => (
                   <Item1
                     title={notification.title}
                     subtitle={notification.subtitle}
@@ -102,10 +102,7 @@ const Item1: FC<{ title: string; subtitle: string }> = ({
 
       <div className='timeline-content mb-10 mt-n1'>
         <div className='pe-3 mb-5'>
-          <div className='fs-5 fw-bold mb-2'>
-            There are 2 new tasks for you in “AirPlus Mobile APp” project:
-            {title}
-          </div>
+          <div className='fs-5 fw-bold mb-2'>{title}</div>
 
           <div className='d-flex align-items-center mt-1 fs-6'>
             <div className='text-muted me-2 fs-7'>
