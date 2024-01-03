@@ -1,20 +1,7 @@
-import clsx from 'clsx'
 import moment from 'moment'
 import _ from 'lodash'
 
-import { toAbsoluteUrl } from '../../../helpers'
-import { KTIcon } from '../../../helpers'
-import { getTradePrice, getForexTicker } from '../../../../lib/utils'
-
-// type TradeWidgetProps = {
-//   className: string
-//   data: any
-// }
-
-const itemClass = ''
-const btnClass =
-  'btn btn-icon btn-custom btn-icon-gray-600 btn-active-gray-600 btn-active-color-primary w-35px h-35px'
-const btnIconClass = 'fs-1 text-white-gray-600 -ms-5'
+import { getTradePrice } from '../../../../lib/utils'
 
 export function TradeWidget({
   className,

@@ -19,18 +19,17 @@ const DashboardPage: FC = () => {
       <div className='row gy-5 g-xl-8 mb-5 mb-xl-10'>
         {isLoading ? (
           <div>Loading...</div>
+        ) : isError ? (
+          <div>Error Loading Trades</div>
         ) : (
-          summary.data.summary_data.map((summary: any) => (
-            <div key={summary._id}>
-              <TradeWidget
-                data={summary}
-                className='card-xl-stretch mb-xl-8 justify-content-between gap-xl-5 flex-xl-row align-items-xl-center'
-              />
-            </div>
-          ))
+          <div>
+            <TradeWidget
+              data={summary?.data}
+              showTitle={true}
+              className='card-xl-stretch mb-xl-8'
+            />
+          </div>
         )}
-
-        {isError ? <div>Error Loading Trades</div> : null}
       </div>
       {/* custom end::Row */}
     </>

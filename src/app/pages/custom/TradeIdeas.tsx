@@ -7,25 +7,28 @@ const TradeIdeas = () => {
     data: trades,
     isLoading,
     isError,
-  } = useQuery('trades', fetchUserTradeSummary)
+  } = useQuery('trades', () => fetchUserTradeSummary)
 
   return (
     <div>
       <div className='row gy-5 g-xl-8 mb-5 mb-xl-10'>
         {isLoading ? (
           <div>Loading...</div>
+        ) : trades?.data?.summary_data?.length > 0 ? (
+          <div>
+            <TradeWidget
+              data={trades?.data}
+              showTitle={true}
+              className='card-xl-stretch mb-xl-8'
+            />
+          </div>
+        ) : isError ? (
+          <div>Error Loading Trades</div>
         ) : (
-          trades?.data.summary_data.map((trade: any) => (
-            <div key={trade?._id}>
-              <TradeWidget
-                data={trade}
-                className='card-xl-stretch mb-xl-8 justify-content-between gap-xl-5 flex-xl-row align-items-xl-center'
-              />
-            </div>
-          ))
+          <div className='text-center fs-2 py-5'>
+            You have not created any trades.
+          </div>
         )}
-
-        {isError ? <div>Error Loading Trades</div> : null}
       </div>
       {/* custom end::Row */}
     </div>
