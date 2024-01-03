@@ -121,9 +121,9 @@ const ProfileHeaderCustom: FC<{ userId: string }> = ({ userId }) => {
               <Link
                 className={
                   `nav-link text-active-primary me-6 ` +
-                  (location.pathname === `/profile/${userId}` && 'active')
+                  (location.pathname === `/user/${userId}` && 'active')
                 }
-                to={`/profile/${userId}`}
+                to={`/user/${userId}`}
               >
                 Profile
               </Link>
@@ -132,9 +132,9 @@ const ProfileHeaderCustom: FC<{ userId: string }> = ({ userId }) => {
               <Link
                 className={
                   `nav-link text-active-primary me-6 ` +
-                  (location.pathname === `/profile/${userId}/log` && 'active')
+                  (location.pathname === `/user/${userId}/log` && 'active')
                 }
-                to={`/profile/${userId}/log`}
+                to={`/user/${userId}/log`}
               >
                 Trade Log
               </Link>
@@ -143,10 +143,10 @@ const ProfileHeaderCustom: FC<{ userId: string }> = ({ userId }) => {
               <Link
                 className={
                   `nav-link text-active-primary me-6 ` +
-                  (location.pathname === `/profile/${userId}/performance` &&
+                  (location.pathname === `/user/${userId}/performance` &&
                     'active')
                 }
-                to={`/profile/${userId}/performance`}
+                to={`/user/${userId}/performance`}
               >
                 Performance
               </Link>
@@ -155,10 +155,10 @@ const ProfileHeaderCustom: FC<{ userId: string }> = ({ userId }) => {
               <Link
                 className={
                   `nav-link text-active-primary me-6 ` +
-                  (location.pathname === `/profile/${userId}/wall-post` &&
+                  (location.pathname === `/user/${userId}/wall-post` &&
                     'active')
                 }
-                to={`/profile/${userId}/wall-post`}
+                to={`/user/${userId}/wall-post`}
               >
                 Wall Post
               </Link>

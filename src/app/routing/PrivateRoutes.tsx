@@ -42,7 +42,7 @@ const PrivateRoutes = () => {
           }
         />
         {/* Dynamic user profile */}
-        <Route path='profile/:userId/*' element={<ProfilePageCustom />} />
+        <Route path='user/:userId/*' element={<ProfilePageCustom />} />
         <Route
           path='crafted/pages/wizards/*'
           element={

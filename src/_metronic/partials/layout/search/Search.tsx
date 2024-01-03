@@ -132,7 +132,8 @@ const Search: FC = () => {
                 {filteredUsers?.map((user: any) => (
                   <Link
                     key={user?._id}
-                    to={`/profile/${user._id}`}
+                    to={`/user/${user._id}`}
+                    data-kt-search-element='toggle'
                     className='d-flex text-gray-900 text-hover-primary align-items-center mb-5'
                   >
                     <div className='symbol symbol-40px me-4'>
