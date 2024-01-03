@@ -1,4 +1,4 @@
-import { FC, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { KTIcon } from '../../../helpers'
 import { TradeWidgetCustom2 } from './TradeWidgetCustom2'
 import { useQuery } from 'react-query'
@@ -7,6 +7,7 @@ import {
   handleLikeWallPost,
 } from '../../../../services/api'
 import { useAuth } from '../../../../app/modules/auth'
+import { initSocket } from '../../../../services/socket'
 // import { Dropdown1 } from '../../content/dropdown/Dropdown1'
 
 type Props = {
@@ -15,6 +16,35 @@ type Props = {
 }
 
 export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
+  const { currentUser } = useAuth()
+  const [isLiked, setIsLiked] = useState(
+    data.likes.some((like: any) => like.likedBy._id === currentUser?.id)
+  )
+
+  useEffect(() => {
+    const socket = initSocket()
+
+    // Listen for post-liked and post-unliked events
+    socket.on('post-liked', (likedData) => {
+      // Update the state or refetch data
+      console.log('Post liked:', likedData)
+      // Update the state to indicate that the current user liked the post
+      setIsLiked(true)
+    })
+
+    socket.on('post-unliked', (unlikedData) => {
+      // Update the state or refetch data
+      console.log('Post unliked:', unlikedData)
+      // Update the state to indicate that the current user unliked the post
+      setIsLiked(false)
+    })
+
+    return () => {
+      // Disconnect the socket when the component unmounts
+      socket.disconnect()
+    }
+  }, [])
+
   const { data: wallpostDetails } = useQuery(
     'wallpostDetails',
     () => fetchWallPostsDetails(data._id), // Pass the wallpostId as a parameter
@@ -23,19 +53,15 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
     }
   )
 
-  const { currentUser } = useAuth()
-
-  const [isLiked, setIsLiked] = useState(
-    wallpostDetails?.data.likes.includes(currentUser?.username)
-  )
-
   const handleLikeClick = async () => {
     try {
+      setIsLiked(!isLiked)
+
       await handleLikeWallPost(data?._id)
-      // Refresh the post details after a like
-      // refetch()
-      setIsLiked(!isLiked) // Toggle the like status
+
+      console.log(isLiked)
     } catch (error) {
+      setIsLiked(!isLiked)
       console.error('Error liking post', error)
     }
   }
