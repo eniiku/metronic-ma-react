@@ -11,33 +11,36 @@ import {
   followUser,
   unFollowUser,
 } from '../../../services/api'
+import _ from 'lodash'
 
 const ProfileHeader: FC = () => {
   const location = useLocation()
 
   const { currentUser } = useAuth()
 
-  const { data: user, isLoading } = useQuery('user', () =>
-    fetchUserData(currentUser?.firebaseUserId ?? '')
-  )
+  const {
+    data: user,
+    isLoading,
+    isError,
+  } = useQuery('user', () => fetchUserData(currentUser?.firebaseUserId ?? ''))
 
   const { data: followingUsersList } = useQuery(
     'followingUsersList',
     fetchFollowingUserList
   )
 
-  const isFollowingTrue = followingUsersList?.data.filter(
+  const isFollowingTrue = followingUsersList?.data?.filter(
     (user: any) => user._id === currentUser?.id
   )
 
-  const [isFollowing, setIsFollowing] = useState<boolean>(isFollowingTrue)
+  const [isFollowing, setIsFollowing] = useState<boolean>(!!isFollowingTrue)
 
   useEffect(() => {
     // Update isFollowing when userId or followingUsersList changes
-    const isFollowingTrue = followingUsersList?.data.some(
+    const isFollowingTrue = followingUsersList?.data?.some(
       (user: any) => user._id === currentUser?.id
     )
-    setIsFollowing(isFollowingTrue)
+    setIsFollowing(!!isFollowingTrue)
   }, [currentUser?.id, followingUsersList])
 
   const handleFollowClick = async () => {
@@ -80,13 +83,21 @@ const ProfileHeader: FC = () => {
             <div className='d-flex justify-content-between align-items-start flex-wrap mb-2'>
               <div className='d-flex flex-column'>
                 <div className='text-gray-800 fs-2 fw-bolder me-1'>
-                  {isLoading ? '...' : user?.data?.username}
+                  {isLoading
+                    ? '...'
+                    : isError
+                    ? 'error-er'
+                    : user?.data?.username}
                 </div>
 
                 <div className='d-flex flex-wrap fw-bold fs-6 mb-4 pe-2'>
                   <div className='d-flex align-items-center text-gray-500 mb-2'>
                     <KTIcon iconName='sms' className='fs-4 me-1' />
-                    {isLoading ? '...' : user?.data?.email}
+                    {isLoading
+                      ? '...'
+                      : isError
+                      ? 'error-er'
+                      : user?.data?.email}
                   </div>
                 </div>
               </div>
@@ -122,9 +133,9 @@ const ProfileHeader: FC = () => {
                   `nav-link text-active-primary me-6 ` +
                   (location.pathname === '/profile' && 'active')
                 }
-                to='/profile'
+                to='/profile/'
               >
-                Profile
+                Profile{' '}
               </Link>
             </li>
             <li className='nav-item'>
@@ -133,7 +144,7 @@ const ProfileHeader: FC = () => {
                   `nav-link text-active-primary me-6 ` +
                   (location.pathname === '/profile/log' && 'active')
                 }
-                to='/profile/log'
+                to='log'
               >
                 Trade Log
               </Link>
@@ -144,7 +155,7 @@ const ProfileHeader: FC = () => {
                   `nav-link text-active-primary me-6 ` +
                   (location.pathname === '/profile/performance' && 'active')
                 }
-                to='/profile/performance'
+                to='performance/'
               >
                 Performance
               </Link>
@@ -155,7 +166,7 @@ const ProfileHeader: FC = () => {
                   `nav-link text-active-primary me-6 ` +
                   (location.pathname === '/profile/wall-post' && 'active')
                 }
-                to='/profile/wall-post'
+                to='wall-post/'
               >
                 Wall Post
               </Link>

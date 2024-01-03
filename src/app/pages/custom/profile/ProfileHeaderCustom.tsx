@@ -23,18 +23,18 @@ const ProfileHeaderCustom: FC<{ userId: string }> = ({ userId }) => {
 
   const currentUser = users?.data.find((user: any) => user._id === userId)
 
-  const isFollowingTrue = followingUsersList?.data.some(
+  const isFollowingTrue = followingUsersList?.data?.some(
     (user: any) => user._id === userId
   )
 
-  const [isFollowing, setIsFollowing] = useState<boolean>(isFollowingTrue)
+  const [isFollowing, setIsFollowing] = useState<boolean>(!!isFollowingTrue)
 
   useEffect(() => {
     // Update isFollowing when userId or followingUsersList changes
-    const isFollowingTrue = followingUsersList?.data.some(
+    const isFollowingTrue = followingUsersList?.data?.some(
       (user: any) => user._id === userId
     )
-    setIsFollowing(isFollowingTrue)
+    setIsFollowing(!!isFollowingTrue)
   }, [userId, followingUsersList])
 
   const handleFollowClick = async () => {
