@@ -18,7 +18,7 @@ type Props = {
 export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
   const { currentUser } = useAuth()
   const [isLiked, setIsLiked] = useState(
-    data.likes.some((like: any) => like.likedBy._id === currentUser?.id)
+    data?.likes.some((like: any) => like.likedBy._id === currentUser?.id)
   )
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
 
   const { data: wallpostDetails } = useQuery(
     'wallpostDetails',
-    () => fetchWallPostsDetails(data._id), // Pass the wallpostId as a parameter
+    () => fetchWallPostsDetails(data?._id), // Pass the wallpostId as a parameter
     {
       enabled: !!data._id, // Enable the query only when data._id is truthy
     }
@@ -78,7 +78,7 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
             <div className='symbol symbol-45px me-5'>
               <img
                 src={
-                  data.author.profilePicture ? data.author.profilePicture : ''
+                  data?.author.profilePicture ? data?.author.profilePicture : ''
                 }
                 alt=''
               />
@@ -91,7 +91,7 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
                 href='#'
                 className='text-gray-800 text-hover-primary fs-6 fw-bold'
               >
-                {data.author.username}
+                {data?.author.username}
               </a>
             </div>
             {/* end::Info */}
@@ -118,22 +118,22 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
         {/* begin::Post */}
         <div className='mb-5'>
           {/* begin::Image */}
-          {data.image ? (
+          {data?.image ? (
             <div
               className='bgi-no-repeat bgi-size-auto bgi-position-center rounded min-h-250px mb-5'
               style={{
-                backgroundImage: `url('${data.image ? data.image : ''}}')`,
+                backgroundImage: `url('${data?.image ? data?.image : ''}}')`,
               }}
             ></div>
           ) : null}
           {/* end::Image */}
 
           {/* begin::Text */}
-          <div className='text-gray-800 mb-5'>{data.content}</div>
+          <div className='text-gray-800 mb-5'>{data?.content}</div>
           {/* end::Text */}
 
           {/* begin:: Custom Trade */}
-          <TradeWidgetCustom2 className='my-4' data={data.position} />
+          <TradeWidgetCustom2 className='my-4' data={data?.position} />
           {/* end:: Custom Trade */}
 
           {/* begin::Toolbar */}
@@ -143,7 +143,7 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
               className='btn btn-sm btn-light btn-color-muted btn-active-light-success px-4 py-2 me-4'
             >
               <KTIcon iconName='message-text-2' className='fs-3' />
-              {wallpostDetails?.data.comments.length}
+              {wallpostDetails?.data?.comments?.length}
             </a>
 
             <button
@@ -153,7 +153,7 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
               }`}
             >
               <KTIcon iconName='heart' className='fs-2' />
-              {wallpostDetails?.data.likes.length}
+              {wallpostDetails?.data?.likes?.length}
             </button>
           </div>
           {/* end::Toolbar */}

@@ -1,7 +1,5 @@
 import _ from 'lodash'
 import moment from 'moment'
-import { toAbsoluteUrl } from '../../../helpers'
-import { getForexTicker } from '../../../../lib/utils'
 import { getTradePrice } from '../../../../lib/utils'
 
 export function TradeWidgetCustom2({ className, data }: any) {
@@ -13,26 +11,23 @@ export function TradeWidgetCustom2({ className, data }: any) {
     : '0'
 
   const profitOrLossPercentage = data?.profitOrLossPercentage
-    ? data.profitOrLossPercentage?.toFixed(1)
+    ? data?.profitOrLossPercentage?.toFixed(2)
     : 0
 
   const profitOrLossDifference = data?.profitOrLossDifference
-    ? data.profitOrLossDifference.toFixed(1)
+    ? data?.profitOrLossDifference.toFixed(2)
     : 0
 
   let tradeDirection = data?.tradeDirection
-  tradeDirection = tradeDirection !== '' && tradeDirection === 'BTO' ? 'C' : 'P'
 
   const ticker = _.result(data, 'ticker', '')
-  const sentiment = tradeDirection === 'BTO' ? 'BULLISH' : 'BEARISH'
-  const transactionType = _.result(data, 'transactionType', '') as string
-
   const tickerName = ticker?.split('_')[0]
   const month = ticker?.substring(1, 2)
   const date = ticker?.substring(2, 4)
   const year = ticker?.substring(4, 6)
 
-  const strikePrice = ticker?.substring(6)
+  tradeDirection = tradeDirection !== '' && tradeDirection === 'BTO' ? 'C' : 'P'
+
   const expiryDate = `${month}/${date}/${year}`
   const expDate = moment(expiryDate, 'MM/DD/YYYY').format('MMM DD')
 
@@ -40,94 +35,101 @@ export function TradeWidgetCustom2({ className, data }: any) {
   const current = moment().startOf('day')
   const daysOpens = moment.duration(given.diff(current)).asDays()
   const openDays = Math.floor(daysOpens)
+
+  const transactionType = _.result(data, 'transactionType', '') as string
+  const isOpen = _.result(data, 'isOpen', false)
+  const strikePrice = ticker?.substring(6)
+
   return (
-    <div className={`card card-flush ${className} bg-muted h-lg-100px`}>
-      <div className='p-2 pb-0 d-flex align-items-center justify-content-between'>
-        <div className='d-flex align-items-center gap-3'>
-          <div className='text-white-gray-600 fw-bolder fs-2'>
-            {equityType === 'Forex' ? getForexTicker(tickerName) : tickerName}
-          </div>
-          <img
-            alt='Trade Icon'
-            src={
-              sentiment === 'BULLISH'
-                ? toAbsoluteUrl('media/custom/bull.png')
-                : toAbsoluteUrl('media/custom/bear.png')
-            }
-            className='h-20px h-lg-30px'
-          />
+    <div className={`card ${className}`}>
+      {/* begin::Body */}
+      <div className='card-body p-0'>
+        {/* begin::Table container */}
+        <div className='table-responsive'>
+          {/* begin::Table */}
+          <table className='table align-middle gs-0 gy-4 text-center'>
+            {/* begin::Table head */}
+            <thead>
+              <tr className='fw-bold text-muted bg-light'>
+                <th className='min-w-60px rounded-start'>Coin</th>
+                <th className='min-w-60px'>Option</th>
+                <th className='min-w-60px'>Price Profit/Loss</th>
+                <th className='min-w-60px'>% Profit/Loss</th>
+                <th className='min-w-60px'>Date</th>
+                <th className='min-w-60px'>Trade</th>
+                <th className='min-w-60px'>$(c)</th>
+                <th className='min-w-60px rounded-end'>@</th>
+              </tr>
+            </thead>
+            {/* end::Table head */}
+            {/* begin::Table body */}
+            <tbody>
+              <tr>
+                <td>
+                  <div className=' fw-bold  mb-1 fs-9'>{tickerName}</div>
+                </td>
+                <td>
+                  <div
+                    className={`fw-bold  mb-1 fs-9 ${
+                      transactionType === 'Debit'
+                        ? 'text-success'
+                        : 'text-danger'
+                    }`}
+                  >
+                    {transactionType === 'Debit' ? 'BOUGHT' : 'SOLD'}
+                  </div>
+                </td>
+                <td>
+                  <div
+                    className={` fw-bold  mb-1 fs-9 ${
+                      profitOrLossDifference > 0
+                        ? 'text-success'
+                        : profitOrLossDifference < 0
+                        ? 'text-danger'
+                        : ''
+                    }`}
+                  >
+                    {`$${getTradePrice(equityType, profitOrLossDifference)}`}
+                  </div>
+                </td>
+                <td>
+                  <div className={`fw-bold  mb-1 fs-9 `}>
+                    {profitOrLossPercentage}
+                  </div>
+                </td>
+                <td>
+                  {openDays ? (
+                    <div className={` fw-bold  mb-1 fs-9 `}>
+                      {expDate} {`(${openDays}D)`}
+                    </div>
+                  ) : null}
+                </td>
+                <td>
+                  <div className={` fw-bold  mb-1 fs-9 `}>
+                    {isOpen ? 'Open' : 'Closed'}
+                  </div>
+                </td>
+                <td>
+                  {strikePrice ? (
+                    <div className='text-gray-900 fw-bold  mb-1 fs-9'>
+                      {`$${strikePrice}`} ({tradeDirection})
+                    </div>
+                  ) : null}
+                </td>
+                <td>
+                  <div className='text-gray-900 fw-bold  mb-1 fs-9'>
+                    {`$${entryPrice}`}
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+            {/* end::Table body */}
+          </table>
+          {/* end::Table */}
         </div>
-
-        <div className='fw-bold'>
-          <div
-            className={
-              transactionType === 'Debit' ? 'text-success' : 'text-danger'
-            }
-          >
-            {transactionType === 'Debit' ? 'BOUGHT' : 'SOLD'}
-          </div>
-          <div className='text-warning text-uppercase'>{equityType}</div>
-        </div>
-
-        <div className='d-flex align-items-center fw-bold fs-8'>
-          <div className='bg-white-gray-600 bg-opacity-50 text-white-gray-600 rounded-start-2 p-2 text-center'>
-            <div className='opacity-50 text-gray-600'>Price Loss</div>
-
-            <div className='fs-5'>{`$${getTradePrice(
-              equityType,
-              profitOrLossDifference
-            )}`}</div>
-          </div>
-
-          <div className='bg-gray-600 bg-opacity-25 text-gray-600 p-2 rounded-end-2 text-center'>
-            <div className='fs-5 text-danger'>{`${profitOrLossPercentage}%`}</div>
-            <div className='text-white-gray-600 opacity-50'>
-              {`% ${profitOrLossPercentage >= 0 ? 'Profit' : 'Loss'}`}
-            </div>
-          </div>
-        </div>
+        {/* end::Table container */}
       </div>
-
-      <div className='separator separator-solid my-3 mx-2 d-xl-none' />
-
-      {/* Data Display */}
-      <div className='p-2 w-100'>
-        <div className='d-flex align-items-center justify-content-between mb-2'>
-          <div
-            className={`rounded-2 w-80px text-center py-1  fw-bold fs-7 ${
-              transactionType === 'Debit' ? 'bg-success' : 'bg-danger'
-            }`}
-          >
-            {transactionType === 'Debit' ? 'BOUGHT' : 'SOLD'}
-          </div>
-
-          <div className='d-flex align-items-center fw-semibold fs-8'>
-            <div className='bg-gray-600 text-white-gray-600 rounded-start-2 p-2'>
-              {expDate}
-            </div>
-
-            <div className='bg-white-gray-600 bg-opacity-25 text-gray-600 p-2 rounded-end-2'>
-              {`${openDays}D`}
-            </div>
-          </div>
-
-          <div className='d-flex align-items-center fw-semibold fs-8'>
-            <div className='bg-gray-600 text-white-gray-600 rounded-start-2 p-2'>
-              {`$${strikePrice}`}
-            </div>
-            <div className='bg-white-gray-600 bg-opacity-25 text-gray-600 p-2 rounded-end-2'>
-              {tradeDirection}
-            </div>
-          </div>
-
-          <div className='d-flex align-items-center fw-semibold fs-8 gap-2'>
-            <div>@</div>
-            <div className='bg-gray-600 text-white-gray-600 rounded-2 p-2'>
-              {`$${entryPrice}`}
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* begin::Body */}
     </div>
   )
 }

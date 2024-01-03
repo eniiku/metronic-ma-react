@@ -7,7 +7,7 @@ const TradeIdeas = () => {
     data: trades,
     isLoading,
     isError,
-  } = useQuery('trades', () => fetchUserTradeSummary)
+  } = useQuery('trades', () => fetchUserTradeSummary())
 
   return (
     <div>
