@@ -9,8 +9,6 @@ export const getTradePrice = (
   if (equityType == 'Option') {
     price = profitLosssPercent * 100 + ''
   } else price = profitLosssPercent + ''
-  if (price.includes('-')) price = price.replace('-', '')
-  else price
   return !_.isEmpty(price) ? parseFloat(price).toFixed(2) : price
 }
 
@@ -84,7 +82,23 @@ export const getFromCookies = (): AuthModel | undefined => {
   for (let i = 0; i < cookieParts.length; i++) {
     const part = cookieParts[i].trim()
     if (part.indexOf(name) === 0) {
-      return JSON.parse(part.substring(name.length, part.length))
+      const cookieData = JSON.parse(part.substring(name.length, part.length))
+
+      // Check the age of the cookie
+      const cookieCreationDate = new Date(cookieData.creationDate)
+      const currentDate = new Date()
+      const sevenDaysAgo = new Date(
+        currentDate.getTime() - 7 * 24 * 60 * 60 * 1000
+      )
+
+      if (cookieCreationDate < sevenDaysAgo) {
+        // Delete the expired cookie
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; secure; samesite=strict`
+        console.log('Expired cookie deleted')
+        return undefined
+      } else {
+        return cookieData
+      }
     }
   }
   return undefined
