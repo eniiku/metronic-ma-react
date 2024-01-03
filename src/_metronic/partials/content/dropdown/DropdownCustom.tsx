@@ -1,4 +1,101 @@
+import { useState } from 'react'
+import { fetchAllTradeSummary } from '../../../../services/api'
+import { useQuery, useQueryClient } from 'react-query'
+
+type FilterData = {
+  ticker: string
+  equityType: string
+  transactionType: string[]
+  allOrOpenOrClose: string[]
+  daysOpen: string
+  orderBy: string
+  orderType: string
+  riskType: string[]
+}
+
 export function DropdownCustom() {
+  // platform: undefined,
+  // command: undefined,
+  // allOrOpenOrClose: undefined,
+  // allOrDayOrWeek: undefined,
+  // dayWeekLength: undefined,
+  // id: undefined,
+  // isOpen: undefined,
+  // transactionType: undefined,
+  // positionNumber: undefined,
+  // ticker: undefined,
+  // tradeDirection: undefined,
+  // riskType: undefined,
+  // equityType: undefined,
+  // daysOpen: undefined,
+  // orderBy: undefined,
+  // orderType: undefined,
+  // createdDate: undefined,
+  // updatedDate: undefined,
+  // closeDate: undefined,
+  // page: '1',
+  // limit: '10'
+
+  const [filterData, setFilterData] = useState<FilterData>({
+    ticker: '',
+    equityType: '',
+    transactionType: [],
+    allOrOpenOrClose: [],
+    daysOpen: '',
+    orderBy: '',
+    orderType: '',
+    riskType: [],
+  })
+
+  // const { data, isLoading, isError } = useQuery(
+  //   ['filteredData', filterData],
+  //   (key) => fetchData(key, filterData)
+  // )
+
+  const handleInputChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = event.target
+    setFilterData((prevData: any) => ({ ...prevData, [name]: value }))
+  }
+
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target
+    setFilterData((prevData: any) => {
+      const isChecked = prevData[name].includes(value)
+      const updatedArray = isChecked
+        ? prevData[name].filter((item: any) => item !== value)
+        : [...prevData[name], value]
+      return { ...prevData, [name]: updatedArray }
+    })
+  }
+
+  const queryClient = useQueryClient()
+
+  const refetchData = () => {
+    queryClient.invalidateQueries('summary')
+  }
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    console.log('Filter Data', filterData)
+
+    refetchData()
+  }
+
+  const resetForm = () => {
+    setFilterData({
+      ticker: '',
+      equityType: '',
+      transactionType: [],
+      allOrOpenOrClose: [],
+      daysOpen: '',
+      orderBy: '',
+      orderType: '',
+      riskType: [],
+    })
+  }
   return (
     <div
       className='menu menu-sub menu-sub-dropdown w-300px w-md-350px w-lg-400px'
@@ -10,7 +107,7 @@ export function DropdownCustom() {
 
       <div className='separator border-gray-200'></div>
 
-      <div className='px-7 py-5'>
+      <form onSubmit={handleSubmit} className='px-7 py-5'>
         {/* Ticker */}
         <div className='mb-10'>
           <input
@@ -18,23 +115,9 @@ export function DropdownCustom() {
             className='form-control form-control-sm form-control-solid border-gray-500'
             name='ticker'
             placeholder='Ticker'
-            // value={data.appBasic.appName}
-            // onChange={(e) =>
-            //   updateData({
-            //     appBasic: {
-            //       appName: e.target.value,
-            //       appType: data.appBasic.appType,
-            //     },
-            //   })
-            // }
+            value={filterData.ticker}
+            onChange={handleInputChange}
           />
-          {/* {!data.appBasic.appName && hasError && (
-            <div className='fv-plugins-message-container'>
-              <div data-field='appname' data-validator='notEmpty' className='fv-help-block'>
-                App name is required
-              </div>
-            </div>
-          )} */}
         </div>
 
         {/* Equity Type  */}
@@ -42,21 +125,22 @@ export function DropdownCustom() {
           <label className='form-label fw-bold'>Equity Type</label>
 
           <div className='d-flex flex-wrap align-items-center gap-4'>
-            {['All', 'Stock', 'Option', 'Forex', 'Crypto'].map(
-              (item, index) => (
-                <label
-                  key={item}
-                  className='form-check form-check-sm form-check-custom form-check-solid me-5'
-                >
-                  <input
-                    className='form-check-input'
-                    type='checkbox'
-                    value={index + 1}
-                  />
-                  <span className='form-check-label'>{item}</span>
-                </label>
-              )
-            )}
+            {['All', 'Stock', 'Option', 'Forex', 'Crypto'].map((item) => (
+              <label
+                key={item}
+                className='form-check form-check-sm form-check-custom form-check-solid me-5'
+              >
+                <input
+                  type='radio'
+                  name='equityType'
+                  value={item}
+                  checked={filterData.equityType === item}
+                  onChange={handleInputChange}
+                  className='form-check-input'
+                />
+                <span className='form-check-label'>{item}</span>
+              </label>
+            ))}
           </div>
         </div>
 
@@ -66,15 +150,18 @@ export function DropdownCustom() {
             <label className='form-label fw-bold'>Transaction Type</label>
 
             <div className='d-flex flex-wrap gap-4'>
-              {['Credit', 'Debit'].map((item, index) => (
+              {['Credit', 'Debit'].map((item) => (
                 <label
                   key={item}
                   className='form-check form-check-sm form-check-custom form-check-solid me-5'
                 >
                   <input
-                    className='form-check-input'
                     type='checkbox'
-                    value={index + 1}
+                    name='transactionType'
+                    value={item}
+                    checked={filterData.transactionType.includes(item)}
+                    onChange={handleCheckboxChange}
+                    className='form-check-input'
                   />
                   <span className='form-check-label'>{item}</span>
                 </label>
@@ -86,15 +173,18 @@ export function DropdownCustom() {
             <label className='form-label fw-bold'>Option</label>
 
             <div className='d-flex flex-wrap gap-4'>
-              {['Open', 'Closed'].map((item, index) => (
+              {['Open', 'Closed'].map((item) => (
                 <label
                   key={item}
                   className='form-check form-check-sm form-check-custom form-check-solid me-5'
                 >
                   <input
-                    className='form-check-input'
                     type='checkbox'
-                    value={index + 1}
+                    name='allOrOpenOrClose'
+                    value={item}
+                    checked={filterData.allOrOpenOrClose.includes(item)}
+                    onChange={handleCheckboxChange}
+                    className='form-check-input'
                   />
                   <span className='form-check-label'>{item}</span>
                 </label>
@@ -113,15 +203,18 @@ export function DropdownCustom() {
               'Closed Date',
               'Crafted Date',
               'Last Updated',
-            ].map((item, index) => (
+            ].map((item) => (
               <label
                 key={item}
                 className='form-check form-check-sm form-check-custom form-check-solid me-5'
               >
                 <input
+                  type='radio'
+                  name='orderBy'
+                  value={item}
+                  checked={filterData.orderBy === item}
+                  onChange={handleInputChange}
                   className='form-check-input'
-                  type='checkbox'
-                  value={index + 1}
                 />
                 <span className='form-check-label'>{item}</span>
               </label>
@@ -134,15 +227,18 @@ export function DropdownCustom() {
           <label className='form-label fw-bold'>Sort Order</label>
 
           <div className='d-flex flex-wrap align-items-center gap-4'>
-            {['Ascending Order', 'Descending Order'].map((item, index) => (
+            {['Ascending Order', 'Descending Order'].map((item) => (
               <label
                 key={item}
                 className='form-check form-check-sm form-check-custom form-check-solid me-5'
               >
                 <input
+                  type='radio'
+                  name='orderType'
+                  value={item}
+                  checked={filterData.orderType === item}
+                  onChange={handleInputChange}
                   className='form-check-input'
-                  type='checkbox'
-                  value={index + 1}
                 />
                 <span className='form-check-label'>{item}</span>
               </label>
@@ -155,15 +251,18 @@ export function DropdownCustom() {
           <label className='form-label fw-bold'>Risk Type</label>
 
           <div className='d-flex flex-wrap align-items-center gap-4'>
-            {['Standard', 'Risky', 'Swing', 'Day Trade'].map((item, index) => (
+            {['Standard', 'Risky', 'Swing', 'Day Trade'].map((item) => (
               <label
                 key={item}
                 className='form-check form-check-sm form-check-custom form-check-solid me-5'
               >
                 <input
-                  className='form-check-input'
                   type='checkbox'
-                  value={index + 1}
+                  name='riskType'
+                  value={item}
+                  checked={filterData.riskType.includes(item)}
+                  onChange={handleCheckboxChange}
+                  className='form-check-input'
                 />
                 <span className='form-check-label'>{item}</span>
               </label>
@@ -184,25 +283,11 @@ export function DropdownCustom() {
           <input
             type='text'
             className='form-control form-control-sm form-control-solid border-gray-500'
-            name='ticker'
+            name='user'
+            // value={filterData.ticker}
+            onChange={handleInputChange}
             placeholder='Ex:DesiArtist'
-            // value={data.appBasic.appName}
-            // onChange={(e) =>
-            //   updateData({
-            //     appBasic: {
-            //       appName: e.target.value,
-            //       appType: data.appBasic.appType,
-            //     },
-            //   })
-            // }
           />
-          {/* {!data.appBasic.appName && hasError && (
-            <div className='fv-plugins-message-container'>
-              <div data-field='appname' data-validator='notEmpty' className='fv-help-block'>
-                App name is required
-              </div>
-            </div>
-          )} */}
         </div>
 
         {/* Action Buttons */}
@@ -210,8 +295,8 @@ export function DropdownCustom() {
         <div className='d-flex justify-content-end'>
           <button
             type='reset'
+            onClick={resetForm}
             className='btn btn-sm btn-light btn-active-light-primary me-2'
-            data-kt-menu-dismiss='true'
           >
             Reset
           </button>
@@ -219,12 +304,12 @@ export function DropdownCustom() {
           <button
             type='submit'
             className='btn btn-sm btn-primary'
-            data-kt-menu-dismiss='true'
+            // data-kt-menu-dismiss='true'
           >
             Apply
           </button>
         </div>
-      </div>
+      </form>
     </div>
   )
 }
