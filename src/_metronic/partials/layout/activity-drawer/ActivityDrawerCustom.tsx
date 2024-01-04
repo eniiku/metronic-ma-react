@@ -13,6 +13,8 @@ const ActivityDrawerCustom: FC = () => {
     isError,
   } = useQuery('notifications', fetchNotifications)
 
+  console.log('notigs', notifications)
+
   const notificationsData = notifications?.data
   return (
     <div
@@ -59,6 +61,7 @@ const ActivityDrawerCustom: FC = () => {
                   <Item1
                     title={notification.title}
                     subtitle={notification.subtitle}
+                    type={notification.type}
                   />
                 ))
               ) : isError ? (
@@ -86,9 +89,10 @@ const ActivityDrawerCustom: FC = () => {
 }
 export { ActivityDrawerCustom }
 
-const Item1: FC<{ title: string; subtitle: string }> = ({
+const Item1: FC<{ title: string; subtitle: string; type: string }> = ({
   title,
   subtitle,
+  type,
 }) => {
   return (
     <div className='timeline-item'>
@@ -96,14 +100,16 @@ const Item1: FC<{ title: string; subtitle: string }> = ({
 
       <div className='timeline-icon symbol symbol-circle symbol-40px me-4'>
         <div className='symbol-label bg-light'>
-          <KTIcon iconName='message-text-2' className='fs-2 text-gray-500' />
+          <KTIcon
+            iconName={`${type === 'follow' ? 'user-tick' : 'message-text-2'}`}
+            className='fs-2 text-gray-500'
+          />
         </div>
       </div>
 
       <div className='timeline-content mb-10 mt-n1'>
         <div className='pe-3 mb-5'>
           <div className='fs-5 fw-bold mb-2'>{title}</div>
-
           <div className='d-flex align-items-center mt-1 fs-6'>
             <div className='text-muted me-2 fs-7'>
               {/* Added at 4:23 PM by */}

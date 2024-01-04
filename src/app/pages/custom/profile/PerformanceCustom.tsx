@@ -79,41 +79,64 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
   console.log('CumulativeStats: ', cumulativeStats)
   console.log('AvgStats: ', avgRiskStats)
 
-  const [comData, setComData] = useState({
+  const [comData, setComData] = useState<{
+    labels: string[]
+    datasets: { data: number[] }[]
+  }>({
     labels: [],
     datasets: [{ data: [] }],
   })
 
-  const [avgRiskData, setAvgRiskData] = useState({
+  const [avgRiskData, setAvgRiskData] = useState<{
+    labels: string[]
+    datasets: { data: number[] }[]
+  }>({
     labels: [],
     datasets: [{ data: [] }],
   })
 
   useEffect(() => {
-    if (cumulativeStats && cumulativeStats.data.length > 0) {
-      const labels: any = []
-      const datasets: any = [{ data: [] }]
-      cumulativeStats?.data.map((x: any) => {
-        labels.push(x.key)
-        datasets[0].data.push(x?.profitOrLossDifference.value)
-      })
+    console.log('Updating data...')
+    console.log('cumulativeStats:', cumulativeStats)
+    console.log('avgRiskStats:', avgRiskStats)
 
-      setComData({ labels: labels, datasets: datasets })
+    if (cumulativeStats && cumulativeStats.data?.length > 0) {
+      const labels = cumulativeStats.data.map((x: any) => x.key)
+      const datasets = [
+        {
+          data: cumulativeStats.data.map(
+            (x: any) => x?.profitOrLossDifference.value
+          ),
+        },
+      ]
+
+      console.log('Setting comData:', { labels, datasets })
+      setComData({ labels, datasets })
     } else {
+      console.log('Setting comData to default.')
       setComData({ labels: [], datasets: [{ data: [] }] })
     }
+
     if (avgRiskStats) {
-      const labels: any = []
-      const datasets: any = [{ data: [] }]
-      labels.push('Daily Risk')
-      labels.push('Weekly Risk')
-      labels.push('Monthly Risk')
-      labels.push('Yearly Risk')
-      datasets[0].data.push(avgRiskStats?.data.dailyRisk?.average?.value)
-      datasets[0].data.push(avgRiskStats?.data.weeklyRisk?.average?.value)
-      datasets[0].data.push(avgRiskStats?.data.monthlyRisk?.average?.value)
-      datasets[0].data.push(avgRiskStats?.data.yearlyRisk?.average?.value)
-      setAvgRiskData({ labels: labels, datasets: datasets })
+      const labels = [
+        'Daily Risk',
+        'Weekly Risk',
+        'Monthly Risk',
+        'Yearly Risk',
+      ]
+      const datasets = [
+        {
+          data: [
+            avgRiskStats.data.dailyRisk?.average?.value || 0,
+            avgRiskStats.data.weeklyRisk?.average?.value || 0,
+            avgRiskStats.data.monthlyRisk?.average?.value || 0,
+            avgRiskStats.data.yearlyRisk?.average?.value || 0,
+          ],
+        },
+      ]
+
+      console.log('Setting avgRiskData:', { labels, datasets })
+      setAvgRiskData({ labels, datasets })
     }
   }, [cumulativeStats, avgRiskStats])
 
