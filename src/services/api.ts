@@ -149,6 +149,53 @@ export const handleLikeWallPost = async (wallpostId: string): Promise<any> => {
   }
 }
 
+export const handleWallpostComments = async (
+  wallpostId: string,
+  comment: { image: string; content: string }
+): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.post(
+      `/wallposts/${wallpostId}/comments`,
+      {
+        image: comment.image,
+        content: comment.content,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${BEARER_TOKEN}`,
+        },
+      }
+    )
+    return response.data
+  } catch (error) {
+    console.error('Failed to comment on wallpost:', error)
+    throw new Error('Error fetching Wallpost details')
+  }
+}
+
+export const fetchWallpostComments = async (
+  wallpostId: string
+): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.get(
+      `/wallposts/${wallpostId}/comments`,
+      {
+        headers: {
+          Authorization: `Bearer ${BEARER_TOKEN}`,
+        },
+        params: {
+          page: 1,
+          limit: 10,
+        },
+      }
+    )
+    return response.data
+  } catch (error) {
+    console.error('Failed to comment on wallpost:', error)
+    throw new Error('Error fetching Wallpost details')
+  }
+}
+
 export const fetchCumulativeStats = async (userId: string): Promise<any> => {
   try {
     const response: AxiosResponse = await api.get('/statistics/cumulative-pl', {
