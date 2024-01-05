@@ -13,8 +13,6 @@ const ActivityDrawerCustom: FC = () => {
     isError,
   } = useQuery('notifications', fetchNotifications)
 
-  console.log('notigs', notifications)
-
   const notificationsData = notifications?.data
   return (
     <div
@@ -59,6 +57,7 @@ const ActivityDrawerCustom: FC = () => {
               ) : notificationsData?.length > 0 ? (
                 notificationsData?.map((notification: any) => (
                   <Item1
+                    key={notification._id}
                     title={notification.title}
                     subtitle={notification.subtitle}
                     type={notification.type}

@@ -69,7 +69,7 @@ const Search: FC = () => {
         data-kt-search-layout='menu'
         data-kt-menu-trigger='auto'
         data-kt-menu-overflow='false'
-        data-kt-menu-permanent='true'
+        data-kt-menu-permanent='false'
         data-kt-menu-placement='bottom-end'
         ref={element}
       >
@@ -133,7 +133,7 @@ const Search: FC = () => {
                   <Link
                     key={user?._id}
                     to={`/user/${user._id}`}
-                    data-kt-search-element='toggle'
+                    data-kt-menu-dismiss='true'
                     className='d-flex text-gray-900 text-hover-primary align-items-center mb-5'
                   >
                     <div className='symbol symbol-40px me-4'>
