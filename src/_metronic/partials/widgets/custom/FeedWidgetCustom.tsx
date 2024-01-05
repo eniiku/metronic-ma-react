@@ -8,7 +8,6 @@ import {
 } from '../../../../services/api'
 import { useAuth } from '../../../../app/modules/auth'
 import { initSocket } from '../../../../services/socket'
-// import { Dropdown1 } from '../../content/dropdown/Dropdown1'
 
 type Props = {
   className: string
@@ -17,9 +16,20 @@ type Props = {
 
 export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
   const { currentUser } = useAuth()
-  const [isLiked, setIsLiked] = useState(
-    data?.likes.some((like: any) => like.likedBy._id === currentUser?.id)
+
+  console.log('Data', data)
+
+  const liked = data?.likes.some(
+    (like: any) => like.likedBy._id === currentUser?.id
   )
+
+  const { data: wallpostDetails } = useQuery(
+    'wallpostDetails',
+    () => fetchWallPostsDetails(data?._id) // Pass the wallpostId as a parameter
+  )
+
+  const [isLiked, setIsLiked] = useState(liked)
+  const [likesCount, setLikesCount] = useState<number>(data?.likesCount || 0)
 
   useEffect(() => {
     const socket = initSocket()
@@ -28,41 +38,46 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
     socket.on('post-liked', (likedData) => {
       // Update the state or refetch data
       console.log('Post liked:', likedData)
-      // Update the state to indicate that the current user liked the post
-      setIsLiked(true)
+      if (likedData?.likedBy === currentUser?.id) {
+        setIsLiked(true)
+        setLikesCount((prev: number) => prev + 1) // Increase likes count optimistically
+      }
     })
 
     socket.on('post-unliked', (unlikedData) => {
-      // Update the state or refetch data
-      console.log('Post unliked:', unlikedData)
-      // Update the state to indicate that the current user unliked the post
-      setIsLiked(false)
+      if (unlikedData?.likedBy === currentUser?.id) {
+        setIsLiked(false)
+        setLikesCount((prev: number) => Math.max(0, prev - 1)) // Decreases likes count optimistically
+      }
     })
 
     return () => {
       // Disconnect the socket when the component unmounts
       socket.disconnect()
     }
-  }, [])
-
-  const { data: wallpostDetails } = useQuery(
-    'wallpostDetails',
-    () => fetchWallPostsDetails(data?._id), // Pass the wallpostId as a parameter
-    {
-      enabled: !!data._id, // Enable the query only when data._id is truthy
-    }
-  )
+  }, [data?.id, isLiked])
 
   const handleLikeClick = async () => {
     try {
-      setIsLiked(!isLiked)
-
-      await handleLikeWallPost(data?._id)
-
-      console.log(isLiked)
+      // Check if the post is already liked by the current user
+      if (isLiked) {
+        // If liked, unlike the post
+        setIsLiked(false)
+        setLikesCount((prevCount) => Math.max(0, prevCount - 1))
+        await handleLikeWallPost(data?._id)
+      } else {
+        // If not liked, like the post
+        setIsLiked(true)
+        setLikesCount((prevCount) => prevCount + 1)
+        await handleLikeWallPost(data?._id)
+      }
     } catch (error) {
+      // Handle errors
       setIsLiked(!isLiked)
-      console.error('Error liking post', error)
+      setLikesCount((prevCount) =>
+        isLiked ? prevCount + 1 : Math.max(0, prevCount - 1)
+      )
+      console.error('Error liking/unliking post', error)
     }
   }
 
@@ -148,12 +163,12 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
 
             <button
               onClick={handleLikeClick}
-              className={`btn btn-sm btn-light btn-color-muted btn-active-light-danger px-4 py-2 ${
-                isLiked ? 'btn-active-light-danger' : ''
+              className={`btn btn-sm  btn-active-light-danger px-4 py-2 ${
+                isLiked ? 'btn-light-danger' : 'btn-light'
               }`}
             >
               <KTIcon iconName='heart' className='fs-2' />
-              {wallpostDetails?.data?.likes?.length}
+              {likesCount}
             </button>
           </div>
           {/* end::Toolbar */}
@@ -174,11 +189,7 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
 
           <div className='position-absolute top-0 end-0 me-n5'>
             <span className='btn btn-icon btn-sm btn-active-color-primary pe-0 me-2'>
-              <KTIcon iconName='paper-clip' className='fs-3 mb-3' />
-            </span>
-
-            <span className='btn btn-icon btn-sm btn-active-color-primary ps-0'>
-              <KTIcon iconName='geolocation' className='fs-2 mb-3' />
+              <KTIcon iconName='send' className='fs-3 mb-3' />
             </span>
           </div>
         </form>

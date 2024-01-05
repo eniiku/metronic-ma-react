@@ -134,18 +134,18 @@ export const fetchWallPostsDetails = async (
 export const handleLikeWallPost = async (wallpostId: string): Promise<any> => {
   try {
     const response: AxiosResponse = await api.put(
-      `/wallposts/${wallpostId}/likes/likeUnLikePost
-      `,
+      `/wallposts/${wallpostId}/likes/likeUnLikePost`,
+      {},
       {
         headers: {
-          accept: 'application/json',
           Authorization: `Bearer ${BEARER_TOKEN}`,
         },
       }
     )
     return response.data
   } catch (error) {
-    throw new Error('Failed to like wall post ')
+    console.error('Error in like/unlike:', error)
+    throw new Error('Error fetching Wallpost details')
   }
 }
 
