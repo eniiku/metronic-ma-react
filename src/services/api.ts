@@ -18,6 +18,7 @@ export const fetchAllUsers = async (): Promise<any> => {
     })
     return response.data
   } catch (error) {
+    console.log('Error', error)
     throw new Error('Error fetching users')
   }
 }
@@ -307,7 +308,7 @@ export const postTrades = async (message: string): Promise<any> => {
     const response: AxiosResponse = await api.post(
       '/trades/post-trades-data',
       {
-        message: `${message}`,
+        message: message,
         channelId: 'any',
         guildId: 'any',
         discordId: 'any',
@@ -316,13 +317,12 @@ export const postTrades = async (message: string): Promise<any> => {
       {
         headers: {
           Authorization: `Bearer ${BEARER_TOKEN}`,
+          'Content-Type': 'application/json',
         },
       }
     )
     return response.data
   } catch (error) {
-    console.error('Error in postTrades:', error)
-
     throw new Error('Failed to send trade idea')
   }
 }

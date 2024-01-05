@@ -29,9 +29,20 @@ export const CustomModal = ({ show, handleClose }: Props) => {
 
       // Close the modal
       handleClose()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting data:', error)
-      setError('Error submitting data. Please try again.')
+
+      if (
+        error?.response &&
+        error?.response?.data &&
+        error?.response?.data?.message
+      ) {
+        // Display the error message from the API response
+        setError(error?.response?.data?.message)
+      } else {
+        // Display a generic error message
+        setError('Error submitting data. Please try again.')
+      }
     }
   }
 
