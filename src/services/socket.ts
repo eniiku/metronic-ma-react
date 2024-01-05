@@ -2,8 +2,8 @@ import { io, Socket } from 'socket.io-client'
 
 let socket: Socket
 
-// const BASE_URL = "https://api.marketaction.live/"
-const BASE_URL = 'http://localhost:3000/'
+const BASE_URL = 'https://api.marketaction.live/'
+// const BASE_URL = 'http://localhost:3000/'
 
 export const initSocket = () => {
   socket = io(BASE_URL, {
