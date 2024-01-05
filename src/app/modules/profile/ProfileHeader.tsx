@@ -1,16 +1,11 @@
-import { FC, useEffect, useState } from 'react'
+import { FC } from 'react'
 import { KTIcon } from '../../../_metronic/helpers'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth'
 // import { Dropdown1 } from '../../../_metronic/partials'
 
 import { useQuery } from 'react-query'
-import {
-  fetchFollowingUserList,
-  fetchUserData,
-  followUser,
-  unFollowUser,
-} from '../../../services/api'
+import { fetchUserData } from '../../../services/api'
 import _ from 'lodash'
 
 const ProfileHeader: FC = () => {
@@ -23,44 +18,6 @@ const ProfileHeader: FC = () => {
     isLoading,
     isError,
   } = useQuery('user', () => fetchUserData(currentUser?.firebaseUserId ?? ''))
-
-  const { data: followingUsersList } = useQuery(
-    'followingUsersList',
-    fetchFollowingUserList
-  )
-
-  const isFollowingTrue = followingUsersList?.data?.filter(
-    (user: any) => user._id === currentUser?.id
-  )
-
-  const [isFollowing, setIsFollowing] = useState<boolean>(!!isFollowingTrue)
-
-  useEffect(() => {
-    // Update isFollowing when userId or followingUsersList changes
-    const isFollowingTrue = followingUsersList?.data?.some(
-      (user: any) => user._id === currentUser?.id
-    )
-    setIsFollowing(!!isFollowingTrue)
-  }, [currentUser?.id, followingUsersList])
-
-  const handleFollowClick = async () => {
-    try {
-      // Optimistically update the UI
-      setIsFollowing(!isFollowing)
-
-      if (isFollowing) {
-        await unFollowUser(currentUser ? `${currentUser.id}` : '')
-      } else {
-        await followUser(currentUser ? `${currentUser.id}` : '')
-      }
-    } catch (error) {
-      // Handle error and revert the UI if the API call fails
-      setIsFollowing(!isFollowing)
-      console.error('Follow/Unfollow failed:', error)
-    }
-  }
-
-  const debouncedFollowClick = _.debounce(handleFollowClick, 500)
 
   return (
     <div className='card mb-5 mb-xl-10'>
@@ -100,26 +57,6 @@ const ProfileHeader: FC = () => {
                       : user?.data?.email}
                   </div>
                 </div>
-              </div>
-
-              <div className='d-flex my-4'>
-                <button
-                  className={`btn btn-sm bg-light  me-2 ${
-                    isFollowing ? 'bg-hover-danger' : 'bg-hover-primary'
-                  }`}
-                  id='kt_user_follow_button'
-                  onClick={debouncedFollowClick}
-                >
-                  <KTIcon iconName='check' className='fs-3 d-none' />
-
-                  <span className='indicator-label'>
-                    {isFollowing ? 'Unfollow' : 'Follow'}
-                  </span>
-                  <span className='indicator-progress'>
-                    {/* Please wait... */}
-                    <span className='spinner-border spinner-border-sm align-middle ms-2'></span>
-                  </span>
-                </button>
               </div>
             </div>
           </div>
