@@ -38,9 +38,9 @@ const MasterLayout = () => {
                   <Outlet />
                 </Content>
               </div>
-              <FooterWrapper />
             </div>
           </div>
+          <FooterWrapper />
         </div>
       </div>
 
