@@ -1,13 +1,14 @@
 import clsx from 'clsx'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { KTIcon } from '../../../../helpers'
 import { useLayout } from '../../../core'
 import { DropdownCustom } from '../../../../partials/content/dropdown/DropdownCustom'
 import { CustomModal } from '../../../../partials/modals/create-app-stepper/CustomModal'
 
-const ToolbarCustom: React.FC<{ action: React.Dispatch<any> }> = ({
-  action,
-}) => {
+const ToolbarCustom: React.FC<{
+  action: React.Dispatch<any>
+  loader: React.Dispatch<any>
+}> = ({ action, loader }) => {
   const { config } = useLayout()
   const [showCreateAppModal, setShowCreateAppModal] = useState<boolean>(false)
   const daterangepickerButtonClass = config.app?.toolbar?.fixed?.desktop
@@ -33,7 +34,7 @@ const ToolbarCustom: React.FC<{ action: React.Dispatch<any> }> = ({
             Filter
           </button>
 
-          <DropdownCustom action={action} />
+          <DropdownCustom action={action} loader={loader} />
         </div>
       )}
 

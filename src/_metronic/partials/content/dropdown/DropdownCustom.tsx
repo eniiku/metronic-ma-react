@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { fetchAllTradeSummary } from '../../../../services/api'
 import { useQuery, useQueryClient } from 'react-query'
 import { set } from 'lodash'
@@ -15,7 +15,13 @@ type FilterData = {
   riskType: string[]
 }
 
-export function DropdownCustom({ action }: { action: React.Dispatch<any> }) {
+export function DropdownCustom({
+  action,
+  loader,
+}: {
+  action: React.Dispatch<any>
+  loader: React.Dispatch<any>
+}) {
   // id: undefined,
   // isOpen: undefined,
   // positionNumber: undefined,
@@ -51,11 +57,6 @@ export function DropdownCustom({ action }: { action: React.Dispatch<any> }) {
     }
   )
 
-  // check if the query has successfully fetched data
-  if (isSuccess) {
-    console.log('Filtered Data', filteredData)
-  }
-
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -77,7 +78,8 @@ export function DropdownCustom({ action }: { action: React.Dispatch<any> }) {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    console.log('Filter Data', filterData)
+    // set loading state to let users know that the query is in progress
+    loader(true)
 
     // trigger the query
     queryClient.prefetchQuery('filteredData', () =>
@@ -86,6 +88,13 @@ export function DropdownCustom({ action }: { action: React.Dispatch<any> }) {
 
     // Set Trade Summary data to equal filtered data
     action(filteredData)
+
+    // check if the query has successfully fetched data
+    if (isSuccess) {
+      console.log('Filtered Data', filteredData)
+      // set loading state to false
+      loader(false)
+    }
   }
 
   const resetForm = () => {
@@ -101,8 +110,19 @@ export function DropdownCustom({ action }: { action: React.Dispatch<any> }) {
       riskType: [],
     })
 
+    // set loading state to let users know that the query is in progress
+    loader(true)
+
     // trigger the query
     queryClient.prefetchQuery('filteredData', () => fetchAllTradeSummary())
+
+    // check if the query has successfully fetched data
+    if (isSuccess) {
+      console.log('Filtered Data', filteredData)
+
+      // set loading state to false
+      loader(false)
+    }
   }
   return (
     <div
@@ -231,7 +251,7 @@ export function DropdownCustom({ action }: { action: React.Dispatch<any> }) {
                   type='number'
                   className='form-control form-control-sm form-control-solid border-gray-500 mw-40px me-5'
                   name='dayWeekLength'
-                  placeholder={item === 'days' ? '30' : '4'}
+                  placeholder={item === 'day' ? '30' : '4'}
                   min={item === 'days' ? 1 : 1}
                   max={item === 'days' ? 30 : 52}
                   value={filterData.dayWeekLength + ''}
