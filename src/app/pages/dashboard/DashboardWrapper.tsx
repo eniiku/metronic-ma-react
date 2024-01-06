@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import { FC, useState } from 'react'
 import { useQuery } from 'react-query'
 import { fetchAllTradeSummary } from '../../../services/api'
 import { TradeWidget } from '../../../_metronic/partials/widgets/custom/TradeWidget'
@@ -11,9 +11,11 @@ const DashboardPage: FC = () => {
     isError,
   } = useQuery('summary', fetchAllTradeSummary)
 
+  const [tradesData, setTradesData] = useState(summary)
+
   return (
     <>
-      <ToolbarCustom />
+      <ToolbarCustom action={setTradesData} />
 
       {/* custom begin::Row */}
       <div className='row gy-5 g-xl-8 mb-5 mb-xl-10'>
@@ -24,7 +26,7 @@ const DashboardPage: FC = () => {
         ) : (
           <div>
             <TradeWidget
-              data={summary?.data}
+              data={tradesData?.data}
               showTitle={true}
               className='card-xl-stretch mb-xl-8'
             />

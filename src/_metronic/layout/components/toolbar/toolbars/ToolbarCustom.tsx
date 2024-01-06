@@ -5,7 +5,9 @@ import { useLayout } from '../../../core'
 import { DropdownCustom } from '../../../../partials/content/dropdown/DropdownCustom'
 import { CustomModal } from '../../../../partials/modals/create-app-stepper/CustomModal'
 
-const ToolbarCustom = () => {
+const ToolbarCustom: React.FC<{ action: React.Dispatch<any> }> = ({
+  action,
+}) => {
   const { config } = useLayout()
   const [showCreateAppModal, setShowCreateAppModal] = useState<boolean>(false)
   const daterangepickerButtonClass = config.app?.toolbar?.fixed?.desktop
@@ -31,7 +33,7 @@ const ToolbarCustom = () => {
             Filter
           </button>
 
-          <DropdownCustom />
+          <DropdownCustom action={action} />
         </div>
       )}
 

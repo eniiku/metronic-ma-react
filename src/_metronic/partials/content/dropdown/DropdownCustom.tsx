@@ -1,56 +1,60 @@
 import { useState } from 'react'
 import { fetchAllTradeSummary } from '../../../../services/api'
 import { useQuery, useQueryClient } from 'react-query'
+import { set } from 'lodash'
 
 type FilterData = {
   ticker: string
   equityType: string
   transactionType: string[]
   allOrOpenOrClose: string[]
-  daysOpen: string
+  allOrDayOrWeek: string
+  dayWeekLength: string
   orderBy: string
   orderType: string
   riskType: string[]
 }
 
-export function DropdownCustom() {
-  // platform: undefined,
-  // command: undefined,
-  // allOrOpenOrClose: undefined,
-  // allOrDayOrWeek: undefined,
-  // dayWeekLength: undefined,
+export function DropdownCustom({ action }: { action: React.Dispatch<any> }) {
   // id: undefined,
   // isOpen: undefined,
-  // transactionType: undefined,
   // positionNumber: undefined,
-  // ticker: undefined,
   // tradeDirection: undefined,
-  // riskType: undefined,
-  // equityType: undefined,
   // daysOpen: undefined,
-  // orderBy: undefined,
-  // orderType: undefined,
   // createdDate: undefined,
   // updatedDate: undefined,
   // closeDate: undefined,
-  // page: '1',
-  // limit: '10'
 
   const [filterData, setFilterData] = useState<FilterData>({
     ticker: '',
     equityType: '',
     transactionType: [],
     allOrOpenOrClose: [],
-    daysOpen: '',
+    allOrDayOrWeek: 'day',
+    dayWeekLength: '30',
     orderBy: '',
     orderType: '',
     riskType: [],
   })
 
-  // const { data, isLoading, isError } = useQuery(
-  //   ['filteredData', filterData],
-  //   (key) => fetchData(key, filterData)
-  // )
+  const queryClient = useQueryClient()
+
+  const { data: filteredData, isSuccess } = useQuery(
+    'filteredData',
+    () => fetchAllTradeSummary(filterData),
+    {
+      enabled: false, // Don't automatically fetch on component mount
+      onSuccess: (data: any) => {
+        // Update state using the action function when the query is successful
+        action(data)
+      },
+    }
+  )
+
+  // check if the query has successfully fetched data
+  if (isSuccess) {
+    console.log('Filtered Data', filteredData)
+  }
 
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -70,18 +74,18 @@ export function DropdownCustom() {
     })
   }
 
-  const queryClient = useQueryClient()
-
-  const refetchData = () => {
-    queryClient.invalidateQueries('summary')
-  }
-
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     console.log('Filter Data', filterData)
 
-    refetchData()
+    // trigger the query
+    queryClient.prefetchQuery('filteredData', () =>
+      fetchAllTradeSummary(filterData)
+    )
+
+    // Set Trade Summary data to equal filtered data
+    action(filteredData)
   }
 
   const resetForm = () => {
@@ -90,11 +94,15 @@ export function DropdownCustom() {
       equityType: '',
       transactionType: [],
       allOrOpenOrClose: [],
-      daysOpen: '',
+      allOrDayOrWeek: '',
+      dayWeekLength: '',
       orderBy: '',
       orderType: '',
       riskType: [],
     })
+
+    // trigger the query
+    queryClient.prefetchQuery('filteredData', () => fetchAllTradeSummary())
   }
   return (
     <div
@@ -150,7 +158,7 @@ export function DropdownCustom() {
             <label className='form-label fw-bold'>Transaction Type</label>
 
             <div className='d-flex flex-wrap gap-4'>
-              {['Credit', 'Debit'].map((item) => (
+              {['credit', 'debit'].map((item) => (
                 <label
                   key={item}
                   className='form-check form-check-sm form-check-custom form-check-solid me-5'
@@ -163,7 +171,9 @@ export function DropdownCustom() {
                     onChange={handleCheckboxChange}
                     className='form-check-input'
                   />
-                  <span className='form-check-label'>{item}</span>
+                  <span className='form-check-label text-capitalize'>
+                    {item}
+                  </span>
                 </label>
               ))}
             </div>
@@ -173,7 +183,7 @@ export function DropdownCustom() {
             <label className='form-label fw-bold'>Option</label>
 
             <div className='d-flex flex-wrap gap-4'>
-              {['Open', 'Closed'].map((item) => (
+              {['open', 'closed'].map((item) => (
                 <label
                   key={item}
                   className='form-check form-check-sm form-check-custom form-check-solid me-5'
@@ -186,11 +196,50 @@ export function DropdownCustom() {
                     onChange={handleCheckboxChange}
                     className='form-check-input'
                   />
-                  <span className='form-check-label'>{item}</span>
+                  <span className='form-check-label text-capitalize'>
+                    {item}
+                  </span>
                 </label>
               ))}
             </div>
           </div>
+        </div>
+
+        {/* Days & Weeks */}
+
+        <div className='row mb-10'>
+          {['day', 'weeks'].map((item) => (
+            <div
+              key={item}
+              className='d-flex flex-wrap align-items-center gap-4 col-6'
+            >
+              <label className='form-check form-check-sm form-check-custom form-check-solid me-1'>
+                <input
+                  type='radio'
+                  name='allOrDayOrWeek'
+                  value={item}
+                  checked={filterData.allOrDayOrWeek === item}
+                  onChange={handleInputChange}
+                  className='form-check-input'
+                />
+                <span className='form-check-label fw-bold text-capitalize fs-6'>
+                  {item}
+                </span>
+              </label>
+              {filterData.allOrDayOrWeek === item && (
+                <input
+                  type='number'
+                  className='form-control form-control-sm form-control-solid border-gray-500 mw-40px me-5'
+                  name='dayWeekLength'
+                  placeholder={item === 'days' ? '30' : '4'}
+                  min={item === 'days' ? 1 : 1}
+                  max={item === 'days' ? 30 : 52}
+                  value={filterData.dayWeekLength + ''}
+                  onChange={handleInputChange}
+                />
+              )}
+            </div>
+          ))}
         </div>
 
         {/* Order By  */}
@@ -199,10 +248,10 @@ export function DropdownCustom() {
 
           <div className='d-flex flex-wrap align-items-center gap-4'>
             {[
-              'Profit Or Loss%',
-              'Closed Date',
-              'Crafted Date',
-              'Last Updated',
+              'profit or loss%',
+              'closed date',
+              'crafted date',
+              'last updated',
             ].map((item) => (
               <label
                 key={item}
@@ -216,7 +265,7 @@ export function DropdownCustom() {
                   onChange={handleInputChange}
                   className='form-check-input'
                 />
-                <span className='form-check-label'>{item}</span>
+                <span className='form-check-label text-capitalize'>{item}</span>
               </label>
             ))}
           </div>
@@ -227,7 +276,7 @@ export function DropdownCustom() {
           <label className='form-label fw-bold'>Sort Order</label>
 
           <div className='d-flex flex-wrap align-items-center gap-4'>
-            {['Ascending Order', 'Descending Order'].map((item) => (
+            {['ascending order', 'descending order'].map((item) => (
               <label
                 key={item}
                 className='form-check form-check-sm form-check-custom form-check-solid me-5'
@@ -240,7 +289,7 @@ export function DropdownCustom() {
                   onChange={handleInputChange}
                   className='form-check-input'
                 />
-                <span className='form-check-label'>{item}</span>
+                <span className='form-check-label text-capitalize'>{item}</span>
               </label>
             ))}
           </div>
@@ -251,7 +300,7 @@ export function DropdownCustom() {
           <label className='form-label fw-bold'>Risk Type</label>
 
           <div className='d-flex flex-wrap align-items-center gap-4'>
-            {['Standard', 'Risky', 'Swing', 'Day Trade'].map((item) => (
+            {['standard', 'risky', 'swing', 'day trade'].map((item) => (
               <label
                 key={item}
                 className='form-check form-check-sm form-check-custom form-check-solid me-5'
@@ -264,14 +313,14 @@ export function DropdownCustom() {
                   onChange={handleCheckboxChange}
                   className='form-check-input'
                 />
-                <span className='form-check-label'>{item}</span>
+                <span className='form-check-label text-capitalize'>{item}</span>
               </label>
             ))}
           </div>
         </div>
 
         {/* User Filter */}
-        <div className='mb-10'>
+        {/* <div className='mb-10'>
           <label className='d-flex align-items-center form-label fw-bold mb-2'>
             <span>User Filter</span>
             <i
@@ -288,7 +337,7 @@ export function DropdownCustom() {
             onChange={handleInputChange}
             placeholder='Ex:DesiArtist'
           />
-        </div>
+        </div> */}
 
         {/* Action Buttons */}
 
@@ -304,7 +353,7 @@ export function DropdownCustom() {
           <button
             type='submit'
             className='btn btn-sm btn-primary'
-            // data-kt-menu-dismiss='true'
+            data-kt-menu-dismiss='true'
           >
             Apply
           </button>
