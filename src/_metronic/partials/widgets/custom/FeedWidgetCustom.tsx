@@ -79,7 +79,7 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
     }
   }
 
-  const handleCommentSubmit = async (e) => {
+  const handleCommentSubmit = async (e: any) => {
     e.preventDefault()
 
     try {
