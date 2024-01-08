@@ -41,7 +41,8 @@ export const fetchUserData = async (id: string): Promise<any> => {
 }
 
 export const fetchAllTradeSummary = async (
-  filterParams?: object
+  filterParams?: object,
+  page?: number
 ): Promise<any> => {
   try {
     const response: AxiosResponse = await api.get(
@@ -52,7 +53,7 @@ export const fetchAllTradeSummary = async (
         },
         params: {
           ...filterParams,
-          page: 1,
+          page: page,
           limit: 10,
         },
       }
@@ -60,6 +61,24 @@ export const fetchAllTradeSummary = async (
     return response.data
   } catch (error) {
     throw new Error('Error fetching all trade summary')
+  }
+}
+
+export const fetchTradeSummaryDetails = async (
+  summaryId: string
+): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.get(
+      `/trades/summary/${summaryId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${BEARER_TOKEN}`,
+        },
+      }
+    )
+    return response.data
+  } catch (error) {
+    throw new Error('Error fetching  trade summary details')
   }
 }
 
@@ -391,6 +410,7 @@ export const handleDeleteAllNotifications = async (): Promise<any> => {
   try {
     const response: AxiosResponse = await api.put(
       '/profile/notifications/deleteAll',
+      {},
       {
         headers: {
           Authorization: `Bearer ${BEARER_TOKEN}`,
