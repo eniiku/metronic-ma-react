@@ -6,6 +6,7 @@ import { ToolbarCustom } from '../../../_metronic/layout/components/toolbar/tool
 
 const DashboardPage: FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1)
+  const totalPages = 10
 
   const {
     data: summary,
@@ -25,6 +26,44 @@ const DashboardPage: FC = () => {
 
   const handlePageClick = (pageNumber: number) => {
     setCurrentPage(pageNumber)
+  }
+
+  const renderPageNumbers = () => {
+    const pageNumbers = []
+
+    for (let i = 1; i <= totalPages; i++) {
+      if (
+        i === currentPage ||
+        i === currentPage - 1 ||
+        i === currentPage + 1 ||
+        i === 1 ||
+        i === totalPages
+      ) {
+        pageNumbers.push(
+          <li
+            key={i}
+            className={`page-item ${currentPage === i ? 'active' : ''}`}
+          >
+            <a
+              href='#'
+              className='page-link'
+              onClick={() => handlePageClick(i)}
+            >
+              {i}
+            </a>
+          </li>
+        )
+      } else if (i === currentPage - 2 || i === currentPage + 2) {
+        // Display ellipsis for pages not directly adjacent to current page
+        pageNumbers.push(
+          <li key={i} className='page-item disabled'>
+            <span className='page-link'>...</span>
+          </li>
+        )
+      }
+    }
+
+    return pageNumbers
   }
 
   return (
@@ -66,20 +105,7 @@ const DashboardPage: FC = () => {
           </a>
         </li>
 
-        {Array.from(Array(10).keys()).map((item, index) => (
-          <li
-            key={item}
-            className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}
-          >
-            <a
-              href='#'
-              className='page-link'
-              onClick={() => handlePageClick(index + 1)}
-            >
-              {index + 1}
-            </a>
-          </li>
-        ))}
+        {renderPageNumbers()}
 
         <li className={`page-item ${currentPage === 10 ? 'disabled' : ''}`}>
           <a
