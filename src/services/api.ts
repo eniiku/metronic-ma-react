@@ -422,3 +422,30 @@ export const handleDeleteAllNotifications = async (): Promise<any> => {
     throw new Error('Error fetching users')
   }
 }
+
+export const postWallpost = async (message: {
+  content: string
+  image: any
+  position: any
+  sentiment: 'bearish' | 'bullish' | 'any'
+}): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.post(
+      '/wallposts',
+      {
+        content: message.content,
+        image: message.image,
+        position: message.position,
+        sentiment: message.sentiment,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${BEARER_TOKEN}`,
+        },
+      }
+    )
+    return response.data
+  } catch (error) {
+    throw new Error('Error fetching users')
+  }
+}
