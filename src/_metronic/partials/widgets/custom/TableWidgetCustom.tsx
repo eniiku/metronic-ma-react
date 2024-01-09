@@ -1,4 +1,5 @@
 import React from 'react'
+import { DropdownCustomTimeframe } from '../../content/dropdown/DropdownCustomTimeframe'
 
 type DataProps = {
   assetName: string
@@ -31,9 +32,20 @@ export const TablesWidgetCustom: React.FC<Props> = ({ className, data }) => {
       <div className='card-header border-0 pt-5'>
         <h3 className='card-title align-items-start flex-column'>
           <span className='card-label fw-bold fs-3 mb-1'>Trade Statistics</span>
-          {/* <span className='text-muted mt-1 fw-semibold fs-7'>
-          </span> */}
         </h3>
+
+        <div className='m-0'>
+          <button
+            className='btn btn-sm btn-outline btn-outline-default fw-bold'
+            data-kt-menu-trigger='click'
+            data-kt-menu-placement='bottom-end'
+          >
+            {/* <KTIcon iconName='filter' className='fs-6 text-muted me-1' /> */}
+            TimeFrame: All Time
+          </button>
+
+          <DropdownCustomTimeframe />
+        </div>
       </div>
       {/* end::Header */}
       {/* begin::Body */}
