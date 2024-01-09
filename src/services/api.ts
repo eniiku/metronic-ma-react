@@ -3,8 +3,8 @@ import axios, { AxiosResponse } from 'axios'
 import { getFromCookies } from '../lib/utils'
 
 const api = axios.create({
-  // baseURL: 'http://localhost:3100/api',
-  baseURL: 'http://localhost:3000/api',
+  // baseURL: 'http://localhost:3000/api',
+  baseURL: 'https://api.marketaction.live/api',
 })
 
 const BEARER_TOKEN = getFromCookies()?.api_token as string
@@ -430,14 +430,50 @@ export const postWallpost = async (message: {
   sentiment: 'bearish' | 'bullish' | 'any'
 }): Promise<any> => {
   try {
-    const response: AxiosResponse = await api.post(
-      '/wallposts',
-      {
-        content: message.content,
-        image: message.image,
-        position: message.position,
-        sentiment: message.sentiment,
+    // Create FormData object
+    const formData = new FormData()
+    formData.append('content', message.content)
+    formData.append('image', message.image)
+    formData.append('position', message.position)
+    formData.append('sentiment', message.sentiment)
+
+    // Make the POST request with FormData
+    const response: AxiosResponse = await api.post('/wallposts', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${BEARER_TOKEN}`,
       },
+    })
+
+    return response.data
+  } catch (error) {
+    throw new Error('Error posting wallpost')
+  }
+}
+
+export const fetchNotificationsSettings = async (): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.get(
+      '/profile/notifications/settings',
+      {
+        headers: {
+          Authorization: `Bearer ${BEARER_TOKEN}`,
+        },
+      }
+    )
+    return response.data
+  } catch (error) {
+    throw new Error('Error fetching users')
+  }
+}
+
+export const updateNotificationsSettings = async (
+  message: object
+): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.post(
+      '/profile/notifications/settings',
+      message,
       {
         headers: {
           Authorization: `Bearer ${BEARER_TOKEN}`,
