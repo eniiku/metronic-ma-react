@@ -488,6 +488,29 @@ export const updateNotificationsSettings = async (
     )
     return response.data
   } catch (error) {
+    throw new Error('Error updating notifications settings')
+  }
+}
+
+export const fetchMarketPrice = async (
+  equityType: string,
+  ticker: string
+): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.get(
+      '/trades/get-current-market-price',
+      {
+        headers: {
+          Authorization: `Bearer ${BEARER_TOKEN}`,
+        },
+        params: {
+          equity_type: equityType,
+          ticker: ticker,
+        },
+      }
+    )
+    return response.data
+  } catch (error) {
     throw new Error('Error fetching users')
   }
 }

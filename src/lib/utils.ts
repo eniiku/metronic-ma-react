@@ -172,3 +172,69 @@ export function getStartEndDate(filterDays: string) {
 
   return dateRanges[filterDays]
 }
+
+export const getAvgValue = (arr: number[]) => {
+  const newAvg =
+    arr.reduce((p, n) => {
+      return p + n
+    }) / arr.length
+  return newAvg ? newAvg?.toFixed(4) : 0
+}
+
+export const getCallPut = (tradeSummaryData: any) => {
+  let tradeDirection = ''
+  if (tradeSummaryData?.equityType === 'Option') {
+    const tickerCode = tradeSummaryData?.ticker?.split('_')[1]
+    tradeDirection = tickerCode?.substring(6, 7)
+  } else {
+    if (tradeSummaryData?.tradeDirection == 'BTO') tradeDirection = 'C'
+    else tradeDirection = 'P'
+  }
+  return tradeDirection
+}
+
+export const getEntryPrice = (tradeSummaryData: any) => {
+  let entryPrice = 0
+  if (tradeSummaryData && tradeSummaryData?.entryPrice) {
+    if (tradeSummaryData?.equityType == 'Crypto') {
+      entryPrice = tradeSummaryData?.entryPrice?.toFixed(4)
+    } else entryPrice = tradeSummaryData?.entryPrice?.toFixed(2)
+  } else entryPrice = 0
+  return entryPrice
+}
+
+export const getStrikePrice = (tradeSummaryData: any) => {
+  if (tradeSummaryData && tradeSummaryData?.ticker) {
+    const tickerCode = tradeSummaryData?.ticker?.split('_')[1]
+    const strikePrice = tickerCode?.substring(7)
+    return strikePrice
+  } else return ''
+}
+
+export const getDaysOpen = (tradeSummaryData: any) => {
+  if (tradeSummaryData) {
+    const tickerCode = tradeSummaryData?.ticker?.split('_')[1]
+    const month = tickerCode?.substring(0, 2)
+    const date = tickerCode?.substring(2, 4)
+    const year = tickerCode?.substring(4, 6)
+    const expiryDate = month + '/' + date + '/' + year
+
+    const given = moment(expiryDate, 'MM/DD/YYYY')
+    const current = moment().startOf('day')
+    const daysOpens = moment.duration(given.diff(current)).asDays()
+    const openDays = Math.floor(daysOpens)
+    return openDays
+  } else return 0
+}
+
+export const getExpiryDate = (tradeSummaryData: any) => {
+  if (tradeSummaryData) {
+    const tickerCode = tradeSummaryData?.ticker?.split('_')[1]
+    const month = tickerCode?.substring(0, 2)
+    const date = tickerCode?.substring(2, 4)
+    const year = tickerCode?.substring(4, 6)
+    const expiryDate = month + '/' + date + '/' + year
+    const expDate = moment(expiryDate, 'MM/DD/YYYY').format('MMM DD')
+    return expDate
+  } else return moment(new Date()).format('MMM DD')
+}
