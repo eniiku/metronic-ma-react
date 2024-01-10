@@ -328,16 +328,17 @@ export const fetchFrequentlyTradedStats = async (
   }
 }
 
-export const postTrades = async (message: string): Promise<any> => {
+export const postTrades = async (message: string, id: string): Promise<any> => {
   try {
     const response: AxiosResponse = await api.post(
       '/trades/post-trades-data',
       {
         message: message,
+        user_id: id,
         channelId: 'any',
         guildId: 'any',
         discordId: 'any',
-        platform: 'any',
+        platform: 'web',
       },
       {
         headers: {

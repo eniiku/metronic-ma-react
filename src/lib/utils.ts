@@ -238,3 +238,18 @@ export const getExpiryDate = (tradeSummaryData: any) => {
     return expDate
   } else return moment(new Date()).format('MMM DD')
 }
+
+export const returnPosition = (pos: string) => {
+  switch (pos) {
+    case 'buy':
+      return 'BTO'
+    case 'sell':
+      return 'STC'
+    case 'short':
+      return 'STO'
+    case 'cover':
+      return 'BTC'
+    default:
+      return ''
+  }
+}
