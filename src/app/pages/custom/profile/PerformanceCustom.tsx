@@ -326,7 +326,7 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
                     className='card-xl-stretch mb-xl-8'
                     color='light'
                     title={`${trade ? trade.ticker : '--'}`}
-                    titleColor='white'
+                    titleColor='text-gray-500'
                     description={`Trade Count: ${trade.totalTrades}`}
                     descriptionColor='muted'
                   />

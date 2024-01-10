@@ -5,16 +5,14 @@ import { useThemeMode } from '../../layout/theme-mode/ThemeModeProvider'
 
 type Props = {
   className: string
-  labels: string[]
-  datasets: { data: number[] }[]
+  seriesData: { labels: string[]; datasets: { data: number[] }[] }
   title: string
   color: string
 }
 
 const ChartsWidgetCustom1: FC<Props> = ({
   className,
-  labels,
-  datasets,
+  seriesData,
   title,
   color,
 }) => {
@@ -31,18 +29,13 @@ const ChartsWidgetCustom1: FC<Props> = ({
     }
   }, [chartRef, mode])
 
-  function getChartOptions(
-    height: number,
-    labels: string[],
-    datasets: { data: number[] }[],
-    color: string
-  ): ApexOptions {
+  function getChartOptions(height: number, color: string): ApexOptions {
     const labelColor = getCSSVariableValue('--bs-gray-500')
     const borderColor = getCSSVariableValue('--bs-gray-200')
     const baseColor = getCSSVariableValue(color)
 
     return {
-      series: datasets,
+      series: seriesData.datasets,
       chart: {
         fontFamily: 'inherit',
         type: 'bar',
@@ -70,7 +63,7 @@ const ChartsWidgetCustom1: FC<Props> = ({
         colors: ['transparent'],
       },
       xaxis: {
-        categories: labels,
+        categories: seriesData.labels,
         axisBorder: {
           show: false,
         },
@@ -148,7 +141,7 @@ const ChartsWidgetCustom1: FC<Props> = ({
 
     const chart = new ApexCharts(
       chartRef.current,
-      getChartOptions(height, labels, datasets, color)
+      getChartOptions(height, color)
     )
     if (chart) {
       chart.render()

@@ -50,10 +50,18 @@ export const CustomModal2 = ({ show, handleClose, action }: Props) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    // Validate trade description
+    // Validate Wallpost content
     !message?.content?.trim()
       ? setError('Textarea cannot be blank')
       : setError('')
+
+    // Validate all required fields
+    if (!message.content.trim() || !message.image || !message.sentiment) {
+      setError('All fields must be filled')
+      return
+    } else {
+      setError('')
+    }
 
     try {
       await postWallpost(message)
@@ -112,22 +120,8 @@ export const CustomModal2 = ({ show, handleClose, action }: Props) => {
               value={message.content}
               onChange={handleInputChange}
             ></textarea>
-
-            {error ? (
-              <div className='fv-plugins-message-container'>
-                <div
-                  data-field='trade_description'
-                  data-validator='notEmpty'
-                  className='fv-help-block'
-                >
-                  {error || 'Textarea can not be empty'}
-                </div>
-              </div>
-            ) : null}
-
             {/* <!--begin::Image input--> */}
 
-            {/* Image input */}
             {message.image ? (
               <div
                 className='image-input image-input-bg-muted mt-10 mx-auto'
@@ -162,6 +156,18 @@ export const CustomModal2 = ({ show, handleClose, action }: Props) => {
             ) : null}
             {/* <!--end::Image input--> */}
           </div>
+
+          {error ? (
+            <div className='fv-plugins-message-container mb-5'>
+              <div
+                data-field='trade_description'
+                data-validator='notEmpty'
+                className='fv-help-block'
+              >
+                {error || 'Textarea can not be empty'}
+              </div>
+            </div>
+          ) : null}
 
           {/* begin:Actions */}
           <div className='d-flex flex-stack '>
