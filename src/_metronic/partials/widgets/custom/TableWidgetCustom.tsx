@@ -15,9 +15,26 @@ type DataProps = {
 type Props = {
   className: string
   data: DataProps[]
+  userId: string
+  action: React.Dispatch<any>
+  loader: React.Dispatch<any>
+  selectedTimeframe: string
+  setSelectedTimeframe: (value: string) => void
 }
 
-export const TablesWidgetCustom: React.FC<Props> = ({ className, data }) => {
+export const TablesWidgetCustom: React.FC<Props> = ({
+  className,
+  data,
+  userId,
+  action,
+  loader,
+  selectedTimeframe,
+  setSelectedTimeframe,
+}) => {
+  const handleTimeframeChange = (timeframe: string) => {
+    setSelectedTimeframe(timeframe)
+  }
+
   const getTextColor = (value: number) => {
     return value > 0
       ? 'text-success'
@@ -36,15 +53,22 @@ export const TablesWidgetCustom: React.FC<Props> = ({ className, data }) => {
 
         <div className='m-0'>
           <button
-            className='btn btn-sm btn-outline btn-outline-default fw-bold'
+            className='btn btn-sm btn-outline btn-outline-default fw-bold text-capitalize'
             data-kt-menu-trigger='click'
             data-kt-menu-placement='bottom-end'
           >
-            {/* <KTIcon iconName='filter' className='fs-6 text-muted me-1' /> */}
-            TimeFrame: All Time
+            {/* Display the selected timeframe dynamically */}
+            TimeFrame: {selectedTimeframe?.replace('_', ' ')}
           </button>
 
-          <DropdownCustomTimeframe />
+          <DropdownCustomTimeframe
+            id={userId}
+            setData={action}
+            setLoader={loader}
+            onTimeframeChange={handleTimeframeChange}
+            value={selectedTimeframe}
+            onChange={setSelectedTimeframe}
+          />
         </div>
       </div>
       {/* end::Header */}

@@ -33,6 +33,10 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
     isError,
   } = useQuery('statistics', () => fetchStatistics(userId))
 
+  const [statisticsData, setStatisticsData] = useState(statistics)
+  const [isStatsLoading, setIsStatsLoading] = useState(false)
+  const [selectedTimeframe, setSelectedTimeframe] = useState<string>('all_time')
+
   const {
     data: additionalStats,
     isLoading: isAdditionalLoading,
@@ -76,9 +80,6 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
     isError: isAvgRiskStatsError,
   } = useQuery('avgRiskStats', () => fetchAvgRiskStats(userId))
 
-  console.log('CumulativeStats: ', cumulativeStats)
-  console.log('AvgStats: ', avgRiskStats)
-
   const [comData, setComData] = useState<{
     labels: string[]
     datasets: { data: number[] }[]
@@ -96,10 +97,10 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
   })
 
   useEffect(() => {
-    console.log('Updating data...')
-    console.log('cumulativeStats:', cumulativeStats)
-    console.log('avgRiskStats:', avgRiskStats)
+    setStatisticsData(statistics)
+  }, [statistics])
 
+  useEffect(() => {
     if (cumulativeStats && cumulativeStats.data?.length > 0) {
       const labels = cumulativeStats.data.map((x: any) => x.key)
       const datasets = [
@@ -110,13 +111,11 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
         },
       ]
 
-      console.log('Setting comData:', { labels, datasets })
-      setComData({ labels, datasets })
-    } else {
-      console.log('Setting comData to default.')
-      setComData({ labels: [], datasets: [{ data: [] }] })
+      setComData({ labels: labels, datasets: datasets })
     }
+  }, [cumulativeStats])
 
+  useEffect(() => {
     if (avgRiskStats) {
       const labels = [
         'Daily Risk',
@@ -135,29 +134,26 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
         },
       ]
 
-      console.log('Setting avgRiskData:', { labels, datasets })
-      setAvgRiskData({ labels, datasets })
+      setAvgRiskData({ labels: labels, datasets: datasets })
     }
-  }, [cumulativeStats, avgRiskStats])
-
-  console.log('cumulative', comData)
-  console.log('avgRiskData: ', avgRiskData)
+  }, [avgRiskStats])
 
   return (
     <>
       {/* Cumulative Pl */}
-      {isCumulativeStatsLoading ? (
+      {isCumulativeStatsLoading && comData.labels.length <= 0 ? (
         <div>Loading...</div>
       ) : isCumulativeStatsError ? (
         <div>Error fetching cumulative pl</div>
-      ) : (
+      ) : cumulativeStats?.data.length > 0 ? (
         <ChartsWidgetCustom1
           className='mb-8'
-          labels={comData.labels}
-          datasets={comData.datasets}
+          seriesData={comData}
           title='Cumulative P&L'
           color='--bs-info'
         />
+      ) : (
+        <div>No Trade found!</div>
       )}
 
       {/* Assets Traded */}
@@ -190,12 +186,20 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
         />
       )}
 
-      {isLoading ? (
+      {isStatsLoading || isLoading ? (
         <div>Loading...</div>
       ) : isError ? (
         <div className='text-center fs-2 py-5'>Error fetching table data</div>
       ) : (
-        <TablesWidgetCustom className='mb-8' data={statistics.data} />
+        <TablesWidgetCustom
+          className='mb-8'
+          data={statisticsData?.data}
+          userId={userId}
+          action={setStatisticsData}
+          loader={setIsStatsLoading}
+          selectedTimeframe={selectedTimeframe}
+          setSelectedTimeframe={setSelectedTimeframe}
+        />
       )}
 
       {/* Trade Direction */}
@@ -348,8 +352,7 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
       ) : (
         <ChartsWidgetCustom1
           className='mb-8'
-          labels={avgRiskData.labels}
-          datasets={avgRiskData.datasets}
+          seriesData={avgRiskData}
           title='Average Risk'
           color='--bs-danger'
         />
