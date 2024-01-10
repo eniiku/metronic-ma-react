@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import { AuthModel } from '../app/modules/auth'
+import moment from 'moment'
 
 export const getTradePrice = (
   equityType: string,
@@ -102,4 +103,72 @@ export const getFromCookies = (): AuthModel | undefined => {
     }
   }
   return undefined
+}
+
+export function getStartEndDate(filterDays: string) {
+  const today = moment().format('YYYY-MM-DD')
+
+  const dateRanges: Record<string, { startDate: string; endDate: string }> = {
+    all_time: { startDate: '', endDate: '' },
+    today: { startDate: today, endDate: today },
+    yesterday: {
+      startDate: moment().subtract(1, 'day').format('YYYY-MM-DD'),
+      endDate: today,
+    },
+    this_week: {
+      startDate: moment().startOf('week').format('YYYY-MM-DD'),
+      endDate: today,
+    },
+    last_week: {
+      startDate: moment()
+        .subtract(1, 'weeks')
+        .startOf('week')
+        .format('YYYY-MM-DD'),
+      endDate: moment().subtract(1, 'weeks').endOf('week').format('YYYY-MM-DD'),
+    },
+    this_month: {
+      startDate: moment().startOf('month').format('YYYY-MM-DD'),
+      endDate: today,
+    },
+    last_month: {
+      startDate: moment()
+        .subtract(1, 'months')
+        .startOf('month')
+        .format('YYYY-MM-DD'),
+      endDate: moment()
+        .subtract(1, 'months')
+        .endOf('month')
+        .format('YYYY-MM-DD'),
+    },
+    this_quarter: {
+      startDate: moment()
+        .subtract(3, 'months')
+        .startOf('month')
+        .format('YYYY-MM-DD'),
+      endDate: today,
+    },
+    last_quarter: {
+      startDate: moment()
+        .subtract(6, 'months')
+        .startOf('month')
+        .format('YYYY-MM-DD'),
+      endDate: moment()
+        .subtract(3, 'months')
+        .endOf('month')
+        .format('YYYY-MM-DD'),
+    },
+    this_year: {
+      startDate: moment().startOf('year').format('YYYY-MM-DD'),
+      endDate: today,
+    },
+    last_year: {
+      startDate: moment()
+        .subtract(1, 'years')
+        .startOf('year')
+        .format('YYYY-MM-DD'),
+      endDate: moment().subtract(1, 'years').endOf('year').format('YYYY-MM-DD'),
+    },
+  }
+
+  return dateRanges[filterDays]
 }

@@ -82,13 +82,19 @@ export const fetchTradeSummaryDetails = async (
   }
 }
 
-export const fetchStatistics = async (userId?: string): Promise<any> => {
+export const fetchStatistics = async (
+  userId?: string,
+  startDate?: string,
+  endDate?: string
+): Promise<any> => {
   try {
     const response: AxiosResponse = await api.get('/statistics', {
       headers: {
         Authorization: `Bearer ${BEARER_TOKEN}`,
       },
       params: {
+        startDate: startDate,
+        endDate: endDate,
         userId: userId,
       },
     })
