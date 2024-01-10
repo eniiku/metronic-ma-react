@@ -108,6 +108,17 @@ const ProfileHeader: FC = () => {
                 Wall Post
               </Link>
             </li>
+            <li className='nav-item'>
+              <Link
+                className={
+                  `nav-link text-active-primary me-6 ` +
+                  (location.pathname === '/profile/settings' && 'active')
+                }
+                to='settings/'
+              >
+                Settings
+              </Link>
+            </li>
           </ul>
         </div>
       </div>

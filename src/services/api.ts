@@ -514,3 +514,20 @@ export const fetchMarketPrice = async (
     throw new Error('Error fetching users')
   }
 }
+
+export const updateUserData = async (message: any): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.post(
+      '/auth/update-user-data',
+      { message },
+      {
+        headers: {
+          Authorization: `Bearer ${BEARER_TOKEN}`,
+        },
+      }
+    )
+    return response.data
+  } catch (error) {
+    throw new Error('Error updating user data')
+  }
+}

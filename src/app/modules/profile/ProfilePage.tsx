@@ -6,6 +6,7 @@ import TradeLogCustom from '../../pages/custom/profile/TradeLogCustom'
 import UserWallPostCustom from '../../pages/custom/profile/UserWallPostCustom'
 import PerformanceCustom from '../../pages/custom/profile/PerformanceCustom'
 import ProfileCustom from '../../pages/custom/profile/ProfileCustom'
+import { SettingsCustom } from '../../pages/custom/profile/SettingsCustom'
 
 const ProfilePage = () => {
   const { currentUser } = useAuth()
@@ -45,6 +46,14 @@ const ProfilePage = () => {
           element={
             <UserWallPostCustom
               userId={currentUser ? `${currentUser.id}` : ''}
+            />
+          }
+        />
+        <Route
+          path='settings'
+          element={
+            <SettingsCustom
+            // userId={currentUser ? `${currentUser.id}` : ''}
             />
           }
         />
