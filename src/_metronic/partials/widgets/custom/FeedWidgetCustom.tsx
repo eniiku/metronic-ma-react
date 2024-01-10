@@ -142,12 +142,16 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
           <div className='d-flex align-items-center flex-grow-1'>
             {/* begin::Avatar */}
             <div className='symbol symbol-45px me-5'>
-              <img
-                src={
-                  data?.author.profilePicture ? data?.author.profilePicture : ''
-                }
-                alt=''
-              />
+              {data?.author?.profilePicture ? (
+                <img
+                  alt='User profile picture'
+                  src={data?.author?.profilePicture}
+                />
+              ) : (
+                <div className='symbol-label fs-1 fw-bold bg-info text-inverse-info'>
+                  {data?.author?.username.slice(0, 1)}
+                </div>
+              )}
             </div>
             {/* end::Avatar */}
 
@@ -188,24 +192,33 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
           {/* end:: Custom Trade */}
 
           {/* begin::Toolbar */}
-          <div className='d-flex align-items-center mb-5'>
-            <a
-              href='#'
-              className='btn btn-sm btn-light btn-color-muted btn-active-light-success px-4 py-2 me-4'
-            >
-              <KTIcon iconName='message-text-2' className='fs-3' />
-              {commentsCount}
-            </a>
+          <div className='d-flex align-items-center mb-5 justify-content-between'>
+            <div>
+              <button className='btn btn-sm btn-light btn-color-muted btn-active-light-success px-4 py-2 me-4'>
+                <KTIcon iconName='message-text-2' className='fs-3' />
+                {commentsCount}
+              </button>
 
-            <button
-              onClick={handleLikeClick}
-              className={`btn btn-sm  btn-active-light-danger px-4 py-2 ${
-                isLiked ? 'btn-light-danger' : 'btn-light'
+              <button
+                onClick={handleLikeClick}
+                className={`btn btn-sm  btn-active-light-danger px-4 py-2 ${
+                  isLiked ? 'btn-light-danger' : 'btn-light'
+                }`}
+              >
+                <KTIcon iconName='heart' className='fs-2' />
+                {likesCount}
+              </button>
+            </div>
+
+            <div
+              className={`btn btn-sm btn-outline text-uppercase ${
+                data?.sentiment === 'bullish'
+                  ? 'btn-outline-success'
+                  : 'btn-outline-danger'
               }`}
             >
-              <KTIcon iconName='heart' className='fs-2' />
-              {likesCount}
-            </button>
+              {data?.sentiment}
+            </div>
           </div>
           {/* end::Toolbar */}
         </div>
