@@ -4,7 +4,7 @@ import { useQuery } from 'react-query'
 import { useAuth } from '../../../modules/auth'
 
 interface FormData {
-  userName: string
+  username: string
   email: string
   profileDescription: string
   facebookLink: string
@@ -25,7 +25,7 @@ export const SettingsCustom = () => {
   const userProfileData = profileData?.data
 
   const [formData, setFormData] = useState<FormData>({
-    userName: userProfileData?.username
+    username: userProfileData?.username
       ? userProfileData?.username
       : userProfileData?.displayName,
     email: userProfileData?.email,
@@ -52,6 +52,7 @@ export const SettingsCustom = () => {
     setLoading(true)
 
     try {
+      console.log('From', formData)
       // Call the API function to update user data
       await updateUserData(formData)
 
@@ -74,7 +75,7 @@ export const SettingsCustom = () => {
 
   useEffect(() => {
     setFormData({
-      userName: userProfileData?.username
+      username: userProfileData?.username
         ? userProfileData?.username
         : userProfileData?.displayName,
       email: userProfileData?.email,
@@ -89,18 +90,51 @@ export const SettingsCustom = () => {
     <div className='w-50 mx-auto my-20'>
       <form onSubmit={handleSubmit}>
         {[
-          { title: 'Name', fieldName: 'userName' },
-          { title: 'Email', fieldName: 'email' },
-          { title: 'Profile Description', fieldName: 'profileDescription' },
-          { title: 'Facebook', fieldName: 'facebookLink' },
-          { title: 'Twitter', fieldName: 'twitterLink' },
-          { title: 'LinkedIn', fieldName: 'linkedinLink' },
+          {
+            title: 'Name',
+            fieldName: 'username',
+            // icon: faUser,
+            placeholder: 'Enter your name',
+          },
+          {
+            title: 'Email',
+            fieldName: 'email',
+            // icon: faEnvelope,
+            placeholder: 'Enter your email',
+          },
+          {
+            title: 'Profile Description',
+            fieldName: 'profileDescription',
+            // icon: faInfoCircle,
+            placeholder: 'Enter your profile description',
+          },
+          {
+            title: 'Facebook',
+            fieldName: 'facebookLink',
+            // icon: faFacebook,
+            placeholder: 'Enter your Facebook link',
+          },
+          {
+            title: 'Twitter',
+            fieldName: 'twitterLink',
+            // icon: faTwitter,
+            placeholder: 'Enter your Twitter link',
+          },
+          {
+            title: 'LinkedIn',
+            fieldName: 'linkedinLink',
+            // icon: faLinkedin,
+            placeholder: 'Enter your LinkedIn link',
+          },
         ].map((item, index) => (
           <div key={item.fieldName} className='mb-10'>
             <label
               htmlFor={`input_${item.fieldName}`}
-              className={`${index < 2 ? 'required' : ''} form-label`}
+              className={`${
+                index < 2 ? 'required' : ''
+              } form-label d-flex align-items-center`}
             >
+              {/* <FontAwesomeIcon icon={item.icon} className='me-2' /> */}
               {item.title}
             </label>
             <input
@@ -110,7 +144,7 @@ export const SettingsCustom = () => {
               name={item.fieldName}
               value={formData[item.fieldName]}
               onChange={handleInputChange}
-              placeholder={`Enter ${item.title}`}
+              placeholder={item.placeholder}
               required={index < 2}
             />
           </div>
@@ -130,7 +164,7 @@ export const SettingsCustom = () => {
 
         <button
           type='submit'
-          className='btn btn-primary w-100 mx-auto'
+          className='btn btn-primary w-100 mt-20 mx-auto'
           disabled={loading}
         >
           {loading ? 'Updating...' : 'Update Profile'}
