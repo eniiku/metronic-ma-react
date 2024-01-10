@@ -2,6 +2,7 @@ import moment from 'moment'
 import _ from 'lodash'
 
 import { getTradePrice } from '../../../../lib/utils'
+import { useNavigate } from 'react-router-dom'
 
 export function TradeWidget({
   className,
@@ -12,6 +13,12 @@ export function TradeWidget({
   data: any
   showTitle?: boolean
 }) {
+  const navigate = useNavigate()
+
+  const handleClick = (id: string) => {
+    navigate(`/trade/${id}`)
+  }
+
   return (
     <div className={`card ${className}`}>
       {/* begin::Header */}
@@ -92,7 +99,13 @@ export function TradeWidget({
                   const strikePrice = ticker?.substring(6)
 
                   return (
-                    <tr key={item?._id}>
+                    <tr
+                      key={item?._id}
+                      data-bs-toggle='modal'
+                      data-bs-target='#kt_modal_custom'
+                      className='bg-hover-light hover-elevate-down cursor-pointer'
+                      onClick={() => handleClick(item?._id)}
+                    >
                       <td>
                         <div className=' fw-bold  mb-1 fs-6'>{tickerName}</div>
                       </td>

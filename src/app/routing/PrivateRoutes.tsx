@@ -10,6 +10,7 @@ import { WithChildren } from '../../_metronic/helpers'
 import WallPost from '../pages/custom/WallPost'
 import TradeIdeas from '../pages/custom/TradeIdeas'
 import ProfilePageCustom from '../pages/custom/ProfilePageCustom'
+import { TradeDetailsCustom } from '../pages/custom/TradeDetailsCustom'
 
 const PrivateRoutes = () => {
   const ProfilePage = lazy(() => import('../modules/profile/ProfilePage'))
@@ -41,6 +42,11 @@ const PrivateRoutes = () => {
         />
         {/* Dynamic user profile */}
         <Route path='user/:userId/*' element={<ProfilePageCustom />} />
+
+        {/* Trade Details Page */}
+
+        <Route path='trade/:tradeId' element={<TradeDetailsCustom />} />
+
         <Route
           path='crafted/pages/wizards/*'
           element={
