@@ -228,7 +228,7 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
         <div className='mb-7 ps-15'>
           {commentData.length > 0
             ? commentData.slice(0, 2).map((comment: any) => (
-                <div className='d-flex mb-5'>
+                <div key={commentData._id} className='d-flex mb-5'>
                   {/* begin::Avatar */}
                   <div className='symbol symbol-45px me-5'>
                     {comment?.commentedBy?.profilePicture ? (

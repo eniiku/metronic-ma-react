@@ -94,7 +94,7 @@ export const TablesWidgetCustom: React.FC<Props> = ({
             {/* end::Table head */}
             {/* begin::Table body */}
             <tbody>
-              {data.map((item) => (
+              {data?.map((item) => (
                 <tr key={item.assetName}>
                   <td>
                     <div className=' fw-bold text-hover-primary mb-1 fs-6'>

@@ -1,5 +1,4 @@
-import emptyPng from '../../../public/images/empty.png'
-import noDataPng from '../../../public/images/no_data.png'
+import { toAbsoluteUrl } from '../../_metronic/helpers'
 
 type NoDataProps = {
   height?: number
@@ -12,9 +11,16 @@ const NoData: React.FC<NoDataProps> = ({ height, message, type }) => {
   message = 'No data found for this page!'
 
   return (
-    <div className='' style={{ height: `${height}px` }}>
+    <div
+      className='d-flex flex-column align-items-center justify-content-center'
+      style={{ height: `${height}px` }}
+    >
       <img
-        src={type === 'info' ? emptyPng : noDataPng}
+        src={
+          type === 'info'
+            ? toAbsoluteUrl('images/empty.png')
+            : toAbsoluteUrl('images/no_data.png')
+        }
         alt=''
         style={{
           width: '140px',
