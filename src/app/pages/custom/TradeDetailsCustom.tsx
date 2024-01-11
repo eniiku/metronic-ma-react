@@ -30,8 +30,6 @@ export const TradeDetailsCustom = () => {
   )
   const tradeDetailsData = tradeDetails?.data[0]
 
-  console.log('Trade Details', tradeDetails)
-
   let tickerSymbol: string
 
   if (tradeDetailsData?.equityType == 'Forex') {
@@ -40,10 +38,6 @@ export const TradeDetailsCustom = () => {
   } else if (tradeDetailsData?.equityType == 'Option') {
     tickerSymbol = tradeDetailsData?.ticker?.split('_')[0]
   } else tickerSymbol = tradeDetailsData?.ticker
-
-  const { data: marketPrice } = useQuery('marketPrice', () =>
-    fetchMarketPrice(tradeDetailsData?.equityType, tickerSymbol)
-  )
 
   const user: {
     username: string
@@ -93,24 +87,44 @@ export const TradeDetailsCustom = () => {
       : 'N/A'
 
   useEffect(() => {
-    if (marketPrice) setCurrentMarketPrice(marketPrice?.data.regularMarketPrice)
-    if (tradeDetailsData?.equityType == 'Option') {
-      setUnderlyingPrice(
-        marketPrice?.data.underlyingPrice
-          ? marketPrice?.data.underlyingPrice?.toFixed(2)
-          : 'N/A'
-      )
-    } else {
-      if (tradeDetailsData?.isOpen)
-        setUnderlyingPrice(marketPrice?.data.regularMarketPrice)
-      else
-        setUnderlyingPrice(
-          tradeDetailsData?.exitPrice
-            ? tradeDetailsData?.exitPrice?.toFixed(2)
-            : 0
+    let priceIntervalId: NodeJS.Timer
+
+    const fetchMarketData = async () => {
+      try {
+        const marketData = await fetchMarketPrice(
+          tradeDetailsData?.equityType,
+          tickerSymbol
         )
+
+        setCurrentMarketPrice(marketData?.data.regularMarketPrice)
+
+        if (tradeDetailsData?.equityType === 'Option') {
+          setUnderlyingPrice(
+            marketData?.data.underlyingPrice
+              ? marketData?.data.underlyingPrice?.toFixed(2)
+              : 'N/A'
+          )
+        } else {
+          setUnderlyingPrice(
+            tradeDetailsData?.isOpen
+              ? marketData?.data.regularMarketPrice
+              : tradeDetailsData?.exitPrice
+              ? tradeDetailsData?.exitPrice?.toFixed(2)
+              : 0
+          )
+        }
+      } catch (error) {
+        console.error('Error fetching market data:', error)
+      }
     }
-  }, [marketPrice])
+
+    if (isOpen) {
+      fetchMarketData()
+      priceIntervalId = setInterval(fetchMarketData, 10000)
+    }
+
+    return () => clearInterval(priceIntervalId)
+  }, [tradeDetails, isOpen, tickerSymbol])
 
   const iframeHtml = `
   <div class="tradingview-widget-container" style="padding: 0; margin: 0; background; height: 500px; maxHeight: 100%;">
@@ -139,22 +153,19 @@ export const TradeDetailsCustom = () => {
 `
 
   return (
-    <div
-      className='container-fluid oveflow-lg-hidden'
-      style={{ height: '77vh' }}
-    >
+    <div className='container-fluid oveflow-lg-hidden'>
       <div className='row flex-column-reverse flex-lg-row'>
         {tradeDetails ? (
-          <div className='col-12 col-lg-8'>
+          <div className='col-12 col-lg-8 w-full'>
             <iframe
               title={`TradingView Chart - ${tickerSymbol}`}
               srcDoc={iframeHtml}
               width='100%'
-              // height={620}
+              height={510}
               frameBorder='0'
               style={{
                 backgroundColor: 'transparent',
-                marginTop: 12,
+                marginTop: 20,
                 height: '100%',
               }}
             />
@@ -182,8 +193,8 @@ export const TradeDetailsCustom = () => {
             </div>
 
             <div className='d-flex align-items-center gap-2'>
-              {/* Settings Icon */}
-              <button
+              {/* Share Button */}
+              {/* <button
                 type='button'
                 className='btn btn-sm btn-icon btn-active-light-primary me-3'
                 aria-label='Share trade idea'
@@ -191,7 +202,7 @@ export const TradeDetailsCustom = () => {
               >
                 <i className='fa-solid fa-arrow-up-right-from-square text-light fs-3'></i>
               </button>
-
+ */}
               {/* IsOpen */}
 
               <div className='d-flex align-items-center gap-2 '>
@@ -245,7 +256,15 @@ export const TradeDetailsCustom = () => {
                   className='card-xl-stretch mb-xl-8 text-center'
                   color='light'
                   title={trade.title}
-                  titleColor={index === 1 ? 'success' : 'text-gray-500'}
+                  titleColor={
+                    index === 1
+                      ? tradeDirection === 'STO'
+                        ? 'gray-700'
+                        : transactionType === 'Debit'
+                        ? 'success'
+                        : 'danger'
+                      : 'gray-900'
+                  }
                   description={trade.description}
                   descriptionColor={
                     index === 1
