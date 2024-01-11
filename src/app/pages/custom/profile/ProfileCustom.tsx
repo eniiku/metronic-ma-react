@@ -6,6 +6,7 @@ import {
 } from '../../../../services/api'
 import { TablesWidgetCustom } from '../../../../_metronic/partials/widgets/custom/TableWidgetCustom'
 import { ChartsWidgetCustom } from '../../../../_metronic/partials/widgets/charts/ChartsWidgetCustom'
+import { useEffect, useState } from 'react'
 
 const ProfileCustom: React.FC<{ userId: string }> = ({ userId }) => {
   const {
@@ -13,6 +14,10 @@ const ProfileCustom: React.FC<{ userId: string }> = ({ userId }) => {
     isLoading,
     isError,
   } = useQuery('statistics', () => fetchStatistics(userId))
+
+  const [statisticsData, setStatisticsData] = useState(statistics)
+  const [isStatsLoading, setIsStatsLoading] = useState(isLoading)
+  const [selectedTimeframe, setSelectedTimeframe] = useState<string>('all_time')
 
   const { data: users } = useQuery('users', fetchAllUsers)
 
@@ -22,9 +27,14 @@ const ProfileCustom: React.FC<{ userId: string }> = ({ userId }) => {
     isError: isAssetTradedError,
   } = useQuery('assetsTradedStats', () => fetchAssetsTradedStats(userId))
 
-  const assetsTradedStatsData = assetsTradedStats?.data.assetTrades
+  const assetsTradedStatsData = assetsTradedStats?.data?.assetTrades
 
   const currentUser = users?.data.find((user: any) => user._id === userId)
+
+  useEffect(() => {
+    setStatisticsData(statistics)
+    setIsStatsLoading(isLoading)
+  }, [statistics, isLoading])
 
   return (
     <>
@@ -38,43 +48,43 @@ const ProfileCustom: React.FC<{ userId: string }> = ({ userId }) => {
         </div>
       </div>
 
-      {/* Assets Traded */}
-      {isAssetTradedLoading ? (
-        <div>Loading...</div>
-      ) : isAssetTradedError ? (
-        <div>Error fetching additional statistics</div>
-      ) : (
-        <ChartsWidgetCustom
-          className='mb-8'
-          title='Trade Direction'
-          seriesData={[
-            {
-              name: 'Crypto',
-              data: [assetsTradedStatsData.cryptoValue.toFixed(2)],
-            },
-            {
-              name: 'Forex',
-              data: [assetsTradedStatsData.forexValue.toFixed(2)],
-            },
-            {
-              name: 'Option',
-              data: [assetsTradedStatsData.optionValue.toFixed(2)],
-            },
-            {
-              name: 'Stock',
-              data: [assetsTradedStatsData.stockValue.toFixed(2)],
-            },
-          ]}
-        />
-      )}
+      <TablesWidgetCustom
+        data={statisticsData?.data}
+        userId={userId}
+        action={setStatisticsData}
+        loader={setIsStatsLoading}
+        selectedTimeframe={selectedTimeframe}
+        setSelectedTimeframe={setSelectedTimeframe}
+        isLoading={isStatsLoading}
+        isError={isError}
+        className='mb-8'
+      />
 
-      {isLoading ? (
-        <div>Loading...</div>
-      ) : isError ? (
-        <div className='text-center fs-2 py-5'>Error fetching table data</div>
-      ) : (
-        <TablesWidgetCustom className='mb-8' data={statistics.data} />
-      )}
+      {/* Assets Traded */}
+      <ChartsWidgetCustom
+        className='mb-8'
+        title='Trade Direction'
+        isLoading={isAssetTradedLoading}
+        isError={isAssetTradedError}
+        seriesData={[
+          {
+            name: 'Crypto',
+            data: [assetsTradedStatsData?.cryptoValue?.toFixed(2)],
+          },
+          {
+            name: 'Forex',
+            data: [assetsTradedStatsData?.forexValue?.toFixed(2)],
+          },
+          {
+            name: 'Option',
+            data: [assetsTradedStatsData?.optionValue?.toFixed(2)],
+          },
+          {
+            name: 'Stock',
+            data: [assetsTradedStatsData?.stockValue?.toFixed(2)],
+          },
+        ]}
+      />
     </>
   )
 }

@@ -1,5 +1,7 @@
 import React from 'react'
 import { DropdownCustomTimeframe } from '../../content/dropdown/DropdownCustomTimeframe'
+import { Loading } from '../../../../app/components/Loading'
+import NoData from '../../../../app/components/NoData'
 
 type DataProps = {
   assetName: string
@@ -20,6 +22,8 @@ type Props = {
   loader: React.Dispatch<any>
   selectedTimeframe: string
   setSelectedTimeframe: (value: string) => void
+  isLoading: boolean
+  isError: boolean
 }
 
 export const TablesWidgetCustom: React.FC<Props> = ({
@@ -30,6 +34,8 @@ export const TablesWidgetCustom: React.FC<Props> = ({
   loader,
   selectedTimeframe,
   setSelectedTimeframe,
+  isLoading,
+  isError,
 }) => {
   const handleTimeframeChange = (timeframe: string) => {
     setSelectedTimeframe(timeframe)
@@ -42,7 +48,6 @@ export const TablesWidgetCustom: React.FC<Props> = ({
       ? 'text-danger'
       : 'text-gray-900'
   }
-
   return (
     <div className={`card ${className}`}>
       {/* begin::Header */}
@@ -73,94 +78,105 @@ export const TablesWidgetCustom: React.FC<Props> = ({
       </div>
       {/* end::Header */}
       {/* begin::Body */}
-      <div className='card-body py-3'>
-        {/* begin::Table container */}
-        <div className='table-responsive'>
-          {/* begin::Table */}
-          <table className='table align-middle gs-0 gy-4 text-center'>
-            {/* begin::Table head */}
-            <thead>
-              <tr className='fw-bold text-muted bg-light'>
-                <th className='min-w-125px rounded-start'>Asset</th>
-                <th className='min-w-125px'>Total Trades</th>
-                <th className='min-w-125px'>Avg Loss</th>
-                <th className='min-w-125'>Avg Profit</th>
-                <th className='min-w-125px'>Avg Return</th>
-                <th className='min-w-125px'>Win Rate</th>
-                <th className='min-w-125px'>Max Loss</th>
-                <th className='min-w-125px rounded-end'>Max Profit</th>
-              </tr>
-            </thead>
-            {/* end::Table head */}
-            {/* begin::Table body */}
-            <tbody>
-              {data?.map((item) => (
-                <tr key={item.assetName}>
-                  <td>
-                    <div className=' fw-bold text-hover-primary mb-1 fs-6'>
-                      {item.assetName}
-                    </div>
-                  </td>
-                  <td>
-                    <div className=' fw-bold text-hover-primary mb-1 fs-6'>
-                      {item.trades}
-                    </div>
-                  </td>
-                  <td>
-                    <div
-                      className={` fw-bold text-hover-primary mb-1 fs-6 ${getTextColor(
-                        item.averageLoss.value
-                      )}`}
-                    >
-                      {item.averageLoss.formatted}
-                    </div>
-                  </td>
-                  <td>
-                    <div
-                      className={`fw-bold text-hover-primary mb-1 fs-6 ${getTextColor(
-                        item.averageProfit.value
-                      )}`}
-                    >
-                      {item.averageProfit.formatted}
-                    </div>
-                  </td>
-                  <td>
-                    <div
-                      className={` fw-bold text-hover-primary mb-1 fs-6 ${getTextColor(
-                        item.averageReturnPerTrade.value
-                      )}`}
-                    >
-                      {item.averageReturnPerTrade.formatted}
-                    </div>
-                  </td>
-                  <td>
-                    <div
-                      className={` fw-bold text-hover-primary mb-1 fs-6 ${getTextColor(
-                        item.winRate.value
-                      )}`}
-                    >
-                      {item.winRate.formatted}
-                    </div>
-                  </td>
-                  <td>
-                    <div className='text-gray-900 fw-bold text-hover-primary mb-1 fs-6'>
-                      {item.maxLoss.formatted}
-                    </div>
-                  </td>
-                  <td>
-                    <div className='text-gray-900 fw-bold text-hover-primary mb-1 fs-6'>
-                      {item.maxProfit.formatted}
-                    </div>
-                  </td>
+
+      {isLoading || isError ? null : (
+        <div className='card-body py-3'>
+          {/* begin::Table container */}
+          <div className='table-responsive'>
+            {/* begin::Table */}
+            <table className='table align-middle gs-0 gy-4 text-center'>
+              {/* begin::Table head */}
+              <thead>
+                <tr className='fw-bold text-muted bg-light'>
+                  <th className='min-w-125px rounded-start'>Asset</th>
+                  <th className='min-w-125px'>Total Trades</th>
+                  <th className='min-w-125px'>Avg Loss</th>
+                  <th className='min-w-125'>Avg Profit</th>
+                  <th className='min-w-125px'>Avg Return</th>
+                  <th className='min-w-125px'>Win Rate</th>
+                  <th className='min-w-125px'>Max Loss</th>
+                  <th className='min-w-125px rounded-end'>Max Profit</th>
                 </tr>
-              ))}
-            </tbody>
-            {/* end::Table body */}
-          </table>
-          {/* end::Table */}
+              </thead>
+              {/* end::Table head */}
+              {/* begin::Table body */}
+              <tbody>
+                {data?.map((item) => (
+                  <tr key={item.assetName}>
+                    <td>
+                      <div className=' fw-bold text-hover-primary mb-1 fs-6'>
+                        {item.assetName}
+                      </div>
+                    </td>
+                    <td>
+                      <div className=' fw-bold text-hover-primary mb-1 fs-6'>
+                        {item.trades}
+                      </div>
+                    </td>
+                    <td>
+                      <div
+                        className={` fw-bold text-hover-primary mb-1 fs-6 ${getTextColor(
+                          item.averageLoss.value
+                        )}`}
+                      >
+                        {item.averageLoss.formatted}
+                      </div>
+                    </td>
+                    <td>
+                      <div
+                        className={`fw-bold text-hover-primary mb-1 fs-6 ${getTextColor(
+                          item.averageProfit.value
+                        )}`}
+                      >
+                        {item.averageProfit.formatted}
+                      </div>
+                    </td>
+                    <td>
+                      <div
+                        className={` fw-bold text-hover-primary mb-1 fs-6 ${getTextColor(
+                          item.averageReturnPerTrade.value
+                        )}`}
+                      >
+                        {item.averageReturnPerTrade.formatted}
+                      </div>
+                    </td>
+                    <td>
+                      <div
+                        className={` fw-bold text-hover-primary mb-1 fs-6 ${getTextColor(
+                          item.winRate.value
+                        )}`}
+                      >
+                        {item.winRate.formatted}
+                      </div>
+                    </td>
+                    <td>
+                      <div className='text-gray-900 fw-bold text-hover-primary mb-1 fs-6'>
+                        {item.maxLoss.formatted}
+                      </div>
+                    </td>
+                    <td>
+                      <div className='text-gray-900 fw-bold text-hover-primary mb-1 fs-6'>
+                        {item.maxProfit.formatted}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              {/* end::Table body */}
+            </table>
+            {/* end::Table */}
+          </div>
+          {/* end::Table container */}
         </div>
-        {/* end::Table container */}
-      </div>
+      )}
+      {/* Check api status */}
+      {isLoading ? (
+        <Loading />
+      ) : isError ? (
+        <NoData type='error' message='Error Loading Trades' />
+      ) : data?.length <= 0 ? (
+        <NoData type='error' message='No Data Found' />
+      ) : null}
       {/* begin::Body */}
     </div>
   )
