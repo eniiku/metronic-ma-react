@@ -41,6 +41,7 @@
     "react-flatpickr": "^3.10.13",
     "react-inlinesvg": "3.0.0",
     "react-intl": "^6.4.4",
+    "react-loader-spinner": "^6.1.6",
     "react-query": "3.38.0",
     "react-redux": "^9.0.4",
     "react-router-dom": "6.3.0",
