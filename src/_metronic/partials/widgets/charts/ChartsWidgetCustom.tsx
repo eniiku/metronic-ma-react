@@ -2,14 +2,24 @@ import { useEffect, useRef, FC } from 'react'
 import ApexCharts, { ApexOptions } from 'apexcharts'
 import { getCSS, getCSSVariableValue } from '../../../assets/ts/_utils'
 import { useThemeMode } from '../../layout/theme-mode/ThemeModeProvider'
+import { Loading } from '../../../../app/components/Loading'
+import NoData from '../../../../app/components/NoData'
 
 type Props = {
   className: string
   title: string
   seriesData: { name: string; data: number[] }[]
+  isLoading: boolean
+  isError: boolean
 }
 
-const ChartsWidgetCustom: FC<Props> = ({ className, seriesData, title }) => {
+const ChartsWidgetCustom: FC<Props> = ({
+  className,
+  seriesData,
+  title,
+  isLoading,
+  isError,
+}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const { mode } = useThemeMode()
   const refreshChart = () => {
@@ -51,15 +61,21 @@ const ChartsWidgetCustom: FC<Props> = ({ className, seriesData, title }) => {
       {/* end::Header */}
 
       {/* begin::Body */}
-      <div className='card-body py-0'>
-        {/* begin::Chart */}
-        <div
-          ref={chartRef}
-          id='kt_charts_widget_5_chart'
-          style={{ height: '180px' }}
-        ></div>
-        {/* end::Chart */}
-      </div>
+      {isLoading ? (
+        <Loading />
+      ) : isError ? (
+        <NoData type='error' message='Error fetching chart data' />
+      ) : (
+        <div className='card-body py-0'>
+          {/* begin::Chart */}
+          <div
+            ref={chartRef}
+            id='kt_charts_widget_5_chart'
+            style={{ height: '180px' }}
+          ></div>
+          {/* end::Chart */}
+        </div>
+      )}
       {/* end::Body */}
     </div>
   )

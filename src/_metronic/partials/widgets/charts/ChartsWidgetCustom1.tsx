@@ -2,12 +2,17 @@ import { useEffect, useRef, FC } from 'react'
 import ApexCharts, { ApexOptions } from 'apexcharts'
 import { getCSS, getCSSVariableValue } from '../../../assets/ts/_utils'
 import { useThemeMode } from '../../layout/theme-mode/ThemeModeProvider'
+import { Loading } from '../../../../app/components/Loading'
+import NoData from '../../../../app/components/NoData'
 
 type Props = {
   className: string
   seriesData: { labels: string[]; datasets: { data: number[] }[] }
   title: string
   color: string
+  isLoading: boolean
+  isError: boolean
+  data: any
 }
 
 const ChartsWidgetCustom1: FC<Props> = ({
@@ -15,6 +20,9 @@ const ChartsWidgetCustom1: FC<Props> = ({
   seriesData,
   title,
   color,
+  isLoading,
+  isError,
+  data,
 }) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const { mode } = useThemeMode()
@@ -163,15 +171,23 @@ const ChartsWidgetCustom1: FC<Props> = ({
       {/* end::Header */}
 
       {/* begin::Body */}
-      <div className='card-body'>
-        {/* begin::Chart */}
-        <div
-          ref={chartRef}
-          id='kt_charts_widget_1_chart'
-          style={{ height: '350px' }}
-        />
-        {/* end::Chart */}
-      </div>
+      {isLoading ? (
+        <Loading />
+      ) : isError ? (
+        <NoData type='error' message='Error fetching chart data' />
+      ) : data?.length <= 0 ? (
+        <NoData type='error' message='No trade data found' />
+      ) : (
+        <div className='card-body'>
+          {/* begin::Chart */}
+          <div
+            ref={chartRef}
+            id='kt_charts_widget_1_chart'
+            style={{ height: '350px' }}
+          />
+          {/* end::Chart */}
+        </div>
+      )}
       {/* end::Body */}
     </div>
   )
