@@ -57,14 +57,11 @@ export function calculateDifference(
     .toString()
 
   return {
-    percentage: (
+    percentage:
       Math.abs(((regularMarketPrice - avgPrice) / avgPrice) * 100) *
-      profitOrLossOperatorMultiplier
-    ).toFixed(2),
-    profitOrLoss: (
-      (regularMarketPrice - avgPrice) *
-      profitOrLossOperatorMultiplier
-    ).toFixed(2),
+      profitOrLossOperatorMultiplier,
+    profitOrLoss:
+      (regularMarketPrice - avgPrice) * profitOrLossOperatorMultiplier,
     // profitOrLoss: priceDiff.includes("-") ? priceDiff.replace("-", "") : priceDiff
   }
 }

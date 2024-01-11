@@ -5,6 +5,7 @@ import {
 } from '../../../services/api'
 import { useQuery } from 'react-query'
 import {
+  calculateDifference,
   getAvgValue,
   getCallPut,
   getDaysOpen,
@@ -13,10 +14,10 @@ import {
   getForexTicker,
   getStrikePrice,
 } from '../../../lib/utils'
-import { StatisticsWidgetCustom } from '../../../_metronic/partials/widgets/statistics/StatisticsWidgetCustom'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { KTIcon } from '../../../_metronic/helpers'
 import moment from 'moment'
+import { StatisticsWidgetCustom2 } from '../../../_metronic/partials/widgets/statistics/StatisticsWidgetCustom2'
 
 export const TradeDetailsCustom = () => {
   const { tradeId } = useParams()
@@ -44,14 +45,39 @@ export const TradeDetailsCustom = () => {
     fetchMarketPrice(tradeDetailsData?.equityType, tickerSymbol)
   )
 
-  console.log('Market Price', marketPrice)
+  const user: {
+    username: string
+    profilePic: string
+  } = {
+    username: tradeDetailsData?.user?.username,
+    profilePic: tradeDetailsData?.user?.profilePicture,
+  }
+
+  const isOpen = tradeDetailsData?.isOpen
 
   const entryPrice = tradeDetailsData?.entryPrice
 
   const exitPrice = tradeDetailsData?.exitPrice
 
   const transactionType = tradeDetailsData?.transactionType
+  const tradeDirection = tradeDetailsData?.tradeDirection
+  const equityType = tradeDetailsData?.equityType
+  const profitOrLossPercentage = tradeDetailsData?.profitOrLossPercentage
 
+  const avgBuy =
+    tradeDetailsData?.avgBuy?.reduce((i: number, c: number) => {
+      return i + c
+    }, 0) / tradeDetailsData?.avgBuy?.length
+
+  const profitLosssPercent = useMemo(
+    () =>
+      calculateDifference(
+        tradeDirection === 'BTO' ? 'STC' : 'BTC',
+        currentMarketPrice,
+        avgBuy
+      ),
+    [currentMarketPrice]
+  )
   const sentiment =
     tradeDetailsData?.tradeDirection == 'BTO' ? 'Bullish' : 'Bearish'
 
@@ -87,7 +113,7 @@ export const TradeDetailsCustom = () => {
   }, [marketPrice])
 
   const iframeHtml = `
-  <div class="tradingview-widget-container" style="padding: 0; margin: 0; background; height: 600px;">
+  <div class="tradingview-widget-container" style="padding: 0; margin: 0; background; height: 500px; maxHeight: 100%;">
     <div id="tradingview_${tickerSymbol}" style="height: 100%;"></div>
     <div class="tradingview-widget-copyright">
       <a href="https://www.tradingview.com/symbols/${tickerSymbol}/"></a>
@@ -113,164 +139,326 @@ export const TradeDetailsCustom = () => {
 `
 
   return (
-    <div className='row flex-column-reverse flex-lg-row'>
-      {tradeDetails ? (
-        <div className='col-12 col-lg-8'>
-          <iframe
-            title={`TradingView Chart - ${tickerSymbol}`}
-            srcDoc={iframeHtml}
-            width='100%'
-            height={620}
-            frameBorder='0'
-            style={{ backgroundColor: 'transparent', marginTop: 12 }}
-          />
-        </div>
-      ) : null}
+    <div
+      className='container-fluid oveflow-lg-hidden'
+      style={{ height: '77vh' }}
+    >
+      <div className='row flex-column-reverse flex-lg-row'>
+        {tradeDetails ? (
+          <div className='col-12 col-lg-8'>
+            <iframe
+              title={`TradingView Chart - ${tickerSymbol}`}
+              srcDoc={iframeHtml}
+              width='100%'
+              // height={620}
+              frameBorder='0'
+              style={{
+                backgroundColor: 'transparent',
+                marginTop: 12,
+                height: '100%',
+              }}
+            />
+          </div>
+        ) : null}
 
-      <div className='col-12 col-lg-4'>
-        <div className='row'>
-          {[
-            { title: 'Trade Entry', description: `$${entryPrice}` },
-            {
-              title: 'Trade Exit',
-              description: `$${exitPrice ? exitPrice?.toFixed(2) : 'N/A'}`,
-            },
-            {
-              title: 'Current Price',
-              description: `${
-                currentMarketPrice
-                  ? tradeDetailsData?.equityType == 'Crypto'
-                    ? '$' + currentMarketPrice?.toFixed(4)
-                    : '$' + currentMarketPrice
-                  : 'N/A'
-              }`,
-            },
-            {
-              title: 'Underlying',
-              description: `$${
-                underlyingPrice
-                  ? tradeDetailsData?.equityType == 'Crypto'
-                    ? underlyingPrice?.toFixed(4)
-                    : underlyingPrice
-                  : 'N/A'
-              }`,
-            },
-          ].map((trade) => (
-            <div key={trade.title} className='col-6 col-md-3'>
-              <StatisticsWidgetCustom
-                className='card-xl-stretch mb-xl-8 text-center'
-                color='light'
-                title={trade.title}
-                titleColor='text-gray-500'
-                description={trade.description}
-                descriptionColor='muted'
-              />
-            </div>
-          ))}
-        </div>
-
-        <div className='separator my-6 border-gray-300'></div>
-
-        <div className='row'>
-          {[
-            { title: 'Trade Type', description: transactionType },
-            { title: 'Trade Direction', description: sentiment },
-            { title: 'Price Target', description: priceTarget },
-            { title: 'Stop Loss', description: stopLoss },
-          ].map((trade, index) => (
-            <div key={trade.title} className='col-6 col-md-3'>
-              <StatisticsWidgetCustom
-                className='card-xl-stretch mb-xl-8 text-center'
-                color={index >= 2 ? 'gray-300' : 'light'}
-                title={trade.title}
-                titleColor='text-gray-500'
-                description={trade.description}
-                descriptionColor='muted'
-              />
-            </div>
-          ))}
-        </div>
-
-        <div className='separator my-6 border-gray-300'></div>
-
-        <div className='timeline'>
-          {trade_data?.map((item: any, index: number) => {
-            const dateOne = moment(item.createdAt).format('DD-MM-YYYY')
-            const dateTwo = trade_data[index - 1]?.createdAt
-              ? moment(trade_data[index - 1]?.createdAt).format('DD-MM-YYYY')
-              : moment().format('DD-MM-YYYY')
-            const priceOne = item.price
-            const priceTwo = trade_data[index - 1]?.price
-
-            return (
-              <div key={item?._id} className='timeline-item'>
-                <div className='timeline-line w-40px'></div>
-
-                <div className='timeline-icon symbol symbol-circle symbol-20px me-4'>
-                  <div className='symbol-label bg-light'>
-                    <KTIcon iconName='chart' className='fs-2 text-info' />
+        <div
+          className='col-12 col-lg-4'
+          style={{ maxHeight: '77vh', overflowY: 'scroll' }}
+        >
+          {/* Avatar */}
+          <div className='d-flex align-items-center justify-content-between bg-dark p-4 rounded mb-10'>
+            <div className='d-flex align-items-center gap-4'>
+              <div className='symbol symbol-75px'>
+                {user.profilePic ? (
+                  <img src={user.profilePic} alt='' />
+                ) : (
+                  <div className='symbol-label fs-2 fw-semibold text-warning'>
+                    {user?.username?.slice(0, 1)}
                   </div>
-                </div>
+                )}
+              </div>
 
-                <div className='timeline-content mb-10 mt-n1'>
-                  <div className='pe-3 mb-5'>
-                    <div className='fs-3 fw-semibold text-muted mb-2 fst-italic'>
-                      {dateOne !== dateTwo
-                        ? `${moment(item.createdAt).format(
-                            'MMMM DD, YYYY'
-                          )} | ${moment(item.createdAt).format(
-                            'hh:MM:SS A'
-                          )} (${moment(item.createdAt).fromNow()})`
-                        : index !== 0
-                        ? `${moment(item.createdAt).format(
-                            'hh:MM:SS A'
-                          )} (${moment(item.createdAt).fromNow()})`
-                        : `${moment(item.createdAt).format(
-                            'MMMM DD, YYYY'
-                          )} | ${moment(item.createdAt).format(
-                            'hh:MM:SS A'
-                          )} (${moment(item.createdAt).fromNow()})`}
+              <div className='fw-bold fs-3 text-gray-200'>{user?.username}</div>
+            </div>
+
+            <div className='d-flex align-items-center gap-2'>
+              {/* Settings Icon */}
+              <button
+                type='button'
+                className='btn btn-sm btn-icon btn-active-light-primary me-3'
+                aria-label='Share trade idea'
+                // onClick={() => setShowSettings(!showSettings)}
+              >
+                <i className='fa-solid fa-arrow-up-right-from-square text-light fs-3'></i>
+              </button>
+
+              {/* IsOpen */}
+
+              <div className='d-flex align-items-center gap-2 '>
+                {isOpen ? (
+                  <i className='fa-solid fa-lock-open text-success fs-4'></i>
+                ) : (
+                  <i className='fa-solid fa-lock text-danger'></i>
+                )}
+                <span
+                  className={`fs-5 fw-medium ${
+                    isOpen ? 'text-success' : 'text-danger'
+                  }`}
+                >
+                  {isOpen ? 'Open' : 'Closed'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className='row'>
+            {[
+              { title: 'Coin', description: tickerSymbol },
+              {
+                title:
+                  tradeDirection === 'STO'
+                    ? 'SHORT'
+                    : transactionType === 'Debit'
+                    ? 'BOUGHT'
+                    : 'SOLD',
+                description: equityType,
+              },
+              {
+                title: `Price ${
+                  isOpen
+                    ? profitLosssPercent.percentage > 0
+                      ? 'Gain'
+                      : 'Loss'
+                    : profitOrLossPercentage > 0
+                    ? 'Gain'
+                    : 'Loss'
+                }`,
+                description: priceTarget,
+              },
+              {
+                title: '% Profit',
+                description: `${profitLosssPercent.percentage.toFixed(2)}%`,
+              },
+            ].map((trade, index) => (
+              <div key={trade.title} className='col-6 col-md-3'>
+                <StatisticsWidgetCustom2
+                  className='card-xl-stretch mb-xl-8 text-center'
+                  color='light'
+                  title={trade.title}
+                  titleColor={index === 1 ? 'success' : 'text-gray-500'}
+                  description={trade.description}
+                  descriptionColor={
+                    index === 1
+                      ? 'warning'
+                      : index === 3
+                      ? profitLosssPercent.percentage >= 0
+                        ? 'success'
+                        : 'danger'
+                      : 'muted'
+                  }
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className='separator mb-7 border-gray-300'></div>
+
+          <div className='row'>
+            {[
+              { title: 'Trade Entry', description: `$${entryPrice}` },
+              {
+                title: 'Trade Exit',
+                description: `$${exitPrice ? exitPrice?.toFixed(2) : 'N/A'}`,
+              },
+              {
+                title: 'Current Price',
+                description: `${
+                  currentMarketPrice
+                    ? tradeDetailsData?.equityType == 'Crypto'
+                      ? '$' + currentMarketPrice?.toFixed(4)
+                      : '$' + currentMarketPrice
+                    : 'N/A'
+                }`,
+              },
+              {
+                title: 'Underlying',
+                description: `$${
+                  underlyingPrice
+                    ? tradeDetailsData?.equityType == 'Crypto'
+                      ? underlyingPrice?.toFixed(4)
+                      : underlyingPrice
+                    : 'N/A'
+                }`,
+              },
+            ].map((trade) => (
+              <div key={trade.title} className='col-6 col-md-3'>
+                <StatisticsWidgetCustom2
+                  className='card-xl-stretch mb-xl-8 text-center'
+                  color='light'
+                  title={trade.title}
+                  titleColor='text-gray-500'
+                  description={trade.description}
+                  descriptionColor='muted'
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className='separator mb-7 border-gray-300'></div>
+
+          <div className='row'>
+            {[
+              { title: 'Trade Type', description: transactionType },
+              { title: 'Trade Direction', description: sentiment },
+              { title: 'Price Target', description: priceTarget },
+              { title: 'Stop Loss', description: stopLoss },
+            ].map((trade, index) => (
+              <div key={trade.title} className='col-6 col-md-3'>
+                <StatisticsWidgetCustom2
+                  className='card-xl-stretch mb-xl-8 text-center'
+                  color={index >= 2 ? 'gray-300' : 'light'}
+                  title={trade.title}
+                  titleColor='text-gray-500'
+                  description={trade.description}
+                  descriptionColor='muted'
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className='separator mb-7 border-gray-300'></div>
+
+          <div className='timeline'>
+            {trade_data?.map((item: any, index: number) => {
+              const dateOne = moment(item.createdAt).format('DD-MM-YYYY')
+              const dateTwo = trade_data[index - 1]?.createdAt
+                ? moment(trade_data[index - 1]?.createdAt).format('DD-MM-YYYY')
+                : moment().format('DD-MM-YYYY')
+              const priceOne = item.price
+              const priceTwo = trade_data[index - 1]?.price
+
+              return (
+                <div key={item?._id} className='timeline-item'>
+                  <div className='timeline-line w-40px'></div>
+
+                  <div className='timeline-icon symbol symbol-circle symbol-20px me-4'>
+                    <div className='symbol-label bg-light'>
+                      <KTIcon iconName='chart' className='fs-2 text-info' />
                     </div>
+                  </div>
 
-                    <div className='d-flex align-items-center mt-4 fs-6 gap-6'>
-                      {tradeDetailsData.equityType === 'Stock' ||
-                      tradeDetailsData.equityType === 'Crypto' ||
-                      tradeDetailsData.equityType === 'Forex' ? (
-                        <div className='d-flex align-items-center flex-wrap gap-6'>
-                          <div
-                            className={`btn btn-solid w-125px py-2 ${
-                              item?.transactionType === 'Debit'
-                                ? 'bg-success'
-                                : 'bg-danger'
-                            }`}
-                          >
-                            {item?.tradeDirection == 'STO'
-                              ? 'SHORT'
-                              : item.transactionType === 'Debit'
-                              ? 'BOUGHT'
-                              : 'SOLD'}
-                          </div>
-                          {tradeDetailsData?.isOpen ? (
-                            <>
-                              <div className='text-muted me-4 fs-7'>
+                  <div className='timeline-content mb-10 mt-n1'>
+                    <div className='pe-3 mb-5'>
+                      <div className='fs-6 fw-semibold text-muted mb-2 fst-italic'>
+                        {dateOne !== dateTwo
+                          ? `${moment(item.createdAt).format(
+                              'MMMM DD, YYYY'
+                            )} | ${moment(item.createdAt).format(
+                              'hh:MM:SS A'
+                            )} (${moment(item.createdAt).fromNow()})`
+                          : index !== 0
+                          ? `${moment(item.createdAt).format(
+                              'hh:MM:SS A'
+                            )} (${moment(item.createdAt).fromNow()})`
+                          : `${moment(item.createdAt).format(
+                              'MMMM DD, YYYY'
+                            )} | ${moment(item.createdAt).format(
+                              'hh:MM:SS A'
+                            )} (${moment(item.createdAt).fromNow()})`}
+                      </div>
+
+                      <div className='d-flex align-items-center mt-4 fs-8 gap-6'>
+                        {tradeDetailsData.equityType === 'Stock' ||
+                        tradeDetailsData.equityType === 'Crypto' ||
+                        tradeDetailsData.equityType === 'Forex' ? (
+                          <div className='d-flex align-items-center flex-wrap gap-6'>
+                            <div
+                              className={`btn btn-solid btn-sm w-90px py-2 fs-9 ${
+                                item?.transactionType === 'Debit'
+                                  ? 'bg-success'
+                                  : 'bg-danger'
+                              }`}
+                            >
+                              {item?.tradeDirection == 'STO'
+                                ? 'SHORT'
+                                : item.transactionType === 'Debit'
+                                ? 'BOUGHT'
+                                : 'SOLD'}
+                            </div>
+                            {tradeDetailsData?.isOpen ? (
+                              <>
+                                <div className='text-muted me-4 fs-9'>
+                                  @{' '}
+                                  <span className='ms-2 bg-gray-400 text-dark rounded py-2 px-4 fw-medium'>
+                                    {`$${
+                                      item?.price ? item?.price : entryPrice
+                                    }`}
+                                  </span>
+                                </div>
+
+                                {priceOne !== priceTwo &&
+                                  priceTwo !== undefined && (
+                                    <div className='text-muted me-4 fs-9'>
+                                      Avg:{' '}
+                                      <span className='ms-2 bg-gray-400 text-dark rounded py-2 px-4 fw-medium'>
+                                        {`$${getAvgValue([
+                                          priceOne,
+                                          priceTwo,
+                                        ])}`}
+                                      </span>
+                                    </div>
+                                  )}
+                              </>
+                            ) : (
+                              <div className='text-muted me-4 fs-9'>
                                 @{' '}
                                 <span className='ms-2 bg-gray-400 text-dark rounded py-2 px-4 fw-medium'>
-                                  {`$${item?.price ? item?.price : entryPrice}`}
+                                  {`$${
+                                    item?.price
+                                      ? item?.price
+                                      : getEntryPrice(tradeDetailsData)
+                                  }`}
                                 </span>
                               </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className='d-flex align-items-center flex-wrap gap-6'>
+                            <div
+                              className={`btn btn-solid btn-sm w-90px py-2 ${
+                                item?.transactionType === 'Debit'
+                                  ? 'bg-success'
+                                  : 'bg-danger'
+                              }`}
+                            >
+                              {item?.tradeDirection == 'STO'
+                                ? 'SHORT'
+                                : item.transactionType === 'Debit'
+                                ? 'BOUGHT'
+                                : 'SOLD'}
+                            </div>
 
-                              {priceOne !== priceTwo &&
-                                priceTwo !== undefined && (
-                                  <div className='text-muted me-4 fs-7'>
-                                    Avg:{' '}
-                                    <span className='ms-2 bg-gray-400 text-dark rounded py-2 px-4 fw-medium'>
-                                      {`$${getAvgValue([priceOne, priceTwo])}`}
-                                    </span>
-                                  </div>
-                                )}
-                            </>
-                          ) : (
-                            <div className='text-muted me-4 fs-7'>
+                            <div className='text-muted me-4 fs-9'>
+                              <span className='ms-2 bg-gray-400 text-dark rounded py-2 px-4 fw-medium'>
+                                {getExpiryDate(tradeDetailsData)}
+                              </span>
+
+                              <span className='ms-2 bg-dark text-gray-400 rounded py-2 px-4 fw-medium'>
+                                {`${getDaysOpen(tradeDetailsData)}D`}
+                              </span>
+                            </div>
+
+                            <div className='text-muted me-4 fs-9'>
+                              <span className='ms-2 bg-gray-400 text-dark rounded py-2 px-4 fw-medium'>
+                                {`$${getStrikePrice(tradeDetailsData)}`}
+                              </span>
+
+                              <span className='ms-2 bg-dark text-gray-400 rounded py-2 px-4 fw-medium'>
+                                {getCallPut(tradeDetailsData)}
+                              </span>
+                            </div>
+
+                            <div className='text-muted me-4 fs-9'>
                               @{' '}
                               <span className='ms-2 bg-gray-400 text-dark rounded py-2 px-4 fw-medium'>
                                 {`$${
@@ -280,62 +468,15 @@ export const TradeDetailsCustom = () => {
                                 }`}
                               </span>
                             </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className='d-flex align-items-center flex-wrap gap-6'>
-                          <div
-                            className={`btn btn-solid w-125px py-2 ${
-                              item?.transactionType === 'Debit'
-                                ? 'bg-success'
-                                : 'bg-danger'
-                            }`}
-                          >
-                            {item?.tradeDirection == 'STO'
-                              ? 'SHORT'
-                              : item.transactionType === 'Debit'
-                              ? 'BOUGHT'
-                              : 'SOLD'}
                           </div>
-
-                          <div className='text-muted me-4 fs-7'>
-                            <span className='ms-2 bg-gray-400 text-dark rounded py-2 px-4 fw-medium'>
-                              {getExpiryDate(tradeDetailsData)}
-                            </span>
-
-                            <span className='ms-2 bg-dark text-gray-400 rounded py-2 px-4 fw-medium'>
-                              {`${getDaysOpen(tradeDetailsData)}D`}
-                            </span>
-                          </div>
-
-                          <div className='text-muted me-4 fs-7'>
-                            <span className='ms-2 bg-gray-400 text-dark rounded py-2 px-4 fw-medium'>
-                              {`$${getStrikePrice(tradeDetailsData)}`}
-                            </span>
-
-                            <span className='ms-2 bg-dark text-gray-400 rounded py-2 px-4 fw-medium'>
-                              {getCallPut(tradeDetailsData)}
-                            </span>
-                          </div>
-
-                          <div className='text-muted me-4 fs-7'>
-                            @{' '}
-                            <span className='ms-2 bg-gray-400 text-dark rounded py-2 px-4 fw-medium'>
-                              {`$${
-                                item?.price
-                                  ? item?.price
-                                  : getEntryPrice(tradeDetailsData)
-                              }`}
-                            </span>
-                          </div>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
         </div>
       </div>
     </div>
