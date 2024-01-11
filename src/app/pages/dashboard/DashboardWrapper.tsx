@@ -72,23 +72,16 @@ const DashboardPage: FC = () => {
 
       {/* custom begin::Row */}
       <div className='row gy-5 g-xl-8 mb-5 mb-xl-10'>
-        {filterDataLoading ? (
-          <div>Loading...</div>
-        ) : isLoading ? (
-          <div>Loading...</div>
-        ) : isError ? (
-          <div>Error Loading Trades</div>
-        ) : tradesData?.data?.summary_data?.length > 0 ? (
-          <div>
-            <TradeWidget
-              data={tradesData?.data}
-              showTitle={true}
-              className='card-xl-stretch mb-xl-8'
-            />
-          </div>
-        ) : (
-          <div>No Trades Found</div>
-        )}
+        <div>
+          <TradeWidget
+            data={tradesData?.data}
+            showTitle={true}
+            isFilterLoading={filterDataLoading}
+            isLoading={isLoading}
+            isError={isError}
+            className='card-xl-stretch mb-xl-8'
+          />
+        </div>
       </div>
       {/* custom end::Row */}
 

@@ -3,15 +3,23 @@ import _ from 'lodash'
 
 import { getTradePrice } from '../../../../lib/utils'
 import { useNavigate } from 'react-router-dom'
+import { Loading } from '../../../../app/components/Loading'
+import NoData from '../../../../app/components/NoData'
 
 export function TradeWidget({
   className,
   data,
   showTitle,
+  isLoading,
+  isError,
+  isFilterLoading,
 }: {
   className: string
   data: any
   showTitle?: boolean
+  isLoading: boolean
+  isError: boolean
+  isFilterLoading: boolean
 }) {
   const navigate = useNavigate()
 
@@ -31,6 +39,7 @@ export function TradeWidget({
       ) : null}
       {/* end::Header */}
       {/* begin::Body */}
+
       <div className='card-body py-3'>
         {/* begin::Table container */}
         <div className='table-responsive'>
@@ -51,128 +60,152 @@ export function TradeWidget({
             </thead>
             {/* end::Table head */}
             {/* begin::Table body */}
-            <tbody>
-              {data?.summary_data.map((summary: any) => {
-                const equityType = summary.equityType
-                const entryPrice = _.result(summary, 'entryPrice', 0)
-                  ? equityType === 'Crypto'
-                    ? _.result(summary, 'entryPrice', 0)?.toFixed(3)
-                    : _.result(summary, 'entryPrice', 0)?.toFixed(2)
-                  : '0'
+            {
+              // Set Table Body to null if any of these matches
+              isFilterLoading || isLoading || isError ? null : (
+                <tbody>
+                  {data?.summary_data.map((summary: any) => {
+                    const equityType = summary.equityType
+                    const entryPrice = _.result(summary, 'entryPrice', 0)
+                      ? equityType === 'Crypto'
+                        ? _.result(summary, 'entryPrice', 0)?.toFixed(3)
+                        : _.result(summary, 'entryPrice', 0)?.toFixed(2)
+                      : '0'
 
-                const profitOrLossPercentage = summary.profitOrLossPercentage
-                  ? summary.profitOrLossPercentage?.toFixed(2)
-                  : 0
+                    const profitOrLossPercentage =
+                      summary.profitOrLossPercentage
+                        ? summary.profitOrLossPercentage?.toFixed(2)
+                        : 0
 
-                const profitOrLossDifference = summary.profitOrLossDifference
-                  ? summary.profitOrLossDifference.toFixed(2)
-                  : 0
+                    const profitOrLossDifference =
+                      summary.profitOrLossDifference
+                        ? summary.profitOrLossDifference.toFixed(2)
+                        : 0
 
-                let tradeDirection = summary.tradeDirection
+                    let tradeDirection = summary.tradeDirection
 
-                const ticker = _.result(summary, 'ticker', '')
-                const tickerName = ticker?.split('_')[0]
-                const month = ticker?.substring(1, 2)
-                const date = ticker?.substring(2, 4)
-                const year = ticker?.substring(4, 6)
+                    const ticker = _.result(summary, 'ticker', '')
+                    const tickerName = ticker?.split('_')[0]
+                    const month = ticker?.substring(1, 2)
+                    const date = ticker?.substring(2, 4)
+                    const year = ticker?.substring(4, 6)
 
-                tradeDirection =
-                  tradeDirection !== '' && tradeDirection === 'BTO' ? 'C' : 'P'
+                    tradeDirection =
+                      tradeDirection !== '' && tradeDirection === 'BTO'
+                        ? 'C'
+                        : 'P'
 
-                const expiryDate = `${month}/${date}/${year}`
-                const expDate = moment(expiryDate, 'MM/DD/YYYY').format(
-                  'MMM DD'
-                )
+                    const expiryDate = `${month}/${date}/${year}`
+                    const expDate = moment(expiryDate, 'MM/DD/YYYY').format(
+                      'MMM DD'
+                    )
 
-                const given = moment(expiryDate, 'MM/DD/YYYY')
-                const current = moment().startOf('day')
-                const daysOpens = moment.duration(given.diff(current)).asDays()
-                const openDays = Math.floor(daysOpens)
+                    const given = moment(expiryDate, 'MM/DD/YYYY')
+                    const current = moment().startOf('day')
+                    const daysOpens = moment
+                      .duration(given.diff(current))
+                      .asDays()
+                    const openDays = Math.floor(daysOpens)
 
-                return summary?.tradeData.map((item: any) => {
-                  const transactionType = _.result(
-                    item,
-                    'transactionType',
-                    ''
-                  ) as string
-                  const isOpen = _.result(item, 'isOpen', false)
-                  const strikePrice = ticker?.substring(6)
+                    return summary?.tradeData.map((item: any) => {
+                      const transactionType = _.result(
+                        item,
+                        'transactionType',
+                        ''
+                      ) as string
+                      const isOpen = _.result(item, 'isOpen', false)
+                      const strikePrice = ticker?.substring(6)
 
-                  return (
-                    <tr
-                      key={item?._id}
-                      data-bs-toggle='modal'
-                      data-bs-target='#kt_modal_custom'
-                      className='bg-hover-light hover-elevate-down cursor-pointer'
-                      onClick={() => handleClick(item?._id)}
-                    >
-                      <td>
-                        <div className=' fw-bold  mb-1 fs-6'>{tickerName}</div>
-                      </td>
-                      <td>
-                        <div
-                          className={`fw-bold  mb-1 fs-6 ${
-                            transactionType === 'Debit'
-                              ? 'text-success'
-                              : 'text-danger'
-                          }`}
+                      return (
+                        <tr
+                          key={item?._id}
+                          data-bs-toggle='modal'
+                          data-bs-target='#kt_modal_custom'
+                          className='bg-hover-light hover-elevate-down cursor-pointer'
+                          onClick={() => handleClick(item?.summaryId)}
                         >
-                          {transactionType === 'Debit' ? 'BOUGHT' : 'SOLD'}
-                        </div>
-                      </td>
-                      <td>
-                        <div
-                          className={` fw-bold  mb-1 fs-6 ${
-                            profitOrLossDifference > 0
-                              ? 'text-success'
-                              : profitOrLossDifference < 0
-                              ? 'text-danger'
-                              : ''
-                          }`}
-                        >
-                          {`$${getTradePrice(
-                            equityType,
-                            profitOrLossDifference
-                          )}`}
-                        </div>
-                      </td>
-                      <td>
-                        <div className={`fw-bold  mb-1 fs-6 `}>
-                          {profitOrLossPercentage}
-                        </div>
-                      </td>
-                      <td>
-                        {openDays ? (
-                          <div className={` fw-bold  mb-1 fs-6 `}>
-                            {expDate} {`(${openDays}D)`}
-                          </div>
-                        ) : null}
-                      </td>
-                      <td>
-                        <div className={` fw-bold  mb-1 fs-6 `}>
-                          {isOpen ? 'Open' : 'Closed'}
-                        </div>
-                      </td>
-                      <td>
-                        {strikePrice ? (
-                          <div className='text-gray-900 fw-bold  mb-1 fs-6'>
-                            {`$${strikePrice}`} ({tradeDirection})
-                          </div>
-                        ) : null}
-                      </td>
-                      <td>
-                        <div className='text-gray-900 fw-bold  mb-1 fs-6'>
-                          {`$${entryPrice}`}
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })
-              })}
-            </tbody>
+                          <td>
+                            <div className=' fw-bold  mb-1 fs-6'>
+                              {tickerName}
+                            </div>
+                          </td>
+                          <td>
+                            <div
+                              className={`fw-bold  mb-1 fs-6 ${
+                                transactionType === 'Debit'
+                                  ? 'text-success'
+                                  : 'text-danger'
+                              }`}
+                            >
+                              {transactionType === 'Debit' ? 'BOUGHT' : 'SOLD'}
+                            </div>
+                          </td>
+                          <td>
+                            <div
+                              className={` fw-bold  mb-1 fs-6 ${
+                                profitOrLossDifference > 0
+                                  ? 'text-success'
+                                  : profitOrLossDifference < 0
+                                  ? 'text-danger'
+                                  : ''
+                              }`}
+                            >
+                              {`$${getTradePrice(
+                                equityType,
+                                profitOrLossDifference
+                              )}`}
+                            </div>
+                          </td>
+                          <td>
+                            <div className={`fw-bold  mb-1 fs-6 `}>
+                              {profitOrLossPercentage}
+                            </div>
+                          </td>
+                          <td>
+                            {openDays ? (
+                              <div className={` fw-bold  mb-1 fs-6 `}>
+                                {expDate} {`(${openDays}D)`}
+                              </div>
+                            ) : null}
+                          </td>
+                          <td>
+                            <div className={` fw-bold  mb-1 fs-6 `}>
+                              {isOpen ? 'Open' : 'Closed'}
+                            </div>
+                          </td>
+                          <td>
+                            {strikePrice ? (
+                              <div className='text-gray-900 fw-bold  mb-1 fs-6'>
+                                {`$${strikePrice}`} ({tradeDirection})
+                              </div>
+                            ) : null}
+                          </td>
+                          <td>
+                            <div className='text-gray-900 fw-bold  mb-1 fs-6'>
+                              {`$${entryPrice}`}
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })
+                  })}
+                </tbody>
+              )
+            }
             {/* end::Table body */}
           </table>
           {/* end::Table */}
+
+          {/* Check api status */}
+          {isFilterLoading ? (
+            <Loading />
+          ) : isLoading ? (
+            <Loading />
+          ) : isError ? (
+            <NoData type='error' message='Error Loading Trades' />
+          ) : data?.summary_data?.length <= 0 ? (
+            <NoData type='error' message='No Data Found' />
+          ) : null}
         </div>
         {/* end::Table container */}
       </div>
