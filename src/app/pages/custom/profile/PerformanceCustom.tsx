@@ -16,6 +16,9 @@ import { ChartsWidgetCustom } from '../../../../_metronic/partials/widgets/chart
 import { StatisticsWidgetCustom } from '../../../../_metronic/partials/widgets/statistics/StatisticsWidgetCustom'
 import { useEffect, useState } from 'react'
 import { ChartsWidgetCustom1 } from '../../../../_metronic/partials/widgets/charts/ChartsWidgetCustom1'
+import { Loading } from '../../../components/Loading'
+import NoData from '../../../components/NoData'
+import { set } from 'lodash'
 
 // type AdditionalProps = {
 //   profitableWeeksPercentage: {
@@ -34,7 +37,7 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
   } = useQuery('statistics', () => fetchStatistics(userId))
 
   const [statisticsData, setStatisticsData] = useState(statistics)
-  const [isStatsLoading, setIsStatsLoading] = useState(false)
+  const [isStatsLoading, setIsStatsLoading] = useState(isLoading)
   const [selectedTimeframe, setSelectedTimeframe] = useState<string>('all_time')
 
   const {
@@ -98,7 +101,8 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
 
   useEffect(() => {
     setStatisticsData(statistics)
-  }, [statistics])
+    setIsStatsLoading(isLoading)
+  }, [statistics, isLoading])
 
   useEffect(() => {
     if (cumulativeStats && cumulativeStats.data?.length > 0) {
@@ -141,88 +145,72 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
   return (
     <>
       {/* Cumulative Pl */}
-      {isCumulativeStatsLoading && comData.labels.length <= 0 ? (
-        <div>Loading...</div>
-      ) : isCumulativeStatsError ? (
-        <div>Error fetching cumulative pl</div>
-      ) : cumulativeStats?.data.length > 0 ? (
-        <ChartsWidgetCustom1
-          className='mb-8'
-          seriesData={comData}
-          title='Cumulative P&L'
-          color='--bs-info'
-        />
-      ) : (
-        <div>No Trade found!</div>
-      )}
+
+      <ChartsWidgetCustom1
+        className='mb-8'
+        seriesData={comData}
+        title='Cumulative P&L'
+        color='--bs-info'
+        data={cumulativeStats?.data}
+        isLoading={isCumulativeStatsLoading}
+        isError={isCumulativeStatsError}
+      />
 
       {/* Assets Traded */}
-      {isAssetTradedLoading ? (
-        <div>Loading...</div>
-      ) : isAssetTradedError ? (
-        <div>Error fetching additional statistics</div>
-      ) : (
-        <ChartsWidgetCustom
-          className='mb-8'
-          title='Trade Direction'
-          seriesData={[
-            {
-              name: 'Crypto',
-              data: [assetsTradedStatsData.cryptoValue.toFixed(2)],
-            },
-            {
-              name: 'Forex',
-              data: [assetsTradedStatsData.forexValue.toFixed(2)],
-            },
-            {
-              name: 'Option',
-              data: [assetsTradedStatsData.optionValue.toFixed(2)],
-            },
-            {
-              name: 'Stock',
-              data: [assetsTradedStatsData.stockValue.toFixed(2)],
-            },
-          ]}
-        />
-      )}
+      <ChartsWidgetCustom
+        className='mb-8'
+        title='Trade Direction'
+        isLoading={isAssetTradedLoading}
+        isError={isAssetTradedError}
+        seriesData={[
+          {
+            name: 'Crypto',
+            data: [assetsTradedStatsData?.cryptoValue?.toFixed(2)],
+          },
+          {
+            name: 'Forex',
+            data: [assetsTradedStatsData?.forexValue?.toFixed(2)],
+          },
+          {
+            name: 'Option',
+            data: [assetsTradedStatsData?.optionValue?.toFixed(2)],
+          },
+          {
+            name: 'Stock',
+            data: [assetsTradedStatsData?.stockValue?.toFixed(2)],
+          },
+        ]}
+      />
 
-      {isStatsLoading || isLoading ? (
-        <div>Loading...</div>
-      ) : isError ? (
-        <div className='text-center fs-2 py-5'>Error fetching table data</div>
-      ) : (
-        <TablesWidgetCustom
-          className='mb-8'
-          data={statisticsData?.data}
-          userId={userId}
-          action={setStatisticsData}
-          loader={setIsStatsLoading}
-          selectedTimeframe={selectedTimeframe}
-          setSelectedTimeframe={setSelectedTimeframe}
-        />
-      )}
+      <TablesWidgetCustom
+        className='mb-8'
+        data={statisticsData?.data}
+        userId={userId}
+        action={setStatisticsData}
+        loader={setIsStatsLoading}
+        selectedTimeframe={selectedTimeframe}
+        setSelectedTimeframe={setSelectedTimeframe}
+        isLoading={isStatsLoading}
+        isError={isError}
+      />
 
       {/* Trade Direction */}
-      {istradeDirectionLoading ? (
-        <div>Loading...</div>
-      ) : istradeDirectionError ? (
-        <div>Error fetching trade direction chart data</div>
-      ) : (
-        <ChartsWidgetCustom
-          className='mb-8'
-          title='Trade Direction'
-          seriesData={[
-            {
-              name: 'Long',
-              data: [tradeDirectionStats.data.longPercentage.value],
-            },
-            {
-              name: 'Short',
-              data: [tradeDirectionStats.data.shortPercentage.value],
-            },
-          ]}
-        />
-      )}
+      <ChartsWidgetCustom
+        className='mb-8'
+        title='Trade Direction'
+        isLoading={istradeDirectionLoading}
+        isError={istradeDirectionError}
+        seriesData={[
+          {
+            name: 'Long',
+            data: [tradeDirectionStats?.data?.longPercentage?.value],
+          },
+          {
+            name: 'Short',
+            data: [tradeDirectionStats?.data?.shortPercentage?.value],
+          },
+        ]}
+      />
 
       {/*  Additional Stats */}
       <div className='card card-flush mb-8'>
@@ -231,9 +219,9 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
         </div>
         {/* begin::Row */}
         {isAdditionalLoading ? (
-          <div>Loading...</div>
+          <Loading />
         ) : isAdditionalError ? (
-          <div>Error fetching additional statistics</div>
+          <NoData type='error' message='Error fetching additional statistics' />
         ) : (
           <div className='row card-body py-3 g-5 g-xl-8'>
             <div className='col-md-6 col-xl-3'>
@@ -243,7 +231,9 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
                 color='white'
                 iconColor='primary'
                 title={`${
-                  additionalStats ? additionalStats.data.avgTradesPerWeek : '--'
+                  additionalStats
+                    ? additionalStats?.data?.avgTradesPerWeek
+                    : '--'
                 } Trades`}
                 titleColor='dark'
                 description='Per Week'
@@ -259,7 +249,7 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
                 iconColor='white'
                 title={`${
                   additionalStats
-                    ? additionalStats.data.avgHoldingTimeDays
+                    ? additionalStats?.data?.avgHoldingTimeDays
                     : '--'
                 } Days`}
                 titleColor='white'
@@ -276,7 +266,8 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
                 iconColor='white'
                 title={`${
                   additionalStats
-                    ? additionalStats.data.profitableWeeksPercentage.formatted
+                    ? additionalStats?.data?.profitableWeeksPercentage
+                        ?.formatted
                     : '--'
                 }`}
                 titleColor='white'
@@ -293,7 +284,7 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
                 iconColor='white'
                 title={`${
                   currentUser
-                    ? moment(currentUser.createdAt).format('DD MMM YY')
+                    ? moment(currentUser?.createdAt).format('DD MMM YY')
                     : '--'
                 } `}
                 titleColor='white'
@@ -317,7 +308,7 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
 
         <div className='row card-body pt-0 g-5 g-xl-8'>
           {isFrequentlyTradedLoading ? (
-            <div>Loading...</div>
+            <Loading />
           ) : frequentlyTraded?.data.length > 0 ? (
             frequentlyTraded.data.map(
               (trade: { ticker: string; totalTrades: number }) => (
@@ -334,29 +325,31 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
               )
             )
           ) : isFrequentlyTradedError ? (
-            <div>Error fetching frequently traded tickers</div>
+            <NoData
+              type='error'
+              message='Error fetching frequently traded tickers'
+            />
           ) : (
-            <div className='text-center fs-3 py-5'>
-              This user currently has no frequently traded tickers
-            </div>
+            <NoData
+              type='info'
+              message='This user currently has no frequently traded tickers'
+            />
           )}
         </div>
         {/* end::Row */}
       </div>
 
       {/* Avg Risk */}
-      {isAvgRiskStatsLoading ? (
-        <div>Loading...</div>
-      ) : isAvgRiskStatsError ? (
-        <div>Error fetching average statistics</div>
-      ) : (
-        <ChartsWidgetCustom1
-          className='mb-8'
-          seriesData={avgRiskData}
-          title='Average Risk'
-          color='--bs-danger'
-        />
-      )}
+
+      <ChartsWidgetCustom1
+        data={avgRiskStats?.data}
+        className='mb-8'
+        seriesData={avgRiskData}
+        title='Average Risk'
+        color='--bs-danger'
+        isLoading={isAvgRiskStatsLoading}
+        isError={isAvgRiskStatsError}
+      />
     </>
   )
 }
