@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import {
   fetchMarketPrice,
   fetchTradeSummaryDetails,
@@ -21,6 +21,7 @@ import { StatisticsWidgetCustom2 } from '../../../_metronic/partials/widgets/sta
 
 export const TradeDetailsCustom = () => {
   const { tradeId } = useParams()
+  const navigate = useNavigate()
 
   const [underlyingPrice, setUnderlyingPrice] = useState(0)
   const [currentMarketPrice, setCurrentMarketPrice] = useState(0)
@@ -494,6 +495,27 @@ export const TradeDetailsCustom = () => {
             })}
           </div>
         </div>
+      </div>
+
+      <div className='w-100 px-10 px-lg-20 w-lg-50 mx-auto position-fixed start-50 bottom-0 z-index-1 translate-middle'>
+        <div className='d-flex justify-content-stretch mb-2 gap-8'>
+          <button className='btn btn-sm btn-warning w-100'>
+            {tradeDirection === 'STO' ? 'Short More' : 'Buy More'}
+          </button>
+          <button
+            className='btn btn-sm btn-info w-100'
+            onClick={() => navigate('/wall-post')}
+          >
+            Post Update
+          </button>
+        </div>
+
+        <button
+          className='w-100 btn btn-sm btn-danger'
+          onClick={() => navigate('/')}
+        >
+          Close Trade
+        </button>
       </div>
     </div>
   )
