@@ -6,9 +6,7 @@ const BASE_URL = 'https://api.marketaction.live/'
 // const BASE_URL = 'http://localhost:3000/'
 
 export const initSocket = () => {
-  socket = io(BASE_URL, {
-    transports: ['polling'],
-  }) // Temporary development url
+  socket = io(BASE_URL)
 
   socket.on('connect', () => {
     console.log(`Socket ${socket.id} connected✅`)
