@@ -127,7 +127,7 @@ export const TradeDetailsCustom = () => {
   }, [tradeDetails, isOpen, tickerSymbol])
 
   const iframeHtml = `
-  <div class="tradingview-widget-container" style="padding: 0; margin: 0; background; height: 500px; maxHeight: 100%;">
+  <div class="tradingview-widget-container" style="padding: 0; margin: 0; background; height: 95vh;">
     <div id="tradingview_${tickerSymbol}" style="height: 100%;"></div>
     <div class="tradingview-widget-copyright">
       <a href="https://www.tradingview.com/symbols/${tickerSymbol}/"></a>
@@ -156,12 +156,12 @@ export const TradeDetailsCustom = () => {
     <div className='container-fluid oveflow-lg-hidden'>
       <div className='row flex-column-reverse flex-lg-row'>
         {tradeDetails ? (
-          <div className='col-12 col-lg-8 w-full'>
+          <div className='col-12 col-lg-8 vh-70'>
             <iframe
               title={`TradingView Chart - ${tickerSymbol}`}
               srcDoc={iframeHtml}
               width='100%'
-              height={510}
+              // height={510}
               frameBorder='0'
               style={{
                 backgroundColor: 'transparent',
@@ -172,10 +172,7 @@ export const TradeDetailsCustom = () => {
           </div>
         ) : null}
 
-        <div
-          className='col-12 col-lg-4'
-          style={{ maxHeight: '77vh', overflowY: 'scroll' }}
-        >
+        <div className='col-12 col-lg-4 vh-lg-75 overflow-y-scroll'>
           {/* Avatar */}
           <div className='d-flex align-items-center justify-content-between bg-dark p-4 rounded mb-10'>
             <div className='d-flex align-items-center gap-4'>
