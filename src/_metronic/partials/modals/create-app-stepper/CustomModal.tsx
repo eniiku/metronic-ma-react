@@ -1,12 +1,18 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Modal } from 'react-bootstrap'
 import { KTIcon } from '../../../helpers'
-import { postTrades } from '../../../../services/api'
+import {
+  fetchMarketPrice,
+  fetchOptionChainData,
+  postTrades,
+} from '../../../../services/api'
 import { useAuth } from '../../../../app/modules/auth'
 import Flatpickr from 'react-flatpickr'
 import moment from 'moment'
-import { returnPosition } from '../../../../lib/utils'
+import { getOptionChainData, returnPosition } from '../../../../lib/utils'
+import { useQuery } from 'react-query'
+import { RotatingLines } from 'react-loader-spinner'
 
 type Props = {
   show: boolean
@@ -47,9 +53,24 @@ export const CustomModal = ({ show, handleClose }: Props) => {
     copyTradeUsername: '',
   })
 
+  const [callsData, setCallsData] = useState([])
+  const [putsData, setPutsData] = useState([])
+  const [dateArray, setDateArray] = useState([])
+  const [strikeArray, setStrikeArray] = useState([])
+  const [allowOptionChain, setAllowOptionChain] = useState(false)
+
   const [errors, setErrors] = useState<
     Partial<Record<keyof FilterData, string>>
   >({})
+
+  const { data: marketPrice } = useQuery('marketPrice', () =>
+    fetchMarketPrice(filterData.equityType, filterData.ticker)
+  )
+
+  const { data: optionChainData, isLoading: isOptionChainLoading } = useQuery(
+    'optionChainData',
+    () => fetchOptionChainData(filterData.ticker)
+  )
 
   // Function to handle radio button changes
   const handleRadioChange = (name: keyof FilterData, value: string) => {
@@ -87,6 +108,35 @@ export const CustomModal = ({ show, handleClose }: Props) => {
       ...prevData,
       date: moment(dates[0]).format('YYYY-MM-DD'),
     }))
+  }
+
+  // Option type change handler
+  const handleOptionTypeChange = (name: keyof FilterData, value: string) => {
+    setDateArray([])
+    setStrikeArray([])
+
+    setFilterData((prevData) => ({
+      ...prevData,
+      date: '',
+      strike: '',
+      price: '',
+    }))
+
+    setTimeout(() => {
+      if (value === 'call') {
+        setFilterData((prevData) => ({
+          ...prevData,
+          [name]: [...callsData],
+        }))
+      } else if (value === 'put') {
+        setFilterData((prevData) => ({
+          ...prevData,
+          [name]: [...putsData],
+        }))
+      }
+    }, 1000)
+
+    setFilterData((prevData) => ({ ...prevData, [name]: value }))
   }
 
   const handleCopyClick = async () => {
@@ -237,6 +287,54 @@ export const CustomModal = ({ show, handleClose }: Props) => {
     })
   }
 
+  useEffect(() => {
+    setAllowOptionChain(false)
+
+    const timer = setTimeout(() => {
+      setFilterData((prevData) => ({
+        ...prevData,
+        date: '',
+        strike: '',
+      }))
+
+      if (filterData.ticker !== '') {
+        fetchOptionChainData(filterData.ticker)
+
+        if (filterData.equityType !== 'Option')
+          fetchMarketPrice(filterData.equityType, filterData.ticker)
+      }
+    }, 1000)
+    return () => clearTimeout(timer)
+  }, [filterData.ticker])
+
+  useEffect(() => {
+    if (marketPrice && filterData.ticker !== '') {
+      // Update the price state based on real market price
+      if (filterData.equityType !== 'Option') {
+        const price = marketPrice?.regularMarketPrice
+        setFilterData((prevData) => ({
+          ...prevData,
+          price: `${price}`,
+        }))
+      }
+    }
+
+    // Update the visibility of the trade modal
+    // if (tradeModalStatus) setOpenTradeVisible(tradeModalStatus)
+
+    // Fetch and set option chain data when the relevant state changes
+    const callOptionChainData = async () => {
+      const optionChain = await getOptionChainData(optionChainData)
+
+      setCallsData(optionChain.optionCallData)
+      setPutsData(optionChain.optionPutData)
+      setDateArray(optionChain.optionData)
+      setAllowOptionChain(true)
+    }
+
+    if (optionChainData) callOptionChainData()
+  }, [marketPrice, optionChainData])
+
   return createPortal(
     <Modal
       id='kt_modal_create_app'
@@ -352,9 +450,13 @@ export const CustomModal = ({ show, handleClose }: Props) => {
 
               <div className='mb-6 row gap-2'>
                 <div className='col-5'>
-                  <label className='d-flex align-items-center form-label fw-bold mb-2'>
-                    <span>Ticker</span>
-                  </label>
+                  <div className='d-flex align-items-center'>
+                    <label className='d-flex align-items-center form-label fw-bold mb-2 me-2'>
+                      <span>Ticker</span>
+                    </label>
+
+                    {isOptionChainLoading && <Loader />}
+                  </div>
 
                   <input
                     type='text'
@@ -388,7 +490,7 @@ export const CustomModal = ({ show, handleClose }: Props) => {
                             value={item}
                             checked={filterData.optionType === item}
                             onChange={() =>
-                              handleRadioChange('optionType', item)
+                              handleOptionTypeChange('optionType', item)
                             }
                             className='form-check-input'
                           />
@@ -401,9 +503,13 @@ export const CustomModal = ({ show, handleClose }: Props) => {
                   </div>
                 ) : (
                   <div className='col-5'>
-                    <label className='d-flex align-items-center form-label fw-bold mb-2'>
-                      <span>Price</span>
-                    </label>
+                    <div className='d-flex align-items-center'>
+                      <label className='d-flex align-items-center form-label fw-bold mb-2 me-2'>
+                        <span>Price</span>
+                      </label>
+
+                      {isOptionChainLoading && <Loader />}
+                    </div>
 
                     <div className='d-flex align-items-center gap-2'>
                       <span>$</span>
@@ -424,25 +530,37 @@ export const CustomModal = ({ show, handleClose }: Props) => {
                 )}
               </div>
 
-              {filterData.equityType === 'Option' && (
-                <div className='mb-6'>
-                  <button className='btn btn-sm btn-info w-100'>
-                    Select Option contract
-                  </button>
+              {filterData.equityType === 'Option' &&
+                dateArray?.length > 0 &&
+                filterData?.ticker !== '' &&
+                allowOptionChain && (
+                  <div className='mb-6'>
+                    <button
+                      className='btn btn-sm btn-info w-100'
+                      // onClick={select option contract}
+                    >
+                      Select Option contract
+                    </button>
 
-                  {errors.optionType && (
-                    <div className='text-danger mt-2'>{errors.optionType}</div>
-                  )}
-                </div>
-              )}
+                    {errors.optionType && (
+                      <div className='text-danger mt-2'>
+                        {errors.optionType}
+                      </div>
+                    )}
+                  </div>
+                )}
 
               {/* Date & Strike*/}
 
               <div className='mb-6 row gap-2'>
                 <div className='col-5'>
-                  <label className='d-flex align-items-center form-label fw-bold mb-2'>
-                    <span>Date</span>
-                  </label>
+                  <div className='d-flex align-items-center'>
+                    <label className='d-flex align-items-center form-label fw-bold mb-2 me-2'>
+                      <span>Date</span>
+                    </label>
+
+                    {isOptionChainLoading && <Loader />}
+                  </div>
 
                   <Flatpickr
                     render={({ defaultValue }, ref) => (
@@ -470,9 +588,13 @@ export const CustomModal = ({ show, handleClose }: Props) => {
                 </div>
 
                 <div className='col-5'>
-                  <label className='d-flex align-items-center form-label fw-bold mb-2'>
-                    <span>Strike</span>
-                  </label>
+                  <div className='d-flex align-items-center '>
+                    <label className='d-flex align-items-center form-label fw-bold mb-2 me-2'>
+                      <span>Strike</span>
+                    </label>
+
+                    {isOptionChainLoading && <Loader />}
+                  </div>
 
                   <div className='d-flex align-items-center gap-2'>
                     <input
@@ -680,3 +802,14 @@ export const CustomModal = ({ show, handleClose }: Props) => {
     modalsRoot
   )
 }
+
+const Loader = () => (
+  <RotatingLines
+    visible={true}
+    width='15'
+    strokeColor='gray'
+    strokeWidth='3'
+    animationDuration='0.75'
+    ariaLabel='rotating-lines-loading'
+  />
+)

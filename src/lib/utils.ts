@@ -250,3 +250,54 @@ export const returnPosition = (pos: string) => {
       return ''
   }
 }
+
+export const getOptionChainData = async (optionChainData: any) => {
+  const callObj = optionChainData?.callExpDateMap
+    ? optionChainData?.callExpDateMap
+    : {}
+  const putObj = optionChainData?.putExpDateMap
+    ? optionChainData?.putExpDateMap
+    : {}
+  const callDatesArray: any = []
+  const putDatesArray: any = []
+  let optionData = []
+  try {
+    await _.each(callObj, function (val, key) {
+      const strikeArray: any = []
+      _.each(val, function (subVal, subKey) {
+        strikeArray.push({ strike_price: subKey, callData: subVal[0] })
+      })
+      callDatesArray.push({ date: key, strike_data: strikeArray })
+    })
+
+    await _.each(putObj, function (val, key) {
+      const putStrikeArray: any = []
+      _.each(val, function (subVal, subKey) {
+        putStrikeArray.push({ strike_price: subKey, putData: subVal[0] })
+      })
+      putDatesArray.push({ date: key, strike_data: putStrikeArray })
+    })
+
+    optionData = callDatesArray.map((item: any, index: any) => {
+      console.log({ item })
+      const putStrikeArray = putDatesArray[index]?.strike_data
+      const data = item.strike_data.map((x: any, i: any) => {
+        const putData = putStrikeArray[i].putData
+        return { ...x, putData: putData }
+      })
+      return { ...item, strike_data: data }
+    })
+    console.log({ optionData })
+    return {
+      optionCallData: callDatesArray,
+      optionPutData: putDatesArray,
+      optionData: optionData,
+    }
+  } catch (error) {
+    return {
+      optionCallData: [],
+      optionPutData: [],
+      optionData: [],
+    }
+  }
+}

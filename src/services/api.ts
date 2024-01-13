@@ -569,3 +569,19 @@ export const fetchFollowingUsers = async (id: string): Promise<any> => {
     throw new Error('Error fetching users')
   }
 }
+
+export const fetchOptionChainData = async (ticker: string): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.get('/trades/optionChainData', {
+      headers: {
+        Authorization: `Bearer ${BEARER_TOKEN}`,
+      },
+      params: {
+        ticker: ticker,
+      },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error('Error fetching option chain data')
+  }
+}
