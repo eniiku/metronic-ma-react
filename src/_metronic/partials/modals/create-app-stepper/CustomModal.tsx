@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Modal } from 'react-bootstrap'
 import { KTIcon } from '../../../helpers'
@@ -29,6 +29,8 @@ const modalsRoot = document.getElementById('root-modals') || document.body
 
 export const CustomModal = ({ show, handleClose }: Props) => {
   const { currentUser } = useAuth()
+  const tradeTextRef = useRef<HTMLInputElement | null>(null)
+  const [copySuccess, setCopySuccess] = useState(false)
 
   const [message, setMessage] = useState<string>('')
   const [error, setError] = useState<string>('')
@@ -39,11 +41,15 @@ export const CustomModal = ({ show, handleClose }: Props) => {
     ticker: '',
     optionType: 'call',
     price: 'm',
-    date: '',
+    date: moment().format('YYYY-MM-DD'),
     strike: '',
     riskType: [],
     copyTradeUsername: '',
   })
+
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof FilterData, string>>
+  >({})
 
   // Function to handle radio button changes
   const handleRadioChange = (name: keyof FilterData, value: string) => {
@@ -74,7 +80,119 @@ export const CustomModal = ({ show, handleClose }: Props) => {
     })
   }
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  // Date input change handler
+  const handleDateChange = (dates: Date[]) => {
+    // Use proper name variable
+    setFilterData((prevData) => ({
+      ...prevData,
+      date: moment(dates[0]).format('YYYY-MM-DD'),
+    }))
+  }
+
+  const handleCopyClick = async () => {
+    if (tradeTextRef.current) {
+      try {
+        await navigator.clipboard.writeText(tradeTextRef.current.value)
+        setCopySuccess(true)
+
+        // Reset the "Copied!" message after a short delay
+        setTimeout(() => {
+          setCopySuccess(false)
+        }, 2000)
+      } catch (err) {
+        console.error('Unable to copy text: ', err)
+      }
+    }
+  }
+
+  const handleSubmitEnter = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    const tradePosition = returnPosition(filterData.position)
+    const { equityType, ticker, date, strike, optionType, price } = filterData
+
+    const errors: Partial<Record<keyof FilterData, string>> = {}
+
+    if (equityType === 'Stock') {
+      if (!tradePosition) {
+        errors.position = 'Please choose position'
+      }
+
+      if (!ticker) {
+        errors.ticker = 'Please enter ticker'
+      }
+
+      if (Object.keys(errors).length === 0) {
+        const stockMessage = `${tradePosition} ${ticker} @ ${price || 'm'} ${
+          filterData.riskType && filterData.riskType.length > 0
+            ? '(' + filterData.riskType + ')'
+            : ''
+        }`
+
+        await postTrades(stockMessage, currentUser ? `${currentUser.id}` : '')
+      }
+    } else if (equityType === 'Option') {
+      if (!tradePosition) {
+        errors.position = 'Please enter position'
+      }
+
+      if (!ticker) {
+        errors.ticker = 'Please enter ticker name'
+      }
+
+      if (!date) {
+        errors.date = 'Exp date can not be empty'
+      }
+
+      if (!strike) {
+        errors.strike = 'Strike price can not be empty'
+      }
+
+      if (!optionType) {
+        errors.optionType = 'Please select optionType'
+      }
+
+      if (!price) {
+        errors.price = 'Please enter contract price'
+      }
+
+      if (Object.keys(errors).length === 0) {
+        const optionMessage = `${tradePosition} ${ticker} ${strike} ${
+          optionType === 'call' ? 'C' : 'P'
+        } ${date.split(':')[0]} @ ${price} ${
+          filterData.riskType && filterData.riskType.length > 0
+            ? '(' + filterData.riskType + ')'
+            : ''
+        }`
+
+        await postTrades(optionMessage, currentUser ? `${currentUser.id}` : '')
+      }
+    } else {
+      if (!tradePosition) {
+        errors.position = 'Please choose position'
+      }
+
+      if (!ticker) {
+        errors.ticker = 'Please enter ticker'
+      }
+
+      if (Object.keys(errors).length === 0) {
+        const tradeMessage = `${tradePosition} ${ticker?.toUpperCase()} @ ${
+          price ? price : 'm'
+        } ${
+          filterData.riskType && filterData.riskType.length > 0
+            ? '(' + filterData.riskType + ')'
+            : ''
+        }`
+
+        await postTrades(tradeMessage, currentUser ? `${currentUser.id}` : '')
+      }
+    }
+
+    setErrors(errors)
+  }
+
+  const handleSubmitQuick = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     // Validate trade description
@@ -107,11 +225,11 @@ export const CustomModal = ({ show, handleClose }: Props) => {
 
   const handleReset = () => {
     setFilterData({
-      equityType: '',
-      position: '',
+      equityType: 'Stock',
+      position: 'buy',
       ticker: '',
-      price: '',
-      date: '',
+      price: 'm',
+      date: moment().format('YYYY-MM-DD'),
       strike: '',
       optionType: 'call',
       riskType: [],
@@ -165,15 +283,15 @@ export const CustomModal = ({ show, handleClose }: Props) => {
         </ul>
 
         <div className='tab-content' id='myTabContent'>
-          {/* 1st tab */}
+          {/* Enter Trade tab */}
           <div
             className='tab-pane fade active show'
             id='kt_tab_pane_1'
             role='tabpanel'
           >
-            <form onSubmit={handleSubmit} className='px-7 py-5'>
+            <form onSubmit={handleSubmitEnter} className='px-7 py-5'>
               {/* Asset */}
-              <div className='mb-10'>
+              <div className='mb-6'>
                 <label className='form-label fw-bold'>Equity Type</label>
 
                 <div className='d-flex flex-wrap align-items-center gap-4'>
@@ -194,10 +312,14 @@ export const CustomModal = ({ show, handleClose }: Props) => {
                     </label>
                   ))}
                 </div>
+
+                {errors.equityType && (
+                  <div className='text-danger mt-2'>{errors.equityType}</div>
+                )}
               </div>
 
               {/* Position */}
-              <div className='mb-10'>
+              <div className='mb-6'>
                 <label className='form-label fw-bold'>Position</label>
 
                 <div className='d-flex flex-wrap align-items-center gap-4'>
@@ -220,11 +342,15 @@ export const CustomModal = ({ show, handleClose }: Props) => {
                     </label>
                   ))}
                 </div>
+
+                {errors.position && (
+                  <div className='text-danger mt-2'>{errors.position}</div>
+                )}
               </div>
 
               {/* Ticker & Option & Price */}
 
-              <div className='mb-10 row gap-2'>
+              <div className='mb-6 row gap-2'>
                 <div className='col-5'>
                   <label className='d-flex align-items-center form-label fw-bold mb-2'>
                     <span>Ticker</span>
@@ -238,11 +364,15 @@ export const CustomModal = ({ show, handleClose }: Props) => {
                     onChange={handleInputChange}
                     placeholder='E.g, AAPL'
                   />
+
+                  {errors.ticker && (
+                    <div className='text-danger mt-2'>{errors.ticker}</div>
+                  )}
                 </div>
 
                 {filterData.equityType === 'Option' ? (
                   <div className='col-5'>
-                    <label className='d-flex align-items-center form-label fw-bold mb-2'>
+                    <label className='d-flex align-items-center form-label fw-bold mb-4'>
                       <span>Option Type</span>
                     </label>
 
@@ -254,9 +384,9 @@ export const CustomModal = ({ show, handleClose }: Props) => {
                         >
                           <input
                             type='radio'
-                            name='position'
+                            name='optionType'
                             value={item}
-                            checked={filterData.position === item}
+                            checked={filterData.optionType === item}
                             onChange={() =>
                               handleRadioChange('optionType', item)
                             }
@@ -279,7 +409,7 @@ export const CustomModal = ({ show, handleClose }: Props) => {
                       <span>$</span>
 
                       <input
-                        type='text'
+                        type='number'
                         className='form-control form-control-sm form-control-solid border-gray-400'
                         name='price'
                         value={filterData.price}
@@ -287,21 +417,28 @@ export const CustomModal = ({ show, handleClose }: Props) => {
                         placeholder='1.30'
                       />
                     </div>
+                    {errors.price && (
+                      <div className='text-danger mt-2'>{errors.price}</div>
+                    )}
                   </div>
                 )}
               </div>
 
               {filterData.equityType === 'Option' && (
-                <div className='mb-10'>
+                <div className='mb-6'>
                   <button className='btn btn-sm btn-info w-100'>
                     Select Option contract
                   </button>
+
+                  {errors.optionType && (
+                    <div className='text-danger mt-2'>{errors.optionType}</div>
+                  )}
                 </div>
               )}
 
               {/* Date & Strike*/}
 
-              <div className='mb-10 row gap-2'>
+              <div className='mb-6 row gap-2'>
                 <div className='col-5'>
                   <label className='d-flex align-items-center form-label fw-bold mb-2'>
                     <span>Date</span>
@@ -325,13 +462,11 @@ export const CustomModal = ({ show, handleClose }: Props) => {
                     )}
                     name='date'
                     value={filterData.date}
-                    onChange={(dates) =>
-                      setFilterData((prev) => ({
-                        ...prev,
-                        [name]: moment(dates[0]).format('YYYY-MM-DD'),
-                      }))
-                    }
+                    onChange={handleDateChange}
                   />
+                  {errors.date && (
+                    <div className='text-danger mt-2'>{errors.date}</div>
+                  )}
                 </div>
 
                 <div className='col-5'>
@@ -341,7 +476,7 @@ export const CustomModal = ({ show, handleClose }: Props) => {
 
                   <div className='d-flex align-items-center gap-2'>
                     <input
-                      type='text'
+                      type='number'
                       className='form-control form-control-sm form-control-solid border-gray-400'
                       name='strike'
                       value={filterData.strike}
@@ -349,14 +484,16 @@ export const CustomModal = ({ show, handleClose }: Props) => {
                       placeholder='473'
                     />
                   </div>
+                  {errors.strike && (
+                    <div className='text-danger mt-2'>{errors.strike}</div>
+                  )}
                 </div>
               </div>
 
               {/* Risk Type  */}
-              <div className='mb-10'>
+              <div className='mb-6'>
                 <div className='d-flex flex-wrap align-items-center gap-4'>
                   {[
-                    { title: 'Standard', value: 'standard' },
                     { title: 'Risky', value: 'risky' },
                     { title: 'Swing', value: 'swing' },
                     { title: 'Day Trade', value: 'daytrade' },
@@ -379,40 +516,63 @@ export const CustomModal = ({ show, handleClose }: Props) => {
                       <span className='form-check-label text-capitalize'>
                         {item.title}
                       </span>
+
+                      {errors.riskType &&
+                        errors.riskType.includes(item.value) && (
+                          <div className='text-danger mt-2'>{`Please select ${item.title}`}</div>
+                        )}
                     </label>
                   ))}
                 </div>
               </div>
 
               {/* Copy Trade */}
-              <div className='btn btn-md btn-outline btn-outline-dark bg-light-dark fw-bold w-100 mb-10 d-flex align-items-center justify-content-between'>
+              <div className='px-3 rounded bg-light-dark fw-bold w-100 mb-6 d-flex align-items-center justify-content-between border border-gray-200'>
                 <span className='me-4 w-100 text-start text-gray-700'>
-                  {filterData.equityType === 'Option'
-                    ? `${returnPosition(filterData.position)} ${
-                        filterData.ticker
-                      } ${filterData.strike} ${
-                        filterData.optionType === 'call' ? 'C' : 'P'
-                      } ${
-                        filterData.date.split(':')[0]
-                          ? moment(filterData.date.split(':')[0]).format(
-                              'MM/DD/YYYY'
-                            )
-                          : ''
-                      } @ ${filterData.price} ${
-                        filterData.riskType && filterData.riskType.length > 0
-                          ? '(' + filterData.riskType + ')'
-                          : ''
-                      }`
-                    : `${returnPosition(filterData.position)} ${
-                        filterData.ticker
-                      } @ ${filterData.price ? filterData.price : 'm'} ${
-                        filterData.riskType && filterData.riskType.length > 0
-                          ? '(' + filterData.riskType + ')'
-                          : ''
-                      }`}
+                  <input
+                    ref={tradeTextRef}
+                    type='text'
+                    readOnly
+                    className='form-control-plaintext'
+                    value={
+                      filterData.equityType === 'Option'
+                        ? `${returnPosition(
+                            filterData.position
+                          )} ${filterData.ticker.toLocaleUpperCase()} ${
+                            filterData.strike
+                          } ${filterData.optionType === 'call' ? 'C' : 'P'} ${
+                            filterData.date.split(':')[0]
+                              ? moment(filterData.date.split(':')[0]).format(
+                                  'MM/DD/YYYY'
+                                )
+                              : ''
+                          } @ ${filterData.price} ${
+                            filterData.riskType &&
+                            filterData.riskType.length > 0
+                              ? '(' + filterData.riskType + ')'
+                              : ''
+                          }`
+                        : `${returnPosition(
+                            filterData.position
+                          )} ${filterData.ticker.toLocaleUpperCase()} @ ${
+                            filterData.price ? filterData.price : 'm'
+                          } ${
+                            filterData.riskType &&
+                            filterData.riskType.length > 0
+                              ? '(' + filterData.riskType + ')'
+                              : ''
+                          }`
+                    }
+                  />
                 </span>
 
-                <span className='text-dark'>Copy</span>
+                <button
+                  className='btn btn-sm fs-8 px-3 py-1 btn-secondary'
+                  type='button'
+                  onClick={handleCopyClick}
+                >
+                  {copySuccess ? 'Copied!' : 'Copy'}
+                </button>
               </div>
               {/* Action Buttons */}
 
@@ -430,16 +590,17 @@ export const CustomModal = ({ show, handleClose }: Props) => {
                   className='btn btn-sm btn-primary'
                   data-kt-menu-dismiss='true'
                 >
-                  Apply
+                  Share Trade Idea
                 </button>
               </div>
             </form>
           </div>
 
+          {/* Quick Trade tab */}
           <div className='tab-pane fade' id='kt_tab_pane_2' role='tabpanel'>
             {/*begin::Form */}
-            <form onSubmit={handleSubmit} id='kt_modal_create_app_form'>
-              <div className='fv-row mb-10'>
+            <form onSubmit={handleSubmitQuick} id='kt_modal_create_app_form'>
+              <div className='fv-row mb-6'>
                 <label className='d-flex align-items-center fs-5 fw-semibold mb-2'>
                   <span className='required'>Trade Description</span>
                   <i
@@ -508,7 +669,7 @@ export const CustomModal = ({ show, handleClose }: Props) => {
                 className='btn btn-lg btn-primary'
                 disabled={!message.trim()}
               >
-                Submit
+                Share Trade Idea
               </button>
             </form>
             {/*end::Form */}
