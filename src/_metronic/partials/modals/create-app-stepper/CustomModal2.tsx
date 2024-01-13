@@ -20,6 +20,8 @@ export const CustomModal2 = ({ show, handleClose, action }: Props) => {
     sentiment: 'bearish' | 'bullish' | 'any'
   }>({ content: '', image: null, position: '', sentiment: 'any' })
 
+  const [ticker, setTicker] = useState('')
+
   const [error, setError] = useState<string>('')
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -87,6 +89,18 @@ export const CustomModal2 = ({ show, handleClose, action }: Props) => {
     }
   }
 
+  // const onSearchTrade = () => {
+  //   if (ticker !== '') {
+  //     const option = {
+  //       userId: userProfileData?._id,
+  //       page: page,
+  //       limit: per_page_limit,
+  //       ticker: ticker?.toLocaleUpperCase(),
+  //     }
+  //     dispatch(getMySummaryData(option))
+  //   } else getSummaryData(1)
+  // }
+
   return createPortal(
     <Modal
       id='kt_modal_create_app'
@@ -120,42 +134,72 @@ export const CustomModal2 = ({ show, handleClose, action }: Props) => {
               value={message.content}
               onChange={handleInputChange}
             ></textarea>
-            {/* <!--begin::Image input--> */}
 
-            {message.image ? (
-              <div
-                className='image-input image-input-bg-muted mt-10 mx-auto'
-                data-kt-image-input='true'
-              >
-                {/* Image preview */}
-                {message.image && (
-                  <img
-                    src={URL.createObjectURL(message.image)}
-                    alt='Preview'
-                    className='image-input-wrapper w-200px h-150px'
-                  />
-                )}
+            {/* Ticker  */}
+            <div className='fv-row mb-10'>
+              <label className='fs-5 fw-semibold mb-2'>
+                <span className=''>Ticker</span>
+              </label>
+              <input
+                type='text'
+                className='form-control form-control-lg form-control-solid'
+                placeholder='Enter ticker'
+                value={ticker}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setTicker(e.target.value)
+                }}
+              />
+            </div>
 
-                {/* Remove button */}
-                <span
-                  className='btn btn-icon btn-circle btn-color-muted btn-active-color-primary w-25px h-25px bg-body shadow'
-                  data-kt-image-input-action='remove'
-                  data-bs-toggle='tooltip'
-                  data-bs-dismiss='click'
-                  title='Remove wallpost image'
-                  onClick={() =>
-                    setMessage((prevMessage) => ({
-                      ...prevMessage,
-                      image: null,
-                    }))
-                  }
+            {error ? (
+              <div className='fv-plugins-message-container'>
+                <div
+                  data-field='trade_description'
+                  data-validator='notEmpty'
+                  className='fv-help-block'
                 >
-                  <i className='ki-outline ki-cross fs-1'></i>
-                </span>
+                  {error ||
+                    'Please fill in a trade description in the proper format'}
+                </div>
               </div>
             ) : null}
-            {/* <!--end::Image input--> */}
           </div>
+
+          {/* <!--begin::Image input--> */}
+
+          {message.image ? (
+            <div
+              className='image-input image-input-bg-muted mt-10 mx-auto'
+              data-kt-image-input='true'
+            >
+              {/* Image preview */}
+              {message.image && (
+                <img
+                  src={URL.createObjectURL(message.image)}
+                  alt='Preview'
+                  className='image-input-wrapper w-200px h-150px'
+                />
+              )}
+
+              {/* Remove button */}
+              <span
+                className='btn btn-icon btn-circle btn-color-muted btn-active-color-primary w-25px h-25px bg-body shadow'
+                data-kt-image-input-action='remove'
+                data-bs-toggle='tooltip'
+                data-bs-dismiss='click'
+                title='Remove wallpost image'
+                onClick={() =>
+                  setMessage((prevMessage) => ({
+                    ...prevMessage,
+                    image: null,
+                  }))
+                }
+              >
+                <i className='ki-outline ki-cross fs-1'></i>
+              </span>
+            </div>
+          ) : null}
+          {/* <!--end::Image input--> */}
 
           {error ? (
             <div className='fv-plugins-message-container mb-5'>
@@ -220,6 +264,11 @@ export const CustomModal2 = ({ show, handleClose, action }: Props) => {
                 {/* <!--end::Inputs--> */}
               </label>
               {/* <!--end::Edit button--> */}
+
+              {/* Attach Trade Button */}
+              <button type='button' className='btn btn-sm btn-icon'>
+                <KTIcon iconName='paper-clip' className='fs-1 ms-1 me-2' />
+              </button>
 
               <button
                 type='submit'
