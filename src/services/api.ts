@@ -104,7 +104,11 @@ export const fetchStatistics = async (
   }
 }
 
-export const fetchUserTradeSummary = async (id?: string): Promise<any> => {
+export const fetchUserTradeSummary = async (
+  id?: string,
+  page?: number,
+  ticker?: string
+): Promise<any> => {
   try {
     const response: AxiosResponse = await api.get(
       '/trades/get-user-summary-data',
@@ -114,8 +118,9 @@ export const fetchUserTradeSummary = async (id?: string): Promise<any> => {
         },
         params: {
           user_id: id,
-          page: 1,
+          page: page || 1,
           limit: 10,
+          ticker: ticker,
         },
       }
     )
@@ -512,7 +517,7 @@ export const fetchMarketPrice = async (
     )
     return response.data
   } catch (error) {
-    throw new Error('Error fetching users')
+    throw new Error('Error fetching market price')
   }
 }
 

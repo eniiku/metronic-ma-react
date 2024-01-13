@@ -2,7 +2,9 @@ import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Modal } from 'react-bootstrap'
 import { KTIcon } from '../../../helpers'
-import { postWallpost } from '../../../../services/api'
+import { fetchUserTradeSummary, postWallpost } from '../../../../services/api'
+import { setAuth, useAuth } from '../../../../app/modules/auth'
+import { useQuery } from 'react-query'
 
 type Props = {
   show: boolean
@@ -13,16 +15,40 @@ type Props = {
 const modalsRoot = document.getElementById('root-modals') || document.body
 
 export const CustomModal2 = ({ show, handleClose, action }: Props) => {
+  const { currentUser } = useAuth()
   const [message, setMessage] = useState<{
     content: string
     image: any
     position: any
-    sentiment: 'bearish' | 'bullish' | 'any'
+    sentiment: any
   }>({ content: '', image: null, position: '', sentiment: 'any' })
 
   const [ticker, setTicker] = useState('')
 
   const [error, setError] = useState<string>('')
+
+  const [page, setPage] = useState(1)
+
+  const [isAttachModalVisible, setIsAttachModalVisible] = useState(false)
+  const [positionData, setPostionData] = useState({})
+
+  const {
+    data: userSummary,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery(
+    'userSummary',
+    () =>
+      fetchUserTradeSummary(
+        currentUser ? `${currentUser.id}` : '',
+        page,
+        ticker
+      ),
+    {
+      enabled: false, // Initial fetch is disabled
+    }
+  )
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage((prevMessage) => ({
@@ -89,17 +115,43 @@ export const CustomModal2 = ({ show, handleClose, action }: Props) => {
     }
   }
 
-  // const onSearchTrade = () => {
-  //   if (ticker !== '') {
-  //     const option = {
-  //       userId: userProfileData?._id,
-  //       page: page,
-  //       limit: per_page_limit,
-  //       ticker: ticker?.toLocaleUpperCase(),
-  //     }
-  //     dispatch(getMySummaryData(option))
-  //   } else getSummaryData(1)
-  // }
+  const handleSearchTrade = () => {
+    if (ticker !== '') {
+      // Call the API and refetch data
+      console.log(ticker)
+      refetch()
+    } else {
+      console.error('Ticker is empty')
+    }
+  }
+
+  const onSubmitTrade = (data: any) => {
+    setPostionData(data)
+
+    setIsAttachModalVisible(false)
+
+    const sentiment = data.tradeDirection === 'BTO' ? 'Bullish' : 'Bearish'
+
+    setMessage((prevMessage) => ({
+      ...prevMessage,
+      sentiment: sentiment,
+    }))
+
+    // let tickerName = ''
+    // if (data.equityType == 'Option') tickerName = data?.ticker?.split('_')[0]
+    // else tickerName = data.ticker
+    // setMessage((prevMessage) => ({
+    //   ...prevMessage,
+    //   content: `$${tickerName} ${prevMessage.content}`,
+    // }))
+
+    setMessage((prevMessage) => ({
+      ...prevMessage,
+      position: data,
+    }))
+  }
+
+  console.log('summaryyyyyyyyy', userSummary)
 
   return createPortal(
     <Modal
@@ -126,7 +178,7 @@ export const CustomModal2 = ({ show, handleClose, action }: Props) => {
       <div className='modal-body py-lg-10 px-lg-10 text-center'>
         {/*begin::Form */}
         <form onSubmit={handleSubmit} id='kt_modal_create_app_form'>
-          <div className='fv-row mb-10'>
+          <div className='fv-row mb-6'>
             <textarea
               className='form-control form-control-lg form-control-solid resize-none min-h-80px'
               rows={2}
@@ -134,22 +186,6 @@ export const CustomModal2 = ({ show, handleClose, action }: Props) => {
               value={message.content}
               onChange={handleInputChange}
             ></textarea>
-
-            {/* Ticker  */}
-            <div className='fv-row mb-10'>
-              <label className='fs-5 fw-semibold mb-2'>
-                <span className=''>Ticker</span>
-              </label>
-              <input
-                type='text'
-                className='form-control form-control-lg form-control-solid'
-                placeholder='Enter ticker'
-                value={ticker}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  setTicker(e.target.value)
-                }}
-              />
-            </div>
 
             {error ? (
               <div className='fv-plugins-message-container'>
@@ -169,7 +205,7 @@ export const CustomModal2 = ({ show, handleClose, action }: Props) => {
 
           {message.image ? (
             <div
-              className='image-input image-input-bg-muted mt-10 mx-auto'
+              className='image-input image-input-bg-muted mb-4 mx-auto'
               data-kt-image-input='true'
             >
               {/* Image preview */}
@@ -201,16 +237,69 @@ export const CustomModal2 = ({ show, handleClose, action }: Props) => {
           ) : null}
           {/* <!--end::Image input--> */}
 
-          {error ? (
-            <div className='fv-plugins-message-container mb-5'>
-              <div
-                data-field='trade_description'
-                data-validator='notEmpty'
-                className='fv-help-block'
-              >
-                {error || 'Textarea can not be empty'}
+          {isAttachModalVisible ? (
+            <div className='fv-row py-5 my-5 className bg-light-warning px-4 rounded'>
+              <label className='fs-5 fw-semibold mb-2'>
+                <span className=''>Attach Trade</span>
+              </label>
+
+              <div>
+                <div className='d-flex align-items-center gap-2'>
+                  <input
+                    type='text'
+                    className='form-control form-control-lg form-control-solid bg-muted'
+                    placeholder='Enter ticker'
+                    value={ticker}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      setTicker(e.target.value.toLocaleUpperCase())
+                    }}
+                  />
+
+                  <button
+                    className='btn btn-icon btn-secondary'
+                    type='button'
+                    onClick={handleSearchTrade}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <RotatingLines
+                        visible={true}
+                        width='15'
+                        strokeColor='gray'
+                        strokeWidth='3'
+                        animationDuration='0.75'
+                        ariaLabel='rotating-lines-loading'
+                      />
+                    ) : (
+                      <KTIcon iconName='magnifier' className='fs-2' />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                {!isLoading ? (
+                  <TradeWidget
+                    data={userSummary?.data}
+                    isError={isError}
+                    isLoading={isLoading}
+                    className='mt-4'
+                    onClick={onSubmitTrade}
+                  />
+                ) : (
+                  <RotatingLines
+                    visible={true}
+                    width='15'
+                    strokeColor='gray'
+                    strokeWidth='3'
+                    animationDuration='0.75'
+                    ariaLabel='rotating-lines-loading'
+                  />
+                )}
               </div>
             </div>
+          ) : Object.keys(positionData).length !== 0 ? (
+            <TradeWidgetCustom2 className='mb-6' data={positionData} />
           ) : null}
 
           {/* begin:Actions */}
@@ -266,7 +355,11 @@ export const CustomModal2 = ({ show, handleClose, action }: Props) => {
               {/* <!--end::Edit button--> */}
 
               {/* Attach Trade Button */}
-              <button type='button' className='btn btn-sm btn-icon'>
+              <button
+                type='button'
+                className='btn btn-sm btn-icon'
+                onClick={() => setIsAttachModalVisible((prev) => !prev)}
+              >
                 <KTIcon iconName='paper-clip' className='fs-1 ms-1 me-2' />
               </button>
 
@@ -286,5 +379,214 @@ export const CustomModal2 = ({ show, handleClose, action }: Props) => {
       </div>
     </Modal>,
     modalsRoot
+  )
+}
+
+import moment from 'moment'
+import _ from 'lodash'
+
+import { getTradePrice } from '../../../../lib/utils'
+import { Loading } from '../../../../app/components/Loading'
+import NoData from '../../../../app/components/NoData'
+import { RotatingLines } from 'react-loader-spinner'
+import { TradeWidgetCustom2 } from '../../widgets/custom/TradeWidgetCustom2'
+
+export function TradeWidget({
+  className,
+  data,
+  showTitle,
+  isLoading,
+  isError,
+  onClick,
+}: {
+  className?: string
+  data: any
+  showTitle?: boolean
+  isLoading: boolean
+  isError: boolean
+  onClick: (data: any) => void
+}) {
+  return (
+    <div className={`card ${className}`}>
+      {/* begin::Header */}
+      {showTitle ? (
+        <div className='card-header border-0 pt-5'>
+          <h3 className='card-title align-items-start flex-column'>
+            <span className='card-label fw-bold fs-3 mb-1'>Trades</span>
+          </h3>
+        </div>
+      ) : null}
+      {/* end::Header */}
+      {/* begin::Body */}
+
+      <div className='card-body p-0'>
+        {/* begin::Table container */}
+        <div className='table-responsive'>
+          {/* begin::Table */}
+          <table className='table align-middle gs-0 gy-4 text-center'>
+            {/* begin::Table head */}
+            <thead>
+              <tr className='fw-bold text-muted bg-light'>
+                <th className='min-w-60px rounded-start'>Coin</th>
+                <th className='min-w-60px'>Option</th>
+                <th className='min-w-60px'>Price Profit/Loss</th>
+                <th className='min-w-60px'>% Profit/Loss</th>
+                <th className='min-w-60px'>Date</th>
+                <th className='min-w-60px'>Trade</th>
+                <th className='min-w-60px'>$(c)</th>
+                <th className='min-w-60px rounded-end'>@</th>
+              </tr>
+            </thead>
+            {/* end::Table head */}
+            {/* begin::Table body */}
+            {
+              // Set Table Body to null if any of these matches
+              isLoading || isError ? null : (
+                <tbody>
+                  {data?.summary_data.map((summary: any) => {
+                    const equityType = summary.equityType
+                    const entryPrice = _.result(summary, 'entryPrice', 0)
+                      ? equityType === 'Crypto'
+                        ? _.result(summary, 'entryPrice', 0)?.toFixed(3)
+                        : _.result(summary, 'entryPrice', 0)?.toFixed(2)
+                      : '0'
+
+                    const profitOrLossPercentage =
+                      summary.profitOrLossPercentage
+                        ? summary.profitOrLossPercentage?.toFixed(2)
+                        : 0
+
+                    const profitOrLossDifference =
+                      summary.profitOrLossDifference
+                        ? summary.profitOrLossDifference.toFixed(2)
+                        : 0
+
+                    let tradeDirection = summary.tradeDirection
+
+                    const ticker = _.result(summary, 'ticker', '')
+                    const tickerName = ticker?.split('_')[0]
+                    const month = ticker?.substring(1, 2)
+                    const date = ticker?.substring(2, 4)
+                    const year = ticker?.substring(4, 6)
+
+                    tradeDirection =
+                      tradeDirection !== '' && tradeDirection === 'BTO'
+                        ? 'C'
+                        : 'P'
+
+                    const expiryDate = `${month}/${date}/${year}`
+                    const expDate = moment(expiryDate, 'MM/DD/YYYY').format(
+                      'MMM DD'
+                    )
+
+                    const given = moment(expiryDate, 'MM/DD/YYYY')
+                    const current = moment().startOf('day')
+                    const daysOpens = moment
+                      .duration(given.diff(current))
+                      .asDays()
+                    const openDays = Math.floor(daysOpens)
+
+                    return summary?.tradeData.map((item: any) => {
+                      const transactionType = _.result(
+                        item,
+                        'transactionType',
+                        ''
+                      ) as string
+                      const isOpen = _.result(item, 'isOpen', false)
+                      const strikePrice = ticker?.substring(6)
+
+                      return (
+                        <tr
+                          key={item?._id}
+                          data-bs-toggle='modal'
+                          data-bs-target='#kt_modal_custom'
+                          className='bg-hover-light hover-elevate-down cursor-pointer'
+                          onClick={() => onClick(summary)}
+                        >
+                          <td>
+                            <div className=' fw-bold  mb-1 fs-9'>
+                              {tickerName}
+                            </div>
+                          </td>
+                          <td>
+                            <div
+                              className={`fw-bold  mb-1 fs-9 ${
+                                transactionType === 'Debit'
+                                  ? 'text-success'
+                                  : 'text-danger'
+                              }`}
+                            >
+                              {transactionType === 'Debit' ? 'BOUGHT' : 'SOLD'}
+                            </div>
+                          </td>
+                          <td>
+                            <div
+                              className={` fw-bold  mb-1 fs-9 ${
+                                profitOrLossDifference > 0
+                                  ? 'text-success'
+                                  : profitOrLossDifference < 0
+                                  ? 'text-danger'
+                                  : ''
+                              }`}
+                            >
+                              {`$${getTradePrice(
+                                equityType,
+                                profitOrLossDifference
+                              )}`}
+                            </div>
+                          </td>
+                          <td>
+                            <div className={`fw-bold  mb-1 fs-9 `}>
+                              {profitOrLossPercentage}
+                            </div>
+                          </td>
+                          <td>
+                            {openDays ? (
+                              <div className={` fw-bold  mb-1 fs-9 `}>
+                                {expDate} {`(${openDays}D)`}
+                              </div>
+                            ) : null}
+                          </td>
+                          <td>
+                            <div className={` fw-bold  mb-1 fs-9 `}>
+                              {isOpen ? 'Open' : 'Closed'}
+                            </div>
+                          </td>
+                          <td>
+                            {strikePrice ? (
+                              <div className='text-gray-900 fw-bold  mb-1 fs-9'>
+                                {`$${strikePrice}`} ({tradeDirection})
+                              </div>
+                            ) : null}
+                          </td>
+                          <td>
+                            <div className='text-gray-900 fw-bold  mb-1 fs-9'>
+                              {`$${entryPrice}`}
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })
+                  })}
+                </tbody>
+              )
+            }
+            {/* end::Table body */}
+          </table>
+          {/* end::Table */}
+
+          {/* Check api status */}
+          {isLoading ? (
+            <Loading />
+          ) : isError ? (
+            <NoData type='error' message='Error Loading Trades' />
+          ) : data?.summary_data?.length <= 0 ? (
+            <NoData type='error' message='No Data Found' />
+          ) : null}
+        </div>
+        {/* end::Table container */}
+      </div>
+      {/* begin::Body */}
+    </div>
   )
 }
