@@ -4,6 +4,9 @@ import { Modal } from 'react-bootstrap'
 import { KTIcon } from '../../../helpers'
 import { postTrades } from '../../../../services/api'
 import { useAuth } from '../../../../app/modules/auth'
+import Flatpickr from 'react-flatpickr'
+import moment from 'moment'
+import { returnPosition } from '../../../../lib/utils'
 
 type Props = {
   show: boolean
@@ -13,8 +16,11 @@ type Props = {
 interface FilterData {
   equityType: string
   position: string
+  optionType: string
   ticker: string
   price: string
+  date: string
+  strike: string
   riskType: string[]
   copyTradeUsername: string
 }
@@ -28,10 +34,13 @@ export const CustomModal = ({ show, handleClose }: Props) => {
   const [error, setError] = useState<string>('')
 
   const [filterData, setFilterData] = useState<FilterData>({
-    equityType: '',
-    position: '',
+    equityType: 'Stock',
+    position: 'buy',
     ticker: '',
-    price: '',
+    optionType: 'call',
+    price: 'm',
+    date: '',
+    strike: '',
     riskType: [],
     copyTradeUsername: '',
   })
@@ -102,6 +111,9 @@ export const CustomModal = ({ show, handleClose }: Props) => {
       position: '',
       ticker: '',
       price: '',
+      date: '',
+      strike: '',
+      optionType: 'call',
       riskType: [],
       copyTradeUsername: '',
     })
@@ -130,10 +142,10 @@ export const CustomModal = ({ show, handleClose }: Props) => {
       </div>
 
       <div className='modal-body '>
-        <ul className='nav nav-tabs nav-pills mb-5 fs-4 border-0'>
-          <li className='nav-item w-50 me-2'>
+        <ul className='nav nav-tabs nav-pills mb-5 fs-4 border-0 row align-item-center justify-content-center'>
+          <li className='nav-item col-5'>
             <a
-              className='nav-link active'
+              className='nav-link active text-center'
               data-bs-toggle='tab'
               href='#kt_tab_pane_1'
             >
@@ -141,8 +153,12 @@ export const CustomModal = ({ show, handleClose }: Props) => {
             </a>
           </li>
 
-          <li className='nav-item'>
-            <a className='nav-link' data-bs-toggle='tab' href='#kt_tab_pane_2'>
+          <li className='nav-item col-5'>
+            <a
+              className='nav-link text-center'
+              data-bs-toggle='tab'
+              href='#kt_tab_pane_2'
+            >
               Quick Type
             </a>
           </li>
@@ -206,7 +222,7 @@ export const CustomModal = ({ show, handleClose }: Props) => {
                 </div>
               </div>
 
-              {/* Ticker & Price  */}
+              {/* Ticker & Option & Price */}
 
               <div className='mb-10 row gap-2'>
                 <div className='col-5'>
@@ -216,7 +232,7 @@ export const CustomModal = ({ show, handleClose }: Props) => {
 
                   <input
                     type='text'
-                    className='form-control form-control-sm form-control-solid border-gray-500'
+                    className='form-control form-control-sm form-control-solid border-gray-400'
                     name='ticker'
                     value={filterData.ticker}
                     onChange={handleInputChange}
@@ -224,21 +240,113 @@ export const CustomModal = ({ show, handleClose }: Props) => {
                   />
                 </div>
 
+                {filterData.equityType === 'Option' ? (
+                  <div className='col-5'>
+                    <label className='d-flex align-items-center form-label fw-bold mb-2'>
+                      <span>Option Type</span>
+                    </label>
+
+                    <div className='d-flex flex-wrap align-items-center gap-4'>
+                      {['call', 'put'].map((item) => (
+                        <label
+                          key={item}
+                          className='form-check form-check-sm form-check-custom form-check-solid me-5'
+                        >
+                          <input
+                            type='radio'
+                            name='position'
+                            value={item}
+                            checked={filterData.position === item}
+                            onChange={() =>
+                              handleRadioChange('optionType', item)
+                            }
+                            className='form-check-input'
+                          />
+                          <span className='form-check-label text-capitalize'>
+                            {item}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className='col-5'>
+                    <label className='d-flex align-items-center form-label fw-bold mb-2'>
+                      <span>Price</span>
+                    </label>
+
+                    <div className='d-flex align-items-center gap-2'>
+                      <span>$</span>
+
+                      <input
+                        type='text'
+                        className='form-control form-control-sm form-control-solid border-gray-400'
+                        name='price'
+                        value={filterData.price}
+                        onChange={handleInputChange}
+                        placeholder='1.30'
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {filterData.equityType === 'Option' && (
+                <div className='mb-10'>
+                  <button className='btn btn-sm btn-info w-100'>
+                    Select Option contract
+                  </button>
+                </div>
+              )}
+
+              {/* Date & Strike*/}
+
+              <div className='mb-10 row gap-2'>
                 <div className='col-5'>
                   <label className='d-flex align-items-center form-label fw-bold mb-2'>
-                    <span>Price</span>
+                    <span>Date</span>
+                  </label>
+
+                  <Flatpickr
+                    render={({ defaultValue }, ref) => (
+                      <div
+                        defaultValue={defaultValue}
+                        ref={ref}
+                        className='btn btn-sm btn-flex fw-medium gap-2 bg-light-dark py-3 px-6 w-auto btn-active-light-info'
+                        data-kt-menu-trigger='click'
+                        data-kt-menu-placement='bottom-end'
+                      >
+                        <KTIcon
+                          iconName='calendar'
+                          className='fs-3 text-dark me-1'
+                        />
+                        <span>{filterData.date}</span>
+                      </div>
+                    )}
+                    name='date'
+                    value={filterData.date}
+                    onChange={(dates) =>
+                      setFilterData((prev) => ({
+                        ...prev,
+                        [name]: moment(dates[0]).format('YYYY-MM-DD'),
+                      }))
+                    }
+                  />
+                </div>
+
+                <div className='col-5'>
+                  <label className='d-flex align-items-center form-label fw-bold mb-2'>
+                    <span>Strike</span>
                   </label>
 
                   <div className='d-flex align-items-center gap-2'>
-                    <span>$</span>
-
                     <input
                       type='text'
-                      className='form-control form-control-sm form-control-solid border-gray-500'
-                      name='price'
-                      value={filterData.price}
+                      className='form-control form-control-sm form-control-solid border-gray-400'
+                      name='strike'
+                      value={filterData.strike}
                       onChange={handleInputChange}
-                      placeholder='1.30'
+                      placeholder='473'
                     />
                   </div>
                 </div>
@@ -276,19 +384,36 @@ export const CustomModal = ({ show, handleClose }: Props) => {
                 </div>
               </div>
 
-              {/* Copy trade */}
-              <div className='mb-10 d-flex gap-2 align-items-center'>
-                <input
-                  type='text'
-                  className='form-control form-control-sm form-control-solid border-gray-500'
-                  name='user'
-                  // value={filterData.ticker}
-                  // onChange={handleInputChange}
-                  placeholder='Ex:DesiArtist'
-                />
-                <button>copy</button>
-              </div>
+              {/* Copy Trade */}
+              <div className='btn btn-md btn-outline btn-outline-dark bg-light-dark fw-bold w-100 mb-10 d-flex align-items-center justify-content-between'>
+                <span className='me-4 w-100 text-start text-gray-700'>
+                  {filterData.equityType === 'Option'
+                    ? `${returnPosition(filterData.position)} ${
+                        filterData.ticker
+                      } ${filterData.strike} ${
+                        filterData.optionType === 'call' ? 'C' : 'P'
+                      } ${
+                        filterData.date.split(':')[0]
+                          ? moment(filterData.date.split(':')[0]).format(
+                              'MM/DD/YYYY'
+                            )
+                          : ''
+                      } @ ${filterData.price} ${
+                        filterData.riskType && filterData.riskType.length > 0
+                          ? '(' + filterData.riskType + ')'
+                          : ''
+                      }`
+                    : `${returnPosition(filterData.position)} ${
+                        filterData.ticker
+                      } @ ${filterData.price ? filterData.price : 'm'} ${
+                        filterData.riskType && filterData.riskType.length > 0
+                          ? '(' + filterData.riskType + ')'
+                          : ''
+                      }`}
+                </span>
 
+                <span className='text-dark'>Copy</span>
+              </div>
               {/* Action Buttons */}
 
               <div className='d-flex justify-content-end'>
