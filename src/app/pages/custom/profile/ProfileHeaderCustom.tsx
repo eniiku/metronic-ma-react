@@ -5,6 +5,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import {
   fetchAllUsers,
+  fetchFollowers,
   fetchFollowingUserList,
   followUser,
   unFollowUser,
@@ -20,6 +21,12 @@ const ProfileHeaderCustom: FC<{ userId: string }> = ({ userId }) => {
     'followingUsersList',
     fetchFollowingUserList
   )
+
+  const { data: followers } = useQuery('followers', () =>
+    fetchFollowers(userId)
+  )
+
+  console.log('followers', followers)
 
   const currentUser = users?.data.find((user: any) => user._id === userId)
 
@@ -47,7 +54,6 @@ const ProfileHeaderCustom: FC<{ userId: string }> = ({ userId }) => {
       } else {
         await followUser(currentUser._id)
       }
-      console.log(followingUsersList)
     } catch (error) {
       // Handle error and revert the UI if the API call fails
       setIsFollowing(!isFollowing)

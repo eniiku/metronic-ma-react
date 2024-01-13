@@ -532,3 +532,35 @@ export const updateUserData = async (message: any): Promise<any> => {
     throw new Error('Error updating user data')
   }
 }
+
+export const fetchFollowers = async (id: string): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.get('/user/get-followers', {
+      headers: {
+        Authorization: `Bearer ${BEARER_TOKEN}`,
+      },
+      params: {
+        userId: id,
+      },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error('Error fetching users')
+  }
+}
+
+export const fetchFollowingUsers = async (id: string): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.get('/user/get-following-users', {
+      headers: {
+        Authorization: `Bearer ${BEARER_TOKEN}`,
+      },
+      params: {
+        userId: id,
+      },
+    })
+    return response.data
+  } catch (error) {
+    throw new Error('Error fetching users')
+  }
+}

@@ -5,7 +5,7 @@ import { useAuth } from '../auth'
 // import { Dropdown1 } from '../../../_metronic/partials'
 
 import { useQuery } from 'react-query'
-import { fetchUserData } from '../../../services/api'
+import { fetchFollowers, fetchUserData } from '../../../services/api'
 import _ from 'lodash'
 
 const ProfileHeader: FC = () => {
@@ -18,6 +18,17 @@ const ProfileHeader: FC = () => {
     isLoading,
     isError,
   } = useQuery('user', () => fetchUserData(currentUser?.firebaseUserId ?? ''))
+
+  const { data: followers } = useQuery('followers', () =>
+    fetchFollowers(currentUser ? `${currentUser.id}` : '')
+  )
+
+  const { data: followingUsers } = useQuery('followingUsers', () =>
+    fetchFollowers(currentUser ? `${currentUser.id}` : '')
+  )
+
+  console.log(followers)
+  console.log('following', followingUsers)
 
   return (
     <div className='card mb-5 mb-xl-10'>
@@ -56,6 +67,34 @@ const ProfileHeader: FC = () => {
                       ? 'error-er'
                       : user?.data?.email}
                   </div>
+                </div>
+              </div>
+            </div>
+
+            <div className='d-flex flex-column flex-grow-1 pe-8'>
+              <div className='d-flex flex-wrap'>
+                <div className='border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-6 mb-3'>
+                  <div className='d-flex align-items-center'>
+                    <KTIcon
+                      iconName='profile-user'
+                      className='fs-3 text-success me-2'
+                    />
+                    <div className='fs-2 fw-bolder'>{}</div>
+                  </div>
+
+                  <div className='fw-bold fs-6 text-gray-500'>Followers</div>
+                </div>
+
+                <div className='border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-6 mb-3'>
+                  <div className='d-flex align-items-center'>
+                    <KTIcon
+                      iconName='user-tick'
+                      className='fs-3 text-info me-2'
+                    />
+                    <div className='fs-2 fw-bolder'>{}</div>
+                  </div>
+
+                  <div className='fw-bold fs-6 text-gray-500'>Following</div>
                 </div>
               </div>
             </div>

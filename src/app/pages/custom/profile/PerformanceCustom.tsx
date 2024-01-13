@@ -159,7 +159,7 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
       {/* Assets Traded */}
       <ChartsWidgetCustom
         className='mb-8'
-        title='Trade Direction'
+        title='Assets Traded'
         isLoading={isAssetTradedLoading}
         isError={isAssetTradedError}
         seriesData={[
