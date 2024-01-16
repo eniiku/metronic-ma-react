@@ -12,6 +12,8 @@ export function MenuInner() {
         to='/dashboard'
       />
       <MenuItem title='Wall Post' to='/wall-post' />
+      <MenuItem title='My Profile' to='/profile' />
+      <MenuItem title='My Trade Ideas' to='/trade-ideas' />
     </>
   )
 }

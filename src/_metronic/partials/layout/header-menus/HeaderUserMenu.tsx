@@ -36,14 +36,8 @@ const HeaderUserMenu: FC = () => {
       <div className='separator my-2'></div>
 
       <div className='menu-item px-5'>
-        <Link to={'/profile'} className='menu-link px-5'>
-          My Profile
-        </Link>
-      </div>
-
-      <div className='menu-item px-5'>
-        <Link to='/trade-ideas' className='menu-link px-5'>
-          My Trade Ideas
+        <Link to='/users-list' className='menu-link px-5'>
+          All Users
         </Link>
       </div>
 
