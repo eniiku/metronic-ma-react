@@ -11,6 +11,7 @@ type Props = {
   seriesData: { name: string; data: number[] }[]
   isLoading: boolean
   isError: boolean
+  colors: string[]
 }
 
 const ChartsWidgetCustom: FC<Props> = ({
@@ -19,6 +20,7 @@ const ChartsWidgetCustom: FC<Props> = ({
   title,
   isLoading,
   isError,
+  colors,
 }) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const { mode } = useThemeMode()
@@ -31,7 +33,7 @@ const ChartsWidgetCustom: FC<Props> = ({
 
     const chart = new ApexCharts(
       chartRef.current,
-      getChartOptions(height, seriesData)
+      getChartOptions(height, seriesData, colors)
     )
     if (chart) {
       chart.render()
@@ -85,16 +87,18 @@ export { ChartsWidgetCustom }
 
 function getChartOptions(
   height: number,
-  seriesData: { name: string; data: number[] }[]
+  seriesData: { name: string; data: number[] }[],
+  colors: string[]
 ): ApexOptions {
   const labelColor = getCSSVariableValue('--bs-gray-500')
   const labelColorAlt = getCSSVariableValue('--bs-gray-900')
   const borderColor = getCSSVariableValue('--bs-gray-200')
 
-  const baseColor = getCSSVariableValue('--bs-primary')
-  const secondaryColor = getCSSVariableValue('--bs-info')
-  const baseWarningColor = getCSSVariableValue('--bs-warning')
-  const baseDangerColor = getCSSVariableValue('--bs-danger')
+  const chartColors: string[] = []
+
+  colors.map((color) => {
+    chartColors.push(getCSSVariableValue(color))
+  })
 
   return {
     series: seriesData,
@@ -189,7 +193,7 @@ function getChartOptions(
         },
       },
     },
-    colors: [baseColor, baseDangerColor, baseWarningColor, secondaryColor],
+    colors: chartColors,
     grid: {
       borderColor: borderColor,
       strokeDashArray: 4,

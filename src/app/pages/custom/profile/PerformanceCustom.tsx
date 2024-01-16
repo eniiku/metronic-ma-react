@@ -162,15 +162,8 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
         title='Assets Traded'
         isLoading={isAssetTradedLoading}
         isError={isAssetTradedError}
+        colors={['--bs-success', '--bs-warning', '--bs-primary', '--bs-info']}
         seriesData={[
-          {
-            name: 'Crypto',
-            data: [assetsTradedStatsData?.cryptoValue?.toFixed(2)],
-          },
-          {
-            name: 'Forex',
-            data: [assetsTradedStatsData?.forexValue?.toFixed(2)],
-          },
           {
             name: 'Option',
             data: [assetsTradedStatsData?.optionValue?.toFixed(2)],
@@ -178,6 +171,14 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
           {
             name: 'Stock',
             data: [assetsTradedStatsData?.stockValue?.toFixed(2)],
+          },
+          {
+            name: 'Forex',
+            data: [assetsTradedStatsData?.forexValue?.toFixed(2)],
+          },
+          {
+            name: 'Crypto',
+            data: [assetsTradedStatsData?.cryptoValue?.toFixed(2)],
           },
         ]}
       />
@@ -200,6 +201,7 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
         title='Trade Direction'
         isLoading={istradeDirectionLoading}
         isError={istradeDirectionError}
+        colors={['--bs-danger', '--bs-success']}
         seriesData={[
           {
             name: 'Long',
@@ -262,7 +264,7 @@ const PerformanceCustom: React.FC<{ userId: string }> = ({ userId }) => {
               <StatisticsWidget5
                 className='card-xl-stretch mb-xl-8'
                 svgIcon='briefcase'
-                color='warning'
+                color='success'
                 iconColor='white'
                 title={`${
                   additionalStats
