@@ -11,6 +11,7 @@ import WallPost from '../pages/custom/WallPost'
 import TradeIdeas from '../pages/custom/TradeIdeas'
 import ProfilePageCustom from '../pages/custom/ProfilePageCustom'
 import { TradeDetailsCustom } from '../pages/custom/TradeDetailsCustom'
+import UsersPageCustom from '../pages/custom/UsersPageCustom'
 
 const PrivateRoutes = () => {
   const ProfilePage = lazy(() => import('../modules/profile/ProfilePage'))
@@ -30,6 +31,9 @@ const PrivateRoutes = () => {
         {/* Pages */}
         <Route path='dashboard' element={<DashboardWrapper />} />
         <Route path='wall-post' element={<WallPost />} />
+        {/* Dynamic wallpost path */}
+        <Route path='wall-post/:wallPostId' element={<WallPost />} />
+
         <Route path='trade-ideas' element={<TradeIdeas />} />
         {/* Lazy Modules */}
         <Route
@@ -44,8 +48,10 @@ const PrivateRoutes = () => {
         <Route path='user/:userId/*' element={<ProfilePageCustom />} />
 
         {/* Trade Details Page */}
-
         <Route path='trade/:tradeId' element={<TradeDetailsCustom />} />
+
+        {/* Users list page */}
+        <Route path='users-list' element={<UsersPageCustom />} />
 
         <Route
           path='crafted/pages/wizards/*'
