@@ -1,12 +1,10 @@
 import { FC, useEffect, useState } from 'react'
 import { KTIcon } from '../../../helpers'
 import { TradeWidgetCustom2 } from './TradeWidgetCustom2'
-import {
-  handleLikeWallPost,
-  handleWallpostComments,
-} from '../../../../services/api'
+import { handleLikeWallPost } from '../../../../services/api'
 import { useAuth } from '../../../../app/modules/auth'
 import { initSocket } from '../../../../services/socket'
+import { Link } from 'react-router-dom'
 
 type Props = {
   className: string
@@ -22,11 +20,7 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
 
   const [isLiked, setIsLiked] = useState(liked)
   const [likesCount, setLikesCount] = useState<number>(data?.likesCount || 0)
-  const [commentData, setCommentData] = useState<any>(data?.comments || [])
-  const [commentsCount, setCommentsCount] = useState<number>(
-    data?.commentsCount || 0
-  )
-  const [commentContent, setCommentContent] = useState('')
+  const commentsCount = data?.commentsCount || 0
 
   useEffect(() => {
     const socket = initSocket()
@@ -79,59 +73,6 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
     }
   }
 
-  const handleCommentSubmit = async (e: any) => {
-    e.preventDefault()
-
-    try {
-      // Optimistically update the local state with the new comment
-      const newComment = {
-        commentedBy: {
-          _id: currentUser?.id,
-          username: currentUser?.username,
-          profilePicture: currentUser?.pic,
-        },
-        content: commentContent,
-      }
-
-      // Simulate a tiny loading time (you can adjust the duration)
-      await new Promise((resolve) => setTimeout(resolve, 200))
-
-      setCommentData((prevComments: any) => [newComment, ...prevComments])
-
-      // Increase the comments count
-      setCommentsCount((prevCount) => prevCount + 1)
-
-      // Clear input field
-      setCommentContent('')
-
-      // Call the API to submit the comment
-      await handleWallpostComments(data?._id, {
-        image: '', // Add image if needed
-        content: commentContent,
-      })
-    } catch (error) {
-      console.error('Error submitting comment:', error)
-
-      // Revert the optimistic update if there's an error
-      setCommentData((prevComments: any) =>
-        prevComments.slice(0, prevComments.length - 1)
-      )
-
-      // Decrease the comments count
-      setCommentsCount((prevCount) => Math.max(0, prevCount - 1))
-    }
-  }
-
-  const handleTextareaKeyPress = (
-    e: React.KeyboardEvent<HTMLTextAreaElement>
-  ) => {
-    // Check if the Enter key is pressed
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleCommentSubmit(e)
-    }
-  }
-
   return (
     <div className={`card ${className}`}>
       {/* begin::Body */}
@@ -139,7 +80,10 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
         {/* begin::Header */}
         <div className='d-flex align-items-center mb-5'>
           {/* begin::User */}
-          <div className='d-flex align-items-center flex-grow-1'>
+          <Link
+            to={`user/${data?.author?._id}`}
+            className='d-flex align-items-center flex-grow-1'
+          >
             {/* begin::Avatar */}
             <div className='symbol symbol-45px me-5'>
               {data?.author?.profilePicture ? (
@@ -157,15 +101,12 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
 
             {/* begin::Info */}
             <div className='d-flex flex-column'>
-              <a
-                href='#'
-                className='text-gray-800 text-hover-primary fs-6 fw-bold'
-              >
+              <div className='text-gray-800 text-hover-primary fs-6 fw-bold'>
                 {data?.author.username}
-              </a>
+              </div>
             </div>
             {/* end::Info */}
-          </div>
+          </Link>
           {/* end::User */}
         </div>
         {/* end::Header */}
@@ -184,11 +125,24 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
           {/* end::Image */}
 
           {/* begin::Text */}
-          <div className='text-gray-800 mb-5'>{data?.content}</div>
+          <div className='text-gray-800 mb-3'>{data?.content}</div>
           {/* end::Text */}
 
+          {/* begin::Ticker mentioned */}
+          {data?.tickers && data?.tickers?.length > 0 && (
+            <div className='mb-5 fs-9'>
+              <span className='text-gray-800'>Ticker(s) Mentioned: </span>
+              <span className='text-primary font-bold'>{data?.tickers}</span>
+            </div>
+          )}
+          {/* end::Ticker mentioned */}
+
           {/* begin:: Custom Trade */}
-          <TradeWidgetCustom2 className='my-4' data={data?.position} />
+          {data?.positon ? (
+            <Link to={`trade/${data?.position?._id}`}>
+              <TradeWidgetCustom2 className='my-4' data={data?.position} />
+            </Link>
+          ) : null}
           {/* end:: Custom Trade */}
 
           {/* begin::Toolbar */}
@@ -223,89 +177,6 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
           {/* end::Toolbar */}
         </div>
         {/* end::Post */}
-
-        {/* begin::Replies */}
-        <div className='mb-7 ps-15'>
-          {commentData.length > 0
-            ? commentData.slice(0, 2).map((comment: any) => (
-                <div key={commentData._id} className='d-flex mb-5'>
-                  {/* begin::Avatar */}
-                  <div className='symbol symbol-45px me-5'>
-                    {comment?.commentedBy?.profilePicture ? (
-                      <img
-                        alt='User profile picture'
-                        src={comment?.commentedBy?.profilePicture}
-                      />
-                    ) : (
-                      <div className='symbol-label fs-2 fw-bold bg-info text-inverse-info'>
-                        {comment?.commentedBy?.username.slice(0, 1)}
-                      </div>
-                    )}
-                  </div>
-                  {/* end::Avatar */}
-
-                  {/* begin::Info */}
-                  <div className='d-flex flex-column flex-row-fluid'>
-                    {/* begin::Info */}
-                    <div className='d-flex align-items-center flex-wrap mb-1'>
-                      <a
-                        href='#'
-                        className='text-gray-800 text-hover-primary fw-bold me-2'
-                      >
-                        {comment?.commentedBy?.username}
-                      </a>
-
-                      <a
-                        href='#'
-                        className='ms-auto text-gray-500 text-hover-primary fw-semibold fs-7'
-                      >
-                        Reply
-                      </a>
-                    </div>
-                    {/* end::Info */}
-
-                    {/* begin::Post */}
-                    <span className='text-gray-800 fs-7 fw-normal pt-1'>
-                      {comment?.content}
-                    </span>
-                    {/* end::Post */}
-                  </div>
-                  {/* end::Info */}
-                </div>
-              )) // {/* end::Reply */
-            : null}
-        </div>
-        {/* end::Replies */}
-
-        {/* begin::Separator */}
-        <div className='separator mb-4'></div>
-        {/* end::Separator */}
-
-        {/* begin::Reply input */}
-        <form className='position-relative mb-6' onSubmit={handleCommentSubmit}>
-          <textarea
-            value={commentContent}
-            onChange={(e) => setCommentContent(e.target.value)}
-            onKeyDown={handleTextareaKeyPress}
-            className='form-control border-0 p-0 pe-10 resize-none min-h-25px'
-            rows={1}
-            placeholder='Reply..'
-          ></textarea>
-
-          <div className='position-absolute top-0 end-0 me-n5'>
-            <span className='btn btn-icon btn-sm btn-active-color-primary pe-0 me-2'>
-              <KTIcon iconName='paper-clip' className='fs-3 mb-3' />
-            </span>
-
-            <span
-              className='btn btn-icon btn-sm btn-active-color-primary pe-0 me-2'
-              onClick={handleCommentSubmit}
-            >
-              <KTIcon iconName='send' className='fs-3 mb-3' />
-            </span>
-          </div>
-        </form>
-        {/* edit::Reply input */}
       </div>
       {/* end::Body */}
     </div>
