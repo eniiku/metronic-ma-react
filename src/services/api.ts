@@ -130,14 +130,14 @@ export const fetchUserTradeSummary = async (
   }
 }
 
-export const fetchWallPosts = async (): Promise<any> => {
+export const fetchWallPosts = async (page: number): Promise<any> => {
   try {
     const response: AxiosResponse = await api.get('/wallposts', {
       headers: {
         Authorization: `Bearer ${BEARER_TOKEN}`,
       },
       params: {
-        page: 1,
+        page: page || 1,
         limit: 10,
       },
     })
