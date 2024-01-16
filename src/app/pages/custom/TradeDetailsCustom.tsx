@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   fetchMarketPrice,
   fetchTradeSummaryDetails,
@@ -18,10 +18,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { KTIcon } from '../../../_metronic/helpers'
 import moment from 'moment'
 import { StatisticsWidgetCustom2 } from '../../../_metronic/partials/widgets/statistics/StatisticsWidgetCustom2'
+import { useAuth } from '../../modules/auth'
 
 export const TradeDetailsCustom = () => {
   const { tradeId } = useParams()
   const navigate = useNavigate()
+  const { currentUser } = useAuth()
 
   const [underlyingPrice, setUnderlyingPrice] = useState(0)
   const [currentMarketPrice, setCurrentMarketPrice] = useState(0)
@@ -43,9 +45,11 @@ export const TradeDetailsCustom = () => {
   const user: {
     username: string
     profilePic: string
+    id: string
   } = {
     username: tradeDetailsData?.user?.username,
     profilePic: tradeDetailsData?.user?.profilePicture,
+    id: tradeDetailsData?.user?._id,
   }
 
   const isOpen = tradeDetailsData?.isOpen
@@ -128,7 +132,7 @@ export const TradeDetailsCustom = () => {
   }, [tradeDetails, isOpen, tickerSymbol])
 
   const iframeHtml = `
-  <div class="tradingview-widget-container" style="padding: 0; margin: 0; background; height: 95vh;">
+  <div class="tradingview-widget-container" style="padding: 0; margin: 0; background: transparent; height: 95vh;">
     <div id="tradingview_${tickerSymbol}" style="height: 100%;"></div>
     <div class="tradingview-widget-copyright">
       <a href="https://www.tradingview.com/symbols/${tickerSymbol}/"></a>
@@ -175,11 +179,14 @@ export const TradeDetailsCustom = () => {
 
         <div className='col-12 col-lg-4 vh-lg-75 overflow-y-scroll'>
           {/* Avatar */}
-          <div className='d-flex align-items-center justify-content-between bg-dark p-4 rounded mb-10'>
-            <div className='d-flex align-items-center gap-4'>
+          <div className='d-flex align-items-center justify-content-between bg-gray-300 p-4 rounded mb-10'>
+            <Link
+              to={`/user/${user?.id}`}
+              className='d-flex align-items-center gap-4 '
+            >
               <div className='symbol symbol-75px'>
-                {user.profilePic ? (
-                  <img src={user.profilePic} alt='' />
+                {user?.profilePic ? (
+                  <img src={user?.profilePic} alt='' />
                 ) : (
                   <div className='symbol-label fs-2 fw-semibold text-warning'>
                     {user?.username?.slice(0, 1)}
@@ -187,20 +194,22 @@ export const TradeDetailsCustom = () => {
                 )}
               </div>
 
-              <div className='fw-bold fs-3 text-gray-200'>{user?.username}</div>
-            </div>
+              <div className='fw-bold fs-3 text-gray-900 text-hover-info'>
+                {user?.username}
+              </div>
+            </Link>
 
             <div className='d-flex align-items-center gap-2'>
               {/* Share Button */}
-              {/* <button
+              <button
                 type='button'
                 className='btn btn-sm btn-icon btn-active-light-primary me-3'
                 aria-label='Share trade idea'
-                // onClick={() => setShowSettings(!showSettings)}
+                onClick={() => navigate('wall-post')}
               >
-                <i className='fa-solid fa-arrow-up-right-from-square text-light fs-3'></i>
+                <i className='fa-solid fa-arrow-up-right-from-square text-gray-800 fs-3'></i>
               </button>
- */}
+
               {/* IsOpen */}
 
               <div className='d-flex align-items-center gap-2 '>
@@ -221,8 +230,20 @@ export const TradeDetailsCustom = () => {
           </div>
 
           <div className='row'>
+            <div className='col-6 col-md-3'>
+              <div className='card bg-light hoverable card-xl-stretch mb-xl-5 text-center card-p-0 mb-6'>
+                <div className='card-body'>
+                  <div className='text-gray-900 fw-bold fs-8 mb-2 mt-5'>
+                    Ticker
+                  </div>
+
+                  <div className='fw-bolder fs-7 text-gray-700 mb-5'>
+                    {tickerSymbol}
+                  </div>
+                </div>
+              </div>
+            </div>
             {[
-              { title: 'Coin', description: tickerSymbol },
               {
                 title:
                   tradeDirection === 'STO'
@@ -251,7 +272,7 @@ export const TradeDetailsCustom = () => {
             ].map((trade, index) => (
               <div key={trade.title} className='col-6 col-md-3'>
                 <StatisticsWidgetCustom2
-                  className='card-xl-stretch mb-xl-8 text-center'
+                  className='card-xl-stretch mb-xl-5 text-center'
                   color='light'
                   title={trade.title}
                   titleColor={
@@ -278,7 +299,7 @@ export const TradeDetailsCustom = () => {
             ))}
           </div>
 
-          <div className='separator mb-7 border-gray-300'></div>
+          <div className='separator mb-5 border-gray-300'></div>
 
           <div className='row'>
             {[
@@ -310,7 +331,7 @@ export const TradeDetailsCustom = () => {
             ].map((trade) => (
               <div key={trade.title} className='col-6 col-md-3'>
                 <StatisticsWidgetCustom2
-                  className='card-xl-stretch mb-xl-8 text-center'
+                  className='card-xl-stretch mb-xl-5 text-center'
                   color='light'
                   title={trade.title}
                   titleColor='text-gray-500'
@@ -321,7 +342,7 @@ export const TradeDetailsCustom = () => {
             ))}
           </div>
 
-          <div className='separator mb-7 border-gray-300'></div>
+          <div className='separator mb-5 border-gray-300'></div>
 
           <div className='row'>
             {[
@@ -332,7 +353,7 @@ export const TradeDetailsCustom = () => {
             ].map((trade, index) => (
               <div key={trade.title} className='col-6 col-md-3'>
                 <StatisticsWidgetCustom2
-                  className='card-xl-stretch mb-xl-8 text-center'
+                  className='card-xl-stretch mb-xl-5 text-center'
                   color={index >= 2 ? 'gray-300' : 'light'}
                   title={trade.title}
                   titleColor='text-gray-500'
@@ -343,7 +364,7 @@ export const TradeDetailsCustom = () => {
             ))}
           </div>
 
-          <div className='separator mb-7 border-gray-300'></div>
+          <div className='separator mb-5 border-gray-300'></div>
 
           <div className='timeline'>
             {trade_data?.map((item: any, index: number) => {
@@ -366,7 +387,7 @@ export const TradeDetailsCustom = () => {
 
                   <div className='timeline-content mb-10 mt-n1'>
                     <div className='pe-3 mb-5'>
-                      <div className='fs-6 fw-semibold text-muted mb-2 fst-italic'>
+                      <div className='fs-6 fw-semibold text-gray-700 mb-2 fst-italic'>
                         {dateOne !== dateTwo
                           ? `${moment(item.createdAt).format(
                               'MMMM DD, YYYY'
@@ -427,9 +448,9 @@ export const TradeDetailsCustom = () => {
                                   )}
                               </>
                             ) : (
-                              <div className='text-muted me-4 fs-9'>
+                              <div className='text-gray-700 me-4 fs-9'>
                                 @{' '}
-                                <span className='ms-2 bg-gray-400 text-dark rounded py-2 px-4 fw-medium'>
+                                <span className='ms-2 bg-gray-400 text-gray-800 rounded py-2 px-4 fw-medium'>
                                   {`$${
                                     item?.price
                                       ? item?.price
@@ -455,8 +476,8 @@ export const TradeDetailsCustom = () => {
                                 : 'SOLD'}
                             </div>
 
-                            <div className='text-muted me-4 fs-9'>
-                              <span className='ms-2 bg-gray-400 text-dark rounded py-2 px-4 fw-medium'>
+                            <div className='text-gray-700 me-4 fs-9'>
+                              <span className='ms-2 bg-gray-400 text-gray-800 rounded py-2 px-4 fw-medium'>
                                 {getExpiryDate(tradeDetailsData)}
                               </span>
 
@@ -465,8 +486,8 @@ export const TradeDetailsCustom = () => {
                               </span>
                             </div>
 
-                            <div className='text-muted me-4 fs-9'>
-                              <span className='ms-2 bg-gray-400 text-dark rounded py-2 px-4 fw-medium'>
+                            <div className='text-gray-700 me-4 fs-9'>
+                              <span className='ms-2 bg-gray-400 text-gray-800 rounded py-2 px-4 fw-medium'>
                                 {`$${getStrikePrice(tradeDetailsData)}`}
                               </span>
 
@@ -475,9 +496,9 @@ export const TradeDetailsCustom = () => {
                               </span>
                             </div>
 
-                            <div className='text-muted me-4 fs-9'>
+                            <div className='text-gray-700 me-4 fs-9'>
                               @{' '}
-                              <span className='ms-2 bg-gray-400 text-dark rounded py-2 px-4 fw-medium'>
+                              <span className='ms-2 bg-gray-400 text-gray-800 rounded py-2 px-4 fw-medium'>
                                 {`$${
                                   item?.price
                                     ? item?.price
@@ -497,26 +518,32 @@ export const TradeDetailsCustom = () => {
         </div>
       </div>
 
-      <div className='w-100 px-10 px-lg-20 w-lg-50 mx-auto position-fixed start-50 bottom-0 z-index-1 translate-middle'>
-        <div className='d-flex justify-content-stretch mb-2 gap-8'>
-          <button className='btn btn-sm btn-warning w-100'>
-            {tradeDirection === 'STO' ? 'Short More' : 'Buy More'}
-          </button>
+      {tradeDetailsData?.userId !== currentUser?.id || !isOpen ? null : (
+        <div className='w-100 px-10 px-lg-20 w-lg-50 mx-auto position-fixed start-50 bottom-0 z-index-1 translate-middle'>
+          <div className='d-flex justify-content-stretch mb-2 gap-8'>
+            <button
+              className={`btn btn-sm w-100 ${
+                tradeDirection === 'ST0' ? 'btn-warning' : 'btn-dark'
+              }`}
+            >
+              {tradeDirection === 'STO' ? 'Short More' : 'Buy More'}
+            </button>
+            <button
+              className='btn btn-sm btn-info w-100'
+              onClick={() => navigate('/wall-post')}
+            >
+              Post Update
+            </button>
+          </div>
+
           <button
-            className='btn btn-sm btn-info w-100'
-            onClick={() => navigate('/wall-post')}
+            className='w-100 btn btn-sm btn-danger'
+            onClick={() => navigate('/')}
           >
-            Post Update
+            Close Trade
           </button>
         </div>
-
-        <button
-          className='w-100 btn btn-sm btn-danger'
-          onClick={() => navigate('/')}
-        >
-          Close Trade
-        </button>
-      </div>
+      )}
     </div>
   )
 }

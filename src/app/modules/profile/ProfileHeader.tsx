@@ -19,16 +19,17 @@ const ProfileHeader: FC = () => {
     isError,
   } = useQuery('user', () => fetchUserData(currentUser?.firebaseUserId ?? ''))
 
-  const { data: followers } = useQuery('followers', () =>
-    fetchFollowers(currentUser ? `${currentUser.id}` : '')
+  const { data: followers } = useQuery(
+    'followers',
+    () => fetchFollowers(currentUser ? `${currentUser.id}` : ''),
+    { staleTime: Infinity }
   )
 
-  const { data: followingUsers } = useQuery('followingUsers', () =>
-    fetchFollowers(currentUser ? `${currentUser.id}` : '')
+  const { data: followingUsers } = useQuery(
+    'followingUsers',
+    () => fetchFollowers(currentUser ? `${currentUser.id}` : ''),
+    { staleTime: Infinity }
   )
-
-  console.log(followers)
-  console.log('following', followingUsers)
 
   return (
     <div className='card mb-5 mb-xl-10'>
@@ -79,7 +80,9 @@ const ProfileHeader: FC = () => {
                       iconName='profile-user'
                       className='fs-3 text-success me-2'
                     />
-                    <div className='fs-2 fw-bolder'>{}</div>
+                    <div className='fs-2 fw-bolder'>
+                      {followers?.data?.length}
+                    </div>
                   </div>
 
                   <div className='fw-bold fs-6 text-gray-500'>Followers</div>
@@ -91,7 +94,9 @@ const ProfileHeader: FC = () => {
                       iconName='user-tick'
                       className='fs-3 text-info me-2'
                     />
-                    <div className='fs-2 fw-bolder'>{}</div>
+                    <div className='fs-2 fw-bolder'>
+                      {followingUsers?.data?.length}
+                    </div>
                   </div>
 
                   <div className='fw-bold fs-6 text-gray-500'>Following</div>

@@ -20,11 +20,11 @@ const StatisticsWidgetCustom2: React.FC<Props> = ({
   return (
     <div className={`card bg-${color} hoverable ${className} card-p-0 mb-6`}>
       <div className='card-body'>
-        <div className={`text-${titleColor} fw-bold fs-7 mb-2 mt-5`}>
+        <div className={`text-${titleColor} fw-bold fs-8 mb-2 mt-5`}>
           {title}
         </div>
 
-        <div className={`fw-semibold fs-8 text-${descriptionColor} mb-5`}>
+        <div className={`fw-semibold fs-9 text-${descriptionColor} mb-5`}>
           {description}
         </div>
       </div>
