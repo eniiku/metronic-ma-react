@@ -146,6 +146,7 @@ export const SettingsCustom = () => {
               onChange={handleInputChange}
               placeholder={item.placeholder}
               required={index < 2}
+              readOnly={index < 2}
             />
           </div>
         ))}

@@ -18,7 +18,7 @@ const ToolbarWallpostCustom: React.FC<{
           onClick={() => setShowCreateAppModal(true)}
           className='btn btn-sm fw-bold btn-primary'
         >
-          Post Idea
+          Post WallPost
         </button>
       )}
       <CustomModal2

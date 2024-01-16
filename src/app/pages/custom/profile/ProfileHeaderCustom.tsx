@@ -90,12 +90,10 @@ const ProfileHeaderCustom: FC<{ userId: string }> = ({ userId }) => {
                   {currentUser ? currentUser.username : 'Nil'}
                 </div>
 
-                {/* <div className='d-flex flex-wrap fs-7 mb-4 pe-2 mw-350px'>
-                  <p className='d-flex align-items-center text-gray-500 mb-2'>
-                    <KTIcon iconName='sms' className='fs-4 me-1' />
-                    {currentUser ? currentUser.profileDescription : 'NIl'}
-                  </p>
-                </div> */}
+                <div className='d-flex align-items-center text-gray-500 mb-2'>
+                  <KTIcon iconName='sms' className='fs-4 me-1' />
+                  {currentUser ? currentUser.email : 'error-er'}
+                </div>
               </div>
 
               <div className='d-flex my-4'>

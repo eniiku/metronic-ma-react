@@ -10,6 +10,8 @@ export const getTradePrice = (
   if (equityType == 'Option') {
     price = profitLosssPercent * 100 + ''
   } else price = profitLosssPercent + ''
+  if (price.includes('-')) price = price.replace('-', '')
+  else price
   return !_.isEmpty(price) ? parseFloat(price).toFixed(2) : price
 }
 

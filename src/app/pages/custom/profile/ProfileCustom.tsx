@@ -38,15 +38,17 @@ const ProfileCustom: React.FC<{ userId: string }> = ({ userId }) => {
 
   return (
     <>
-      <div className='card card-flush mb-8'>
-        <div className='card-header'>
-          <h1 className='card-title fw-bold fs-4'>Profile Description</h1>
-        </div>
+      {currentUser?.profileDescription ? (
+        <div className='card card-flush mb-8'>
+          <div className='card-header'>
+            <h1 className='card-title fw-bold fs-4'>Profile Description</h1>
+          </div>
 
-        <div className='card-body pt-0 fs-5 text-muted mw-900px'>
-          {currentUser ? currentUser.profileDescription : 'NIl'}
+          <div className='card-body pt-0 fs-5 text-muted mw-900px'>
+            {currentUser ? currentUser.profileDescription : 'NIl'}
+          </div>
         </div>
-      </div>
+      ) : null}
 
       <TablesWidgetCustom
         data={statisticsData?.data}
@@ -63,18 +65,11 @@ const ProfileCustom: React.FC<{ userId: string }> = ({ userId }) => {
       {/* Assets Traded */}
       <ChartsWidgetCustom
         className='mb-8'
-        title='Trade Direction'
+        title='Assets Traded'
         isLoading={isAssetTradedLoading}
         isError={isAssetTradedError}
+        colors={['--bs-success', '--bs-warning', '--bs-primary', '--bs-info']}
         seriesData={[
-          {
-            name: 'Crypto',
-            data: [assetsTradedStatsData?.cryptoValue?.toFixed(2)],
-          },
-          {
-            name: 'Forex',
-            data: [assetsTradedStatsData?.forexValue?.toFixed(2)],
-          },
           {
             name: 'Option',
             data: [assetsTradedStatsData?.optionValue?.toFixed(2)],
@@ -82,6 +77,14 @@ const ProfileCustom: React.FC<{ userId: string }> = ({ userId }) => {
           {
             name: 'Stock',
             data: [assetsTradedStatsData?.stockValue?.toFixed(2)],
+          },
+          {
+            name: 'Forex',
+            data: [assetsTradedStatsData?.forexValue?.toFixed(2)],
+          },
+          {
+            name: 'Crypto',
+            data: [assetsTradedStatsData?.cryptoValue?.toFixed(2)],
           },
         ]}
       />
