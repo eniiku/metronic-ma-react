@@ -83,14 +83,6 @@ export const CustomModal2 = ({ show, handleClose, action }: Props) => {
       ? setError('Textarea cannot be blank')
       : setError('')
 
-    // Validate all required fields
-    if (!message.content.trim() || !message.image || !message.sentiment) {
-      setError('All fields must be filled')
-      return
-    } else {
-      setError('')
-    }
-
     try {
       await postWallpost(message)
 
@@ -151,8 +143,6 @@ export const CustomModal2 = ({ show, handleClose, action }: Props) => {
     }))
   }
 
-  console.log('summaryyyyyyyyy', userSummary)
-
   return createPortal(
     <Modal
       id='kt_modal_create_app'
@@ -186,19 +176,6 @@ export const CustomModal2 = ({ show, handleClose, action }: Props) => {
               value={message.content}
               onChange={handleInputChange}
             ></textarea>
-
-            {error ? (
-              <div className='fv-plugins-message-container'>
-                <div
-                  data-field='trade_description'
-                  data-validator='notEmpty'
-                  className='fv-help-block'
-                >
-                  {error ||
-                    'Please fill in a trade description in the proper format'}
-                </div>
-              </div>
-            ) : null}
           </div>
 
           {/* <!--begin::Image input--> */}
@@ -300,6 +277,19 @@ export const CustomModal2 = ({ show, handleClose, action }: Props) => {
             </div>
           ) : Object.keys(positionData).length !== 0 ? (
             <TradeWidgetCustom2 className='mb-6' data={positionData} />
+          ) : null}
+
+          {error ? (
+            <div className='fv-plugins-message-container'>
+              <div
+                data-field='trade_description'
+                data-validator='notEmpty'
+                className='fv-help-block'
+              >
+                {error ||
+                  'Please fill in a trade description in the proper format'}
+              </div>
+            </div>
           ) : null}
 
           {/* begin:Actions */}
