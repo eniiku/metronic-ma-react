@@ -112,7 +112,7 @@ export function TradeWidget({
                           data-bs-toggle='modal'
                           data-bs-target='#kt_modal_custom'
                           className='bg-hover-light hover-elevate-down cursor-pointer'
-                          // onClick={() => handleClick(summary?._id)}
+                          onClick={() => handleClick(summary?._id)}
                         >
                           <td className='d-flex align-items-center justify-content-start'>
                             <div className='fw-bold mb-1 fs-6 w-auto ps-16'>

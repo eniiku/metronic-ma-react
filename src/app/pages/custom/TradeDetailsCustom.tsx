@@ -366,6 +366,16 @@ export const TradeDetailsCustom = () => {
 
           <div className='separator mb-5 border-gray-300'></div>
 
+          {trade_data && trade_data[trade_data.length - 1]?.comment && (
+            <div
+              className='mb-5 bg-light p-3 rounded'
+              style={{ width: 'fit-content' }}
+            >
+              <span className='text-success'>Reason: </span>
+              <span>{trade_data[trade_data.length - 1]?.comment}</span>
+            </div>
+          )}
+
           <div className='timeline'>
             {trade_data?.map((item: any, index: number) => {
               const dateOne = moment(item.createdAt).format('DD-MM-YYYY')
@@ -404,6 +414,13 @@ export const TradeDetailsCustom = () => {
                               'hh:MM:SS A'
                             )} (${moment(item.createdAt).fromNow()})`}
                       </div>
+
+                      {item.content ? (
+                        <div className='mb-2'>
+                          <span className='text-warning'>Comment: </span>
+                          <span>{item.content}</span>
+                        </div>
+                      ) : null}
 
                       <div className='d-flex align-items-center mt-4 fs-8 gap-6'>
                         {tradeDetailsData.equityType === 'Stock' ||
