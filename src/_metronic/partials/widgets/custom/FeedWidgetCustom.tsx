@@ -138,8 +138,11 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
           {/* end::Ticker mentioned */}
 
           {/* begin:: Custom Trade */}
-          {data?.positon ? (
-            <Link to={`trade/${data?.position?._id}`}>
+          {data?.position ? (
+            <Link
+              className='cursor-pointer'
+              to={`/trade/${data?.position?._id}`}
+            >
               <TradeWidgetCustom2 className='my-4' data={data?.position} />
             </Link>
           ) : null}
@@ -148,10 +151,13 @@ export const FeedsWidgetCustom: FC<Props> = ({ className, data }) => {
           {/* begin::Toolbar */}
           <div className='d-flex align-items-center mb-5 justify-content-between'>
             <div>
-              <button className='btn btn-sm btn-light btn-color-muted btn-active-light-success px-4 py-2 me-4'>
+              <Link
+                to={`/wall-post/${data?._id}`}
+                className='btn btn-sm btn-light btn-color-muted btn-active-light-success px-4 py-2 me-4'
+              >
                 <KTIcon iconName='message-text-2' className='fs-3' />
                 {commentsCount}
-              </button>
+              </Link>
 
               <button
                 onClick={handleLikeClick}

@@ -17,7 +17,7 @@ type Props = {
 export const FeedsWidgetCustom2: FC<Props> = ({ className, data }) => {
   const { currentUser } = useAuth()
 
-  const liked = data?.likes.some(
+  const liked = data?.likes?.some(
     (like: any) => like.likedBy._id === currentUser?.id
   )
 
@@ -162,7 +162,7 @@ export const FeedsWidgetCustom2: FC<Props> = ({ className, data }) => {
                 href='#'
                 className='text-gray-800 text-hover-primary fs-6 fw-bold'
               >
-                {data?.author.username}
+                {data?.author?.username}
               </a>
             </div>
             {/* end::Info */}
@@ -235,8 +235,8 @@ export const FeedsWidgetCustom2: FC<Props> = ({ className, data }) => {
         {/* begin::Replies */}
         <div className='mb-7 ps-15'>
           {commentData.length > 0
-            ? commentData.map((comment: any) => (
-                <div key={commentData._id} className='d-flex mb-5'>
+            ? commentData?.map((comment: any) => (
+                <div key={commentData?._id} className='d-flex mb-5'>
                   {/* begin::Avatar */}
                   <div className='symbol symbol-45px me-5'>
                     {comment?.commentedBy?.profilePicture ? (
