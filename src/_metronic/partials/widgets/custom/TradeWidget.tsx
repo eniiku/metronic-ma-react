@@ -62,10 +62,8 @@ export function TradeWidget({
                 <th className='min-w-125px'>Equity Type</th>
                 <th className='min-w-125px'>Price Profit/Loss</th>
                 <th className='min-w-125'>% Profit/Loss</th>
-                <th className='min-w-125px'>Date</th>
                 <th className='min-w-125px'>Trade</th>
-                <th className='min-w-125px'>$(c)</th>
-                <th className='min-w-125px'>@</th>
+                <th className='min-w-125px'>Entry Price</th>
                 <th className='min-w-70px rounded-end'></th>
               </tr>
             </thead>
@@ -104,30 +102,8 @@ export function TradeWidget({
 
                     const ticker = _.result(summary, 'ticker', '')
                     const tickerName = ticker?.split('_')[0]
-                    const month = ticker?.substring(1, 2)
-                    const date = ticker?.substring(2, 4)
-                    const year = ticker?.substring(4, 6)
 
-                    const expiryDate = `${month}/${date}/${year}`
-                    const expDate = moment(expiryDate, 'MM/DD/YYYY').format(
-                      'MMM DD'
-                    )
-
-                    const given = moment(expiryDate, 'MM/DD/YYYY')
-                    const current = moment().startOf('day')
-                    const daysOpens = moment
-                      .duration(given.diff(current))
-                      .asDays()
-                    const openDays = Math.floor(daysOpens)
                     const strikePrice = ticker?.substring(6)
-
-                    let tradeDirectionSymbol = summary?.tradeDirection
-
-                    tradeDirectionSymbol =
-                      tradeDirectionSymbol !== '' &&
-                      tradeDirectionSymbol === 'BTO'
-                        ? 'C'
-                        : 'P'
 
                     return (
                       <>
@@ -136,10 +112,10 @@ export function TradeWidget({
                           data-bs-toggle='modal'
                           data-bs-target='#kt_modal_custom'
                           className='bg-hover-light hover-elevate-down cursor-pointer'
-                          onClick={() => toggleDropdown(summary?._id)}
+                          // onClick={() => handleClick(summary?._id)}
                         >
-                          <td>
-                            <div className=' fw-bold  mb-1 fs-6'>
+                          <td className='d-flex align-items-center justify-content-start'>
+                            <div className='fw-bold mb-1 fs-6 w-auto ps-16'>
                               <img
                                 src={toAbsoluteUrl(
                                   summary?.tradeDirection === 'BTO'
@@ -184,54 +160,42 @@ export function TradeWidget({
                             </div>
                           </td>
                           <td>
-                            {openDays ? (
-                              <div className={` fw-bold  mb-1 fs-6 `}>
-                                {expDate} {`(${openDays}D)`}
-                              </div>
-                            ) : null}
-                          </td>
-                          <td>
                             <div className={` fw-bold  mb-1 fs-6 `}>
                               {summary?.isOpen ? 'Open' : 'Closed'}
                             </div>
                           </td>
-                          <td>
-                            {strikePrice ? (
-                              <div className='text-gray-900 fw-bold  mb-1 fs-6'>
-                                {`$${strikePrice}`} ({tradeDirectionSymbol})
-                              </div>
-                            ) : null}
-                          </td>
+
                           <td>
                             <div className='text-gray-900 fw-bold  mb-1 fs-6'>
                               {`$${entryPrice}`}
                             </div>
                           </td>
 
-                          <button
-                            className='btn btn-icon p-0 btn-info mt-2'
-                            onClick={() => toggleDropdown(summary?._id)}
-                          >
-                            <KTIcon
-                              className='fs-1'
-                              iconName={
-                                openDropdownId === summary?._id ? 'up' : 'down'
-                              }
-                            />
-                          </button>
+                          <div className='w-30px h-30px'>
+                            <button
+                              className='btn btn-icon p-0 btn-secondary '
+                              onClick={() => toggleDropdown(summary?._id)}
+                            >
+                              <KTIcon
+                                className='fs-1'
+                                iconName={
+                                  openDropdownId === summary?._id
+                                    ? 'up'
+                                    : 'down'
+                                }
+                              />
+                            </button>
+                          </div>
                         </tr>
 
                         {/* Additional content that slides down when the dropdown is open */}
                         {openDropdownId === summary?._id && (
-                          <tr
-                            className='bg-secondary rounded-bottom-sm hover-elevate-up cursor-pointer'
-                            onClick={() => handleClick(summary?.summaryId)}
-                          >
-                            <td colSpan={12}>
-                              <div className='d-flex align-items-center justify-content-center gap-12'>
+                          <tr className='bg-secondary rounded-bottom-sm hover-elevate-up cursor-pointer'>
+                            <td colSpan={12} className='ps-16'>
+                              <div className='d-flex align-items-start justify-content-start gap-20'>
                                 <Link
                                   to={`/user/${userId}`}
-                                  className='d-flex align-items-center gap-2 text-gray-800'
+                                  className='d-flex align-items-center text-gray-800'
                                 >
                                   <div className='symbol symbol-40px me-4'>
                                     {profilePicture ? (
@@ -253,85 +217,120 @@ export function TradeWidget({
                                   </div>
                                 </Link>
 
-                                <div className='w-50'>
+                                <div className='d-flex flex-column align-items-start'>
                                   {summary?.tradeData
                                     .slice(0, 2)
                                     .map((option: any) => {
+                                      const optionSymbol =
+                                        option?.optionSymbol?.split('_')[1]
+                                      const month = optionSymbol?.substring(
+                                        0,
+                                        2
+                                      )
+                                      const date = optionSymbol?.substring(2, 4)
+                                      const year = optionSymbol?.substring(4, 6)
+
+                                      const expiryDate = `${month}/${date}/${year}`
+                                      const expDate = moment(
+                                        expiryDate,
+                                        'MM/DD/YYYY'
+                                      ).format('MMM DD')
+
+                                      const given = moment(
+                                        expiryDate,
+                                        'MM/DD/YYYY'
+                                      )
+                                      const current = moment().startOf('day')
+                                      const daysOpens = moment
+                                        .duration(given.diff(current))
+                                        .asDays()
+                                      const openDays = Math.floor(daysOpens)
                                       return (
-                                        <>
-                                          <div className=''>
-                                            <div>
-                                              {option?.comment ? (
-                                                <div>
-                                                  <span className='fw-bold text-warning p-2 pt-0 text-nowrap'>
-                                                    Reason:
-                                                  </span>{' '}
-                                                  <span className='text-gray-600'>
-                                                    {option?.comment}
-                                                  </span>
-                                                </div>
-                                              ) : null}
+                                        <div
+                                          key={option._id}
+                                          className='d-flex align-items-center justify-content-between gap-12 mb-2'
+                                        >
+                                          <div
+                                            className={`rounded-2 w-80px text-center py-1  fw-bold fs-7 ${
+                                              option.transactionType === 'Debit'
+                                                ? 'bg-success'
+                                                : 'bg-danger'
+                                            }`}
+                                          >
+                                            {option.transactionType === 'Debit'
+                                              ? 'BOUGHT'
+                                              : 'SOLD'}
+                                          </div>
+
+                                          {expDate && openDays ? (
+                                            <div className='d-flex align-items-center fw-semibold fs-8'>
+                                              <div className='bg-gray-600 text-white-gray-600 rounded-start-2 p-2'>
+                                                {expDate}
+                                              </div>
+
+                                              <div className='bg-white-gray-600 bg-opacity-25 text-gray-600 p-2 rounded-end-2'>
+                                                {`${openDays}D`}
+                                              </div>
                                             </div>
-                                            <div
-                                              key={option._id}
-                                              className='d-flex align-items-center justify-content-between mb-2'
-                                            >
-                                              <div
-                                                className={`rounded-2 w-80px text-center py-1  fw-bold fs-7 ${
-                                                  option.transactionType ===
-                                                  'Debit'
-                                                    ? 'bg-success'
-                                                    : 'bg-danger'
-                                                }`}
-                                              >
-                                                {option.transactionType ===
-                                                'Debit'
-                                                  ? 'BOUGHT'
-                                                  : 'SOLD'}
-                                              </div>
+                                          ) : null}
 
-                                              <div className='d-flex align-items-center fw-semibold fs-8'>
-                                                <div className='bg-gray-600 text-white-gray-600 rounded-start-2 p-2'>
-                                                  {expDate}
-                                                </div>
-
-                                                <div className='bg-white-gray-600 bg-opacity-25 text-gray-600 p-2 rounded-end-2'>
-                                                  {`${openDays}D`}
-                                                </div>
+                                          {strikePrice &&
+                                          option?.tradeDirection ? (
+                                            <div className='d-flex align-items-center fw-semibold fs-8'>
+                                              <div className='bg-gray-600 text-white-gray-600 rounded-start-2 p-2'>
+                                                {`$${strikePrice}`}
                                               </div>
-
-                                              <div className='d-flex align-items-center fw-semibold fs-8'>
-                                                <div className='bg-gray-600 text-white-gray-600 rounded-start-2 p-2'>
-                                                  {`$${strikePrice}`}
-                                                </div>
-                                                <div className='bg-white-gray-600 bg-opacity-25 text-gray-600 p-2 rounded-end-2'>
-                                                  {option?.tradeDirection}
-                                                </div>
+                                              <div className='bg-white-gray-600 bg-opacity-25 text-gray-600 p-2 rounded-end-2'>
+                                                {option?.tradeDirection ===
+                                                'BTO'
+                                                  ? 'C'
+                                                  : 'P'}
                                               </div>
+                                            </div>
+                                          ) : null}
 
-                                              <div className='d-flex align-items-center fw-semibold fs-8 gap-2'>
-                                                <div>@</div>
-                                                <div className='bg-gray-600 text-white-gray-600 rounded-2 p-2'>
-                                                  {`$${
-                                                    option.price
-                                                      ? option.price
-                                                      : entryPrice
-                                                  }`}
-                                                </div>
-                                              </div>
+                                          <div className='d-flex align-items-center fw-semibold fs-8 gap-2'>
+                                            <div>@</div>
+                                            <div className='bg-gray-600 text-white-gray-600 rounded-2 p-2'>
+                                              {`$${
+                                                option.price
+                                                  ? option.price
+                                                  : entryPrice
+                                              }`}
                                             </div>
                                           </div>
-                                        </>
+                                        </div>
                                       )
                                     })}
-                                </div>
 
-                                <button
-                                  className='btn btn-sm btn-primary'
-                                  onClick={() => handleClick(summary?._id)}
-                                >
-                                  See details
-                                </button>
+                                  {summary?.tradeData.length > 2 ? (
+                                    <div className='d-flex align-items-center justify-content-center gap-2 w-100'>
+                                      <div className='separator border-gray-500 w-100'></div>
+
+                                      <span className='text-hover-info text-left my-2 align-self-center w-50'>
+                                        See More
+                                      </span>
+                                      <div className='separator border-gray-500 w-100'></div>
+                                    </div>
+                                  ) : null}
+
+                                  {summary?.tradeData?.find(
+                                    (x: any) => x?.comment
+                                  )?.comment ? (
+                                    <div>
+                                      <span className='fw-bold text-warning py-2 pt-0 text-nowrap'>
+                                        Reason:
+                                      </span>{' '}
+                                      <span className='text-gray-600'>
+                                        {
+                                          summary.tradeData.find(
+                                            (x: any) => x?.comment
+                                          )?.comment
+                                        }
+                                      </span>
+                                    </div>
+                                  ) : null}
+                                </div>
                               </div>
                             </td>
                           </tr>
