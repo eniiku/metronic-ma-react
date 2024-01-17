@@ -8,11 +8,9 @@ const WallPostDetail = () => {
 
   const { data: wallPosts } = useQuery('wallPosts', () => fetchWallPosts(1))
 
-  const currentWallPost = wallPosts?.data?.results.find(
+  const currentWallPost = wallPosts?.data?.results.filter(
     (post: any) => post?._id === wallPostId
-  )
-
-  console.log('currentWallPost', currentWallPost)
+  )[0]
 
   return (
     <div
