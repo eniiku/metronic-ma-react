@@ -11,9 +11,11 @@ const WallPost = () => {
   const [page, setPage] = useState(1)
   const [loadingMore, setLoadingMore] = useState(false)
 
-  const { data: newPosts, isError } = useQuery(['newPosts', page], () =>
-    fetchWallPosts(page)
-  )
+  const {
+    data: newPosts,
+    isLoading,
+    isError,
+  } = useQuery(['newPosts', page], () => fetchWallPosts(page))
 
   const [wallpostData, setWallpostData] = useState<any>({
     data: { results: [] },
@@ -46,9 +48,10 @@ const WallPost = () => {
           document.documentElement.offsetHeight - 200
       ) {
         // Reached the bottom of the page, load more posts
-        setPage((prevPage) => prevPage + 1)
-        setLoadingMore(true)
-        console.log('Reached the bottom of the page, load more posts')
+        if (page < parseInt((newPosts?.data?.totalRecords / 10).toFixed(0))) {
+          setPage((prevPage) => prevPage + 1)
+          setLoadingMore(true)
+        }
       }
     }
 
@@ -64,23 +67,24 @@ const WallPost = () => {
       <ToolbarWallpostCustom action={setWallpostData} />
 
       <div className='row g-5 g-xxl-8 gap-1 justify-content-center'>
-        {/* {loadingMore ? (
-          <Loading /> 
-        ) : 
-          */}
-        {isError ? (
-          <NoData type='error' message='Error Loading Wallposts' />
-        ) : wallpostData?.data?.results.length > 0 ? (
-          wallpostData?.data?.results.map((post: any, index: number) => (
-            <FeedsWidgetCustom
-              key={`${post._id}_${index}`}
-              className='mb-8 col-lg-6'
-              data={post}
-            />
-          ))
-        ) : (
-          <NoData type='info' message='No posts to show' />
-        )}
+        {
+          // isLoading ? (
+          //   <Loading />
+          // ) :
+          isError ? (
+            <NoData type='error' message='Error Loading Wallposts' />
+          ) : wallpostData?.data?.results.length > 0 ? (
+            wallpostData?.data?.results.map((post: any, index: number) => (
+              <FeedsWidgetCustom
+                key={`${post._id}_${index}`}
+                className='mb-8 col-lg-6'
+                data={post}
+              />
+            ))
+          ) : (
+            <NoData type='info' message='No posts to show' />
+          )
+        }
         {loadingMore && (
           <div className='text-center'>
             <RotatingLines

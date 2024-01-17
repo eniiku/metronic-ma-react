@@ -59,17 +59,17 @@ const UsersPageCustom = () => {
     _.debounce(() => handleFollowClick(id), 500)
 
   return (
-    <div>
+    <div className=''>
       {filteredUsers?.map((user: any) => (
         <div
           key={user?._id}
-          className='d-flex align-items-center justify-content-between'
+          className='d-flex align-items-center justify-content-between bg-light rounded p-4 w-75 mx-auto mb-8'
         >
           <Link
-            to={`/user/${user._id}`}
-            className='d-flex text-gray-900 text-hover-primary align-items-center mb-5'
+            to={`/user/${user?._id}`}
+            className='d-flex text-gray-900 text-hover-primary align-items-center'
           >
-            <div className='symbol symbol-40px me-4'>
+            <div className='symbol symbol-70px me-4'>
               {user?.profilePicture ? (
                 <img
                   alt={`${user.username} Profile Pictute`}
@@ -83,7 +83,14 @@ const UsersPageCustom = () => {
             </div>
 
             <div className='d-flex flex-column justify-content-start fw-bold'>
-              <span className='fs-7 fw-bold'>{user.username}</span>
+              <span className='fs-2 fw-bold'>{user?.username}</span>
+
+              {user?.email && (
+                <div className='d-flex align-items-center text-gray-500 mb-2'>
+                  <KTIcon iconName='sms' className='fs-4 me-1' />
+                  {user?.email}
+                </div>
+              )}
             </div>
           </Link>
 
