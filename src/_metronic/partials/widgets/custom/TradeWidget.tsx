@@ -7,7 +7,7 @@ import { Loading } from '../../../../app/components/Loading'
 import NoData from '../../../../app/components/NoData'
 import { KTIcon, toAbsoluteUrl } from '../../../helpers'
 import { RotatingLines } from 'react-loader-spinner'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export function TradeWidget({
   className,
@@ -34,7 +34,14 @@ export function TradeWidget({
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
 
   // Function to toggle the dropdown for a specific row
-  const toggleDropdown = (id: string) => {
+  const toggleDropdown = (
+    id: string,
+
+    e: React.MouseEvent<HTMLTableRowElement>
+  ) => {
+    // Stop event propagation to prevent interference with toggleDropdown
+    e.stopPropagation()
+
     setOpenDropdownId((prevId: any) => (prevId === id ? null : id))
   }
   return (
@@ -74,7 +81,6 @@ export function TradeWidget({
               isFilterLoading || isLoading || isError ? null : (
                 <tbody>
                   {data?.summary_data.map((summary: any) => {
-                    console.log('summary', summary)
                     const username = _.result(summary, 'user.username', '')
                     const profilePicture = _.result(
                       summary,
@@ -112,7 +118,7 @@ export function TradeWidget({
                           data-bs-toggle='modal'
                           data-bs-target='#kt_modal_custom'
                           className='bg-hover-light hover-elevate-down cursor-pointer'
-                          onClick={() => handleClick(summary?._id)}
+                          onClick={(e) => handleClick(summary?._id, e)}
                         >
                           <td className='d-flex align-items-center justify-content-start'>
                             <div className='fw-bold mb-1 fs-6 w-auto ps-16'>
@@ -174,7 +180,7 @@ export function TradeWidget({
                           <div className='w-30px h-30px'>
                             <button
                               className='btn btn-icon p-0 btn-secondary '
-                              onClick={() => toggleDropdown(summary?._id)}
+                              onClick={(e) => toggleDropdown(summary?._id, e)}
                             >
                               <KTIcon
                                 className='fs-1'
@@ -192,7 +198,7 @@ export function TradeWidget({
                         {openDropdownId === summary?._id && (
                           <tr className='bg-secondary rounded-bottom-sm hover-elevate-up cursor-pointer'>
                             <td colSpan={12} className='ps-16'>
-                              <div className='d-flex align-items-start justify-content-start gap-20'>
+                              <div className='d-flex align-items-center justify-content-start gap-20'>
                                 <Link
                                   to={`/user/${userId}`}
                                   className='d-flex align-items-center text-gray-800'
@@ -307,12 +313,196 @@ export function TradeWidget({
                                     <div className='d-flex align-items-center justify-content-center gap-2 w-100'>
                                       <div className='separator border-gray-500 w-100'></div>
 
-                                      <span className='text-hover-info text-left my-2 align-self-center w-50'>
+                                      <button
+                                        data-bs-toggle='modal'
+                                        data-bs-target='#kt_modal_seeMore'
+                                        className='btn btn-link btn-color-gray-800 btn-active-color-info my-2 align-self-center w-50'
+                                      >
                                         See More
-                                      </span>
+                                      </button>
+
                                       <div className='separator border-gray-500 w-100'></div>
                                     </div>
                                   ) : null}
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+
+                        {/* Modal */}
+                        <div
+                          className='modal fade'
+                          tabIndex={-1}
+                          id='kt_modal_seeMore'
+                        >
+                          <div className='modal-dialog modal-dialog-centered'>
+                            <div className='modal-content'>
+                              <div className='modal-header border-0 pb-0'>
+                                <div></div>
+                                {/* <!--begin::Close--> */}
+                                <div
+                                  className='btn btn-icon btn-sm btn-active-light-primary ms-2'
+                                  data-bs-dismiss='modal'
+                                  aria-label='Close'
+                                >
+                                  <i className='ki-duotone ki-cross fs-1'>
+                                    <span className='path1'></span>
+                                    <span className='path2'></span>
+                                  </i>
+                                </div>
+                                {/* <!--end::Close--> */}
+                              </div>
+
+                              <div className='modal-body'>
+                                <div className='timeline'>
+                                  {summary?.tradeData.map(
+                                    (option: any, index: number) => {
+                                      const dateOne = moment(
+                                        option.createdAt
+                                      ).format('DD-MM-YYYY')
+                                      const dateTwo = summary?.tradeData[
+                                        index - 1
+                                      ]?.createdAt
+                                        ? moment(
+                                            summary?.tradeData[index - 1]
+                                              ?.createdAt
+                                          ).format('DD-MM-YYYY')
+                                        : moment().format('DD-MM-YYYY')
+
+                                      const optionSymbol =
+                                        option?.optionSymbol?.split('_')[1]
+                                      const month = optionSymbol?.substring(
+                                        0,
+                                        2
+                                      )
+                                      const date = optionSymbol?.substring(2, 4)
+                                      const year = optionSymbol?.substring(4, 6)
+
+                                      const expiryDate = `${month}/${date}/${year}`
+                                      const expDate = moment(
+                                        expiryDate,
+                                        'MM/DD/YYYY'
+                                      ).format('MMM DD')
+
+                                      const given = moment(
+                                        expiryDate,
+                                        'MM/DD/YYYY'
+                                      )
+                                      const current = moment().startOf('day')
+                                      const daysOpens = moment
+                                        .duration(given.diff(current))
+                                        .asDays()
+                                      const openDays = Math.floor(daysOpens)
+                                      return (
+                                        <div
+                                          key={option?._id}
+                                          className='timeline-item'
+                                        >
+                                          <div className='timeline-line w-40px'></div>
+
+                                          <div className='timeline-icon symbol symbol-circle symbol-20px me-4'>
+                                            <div className='symbol-label bg-light'>
+                                              <KTIcon
+                                                iconName='information'
+                                                className='fs-2 text-primary'
+                                              />
+                                            </div>
+                                          </div>
+
+                                          <div className='timeline-content mb-10 mt-n1 align-items-start'>
+                                            <div className='pe-3 mb-5'>
+                                              <div
+                                                style={{ width: 'fit-content' }}
+                                                className='fs-6 fw-semibold text-gray-700 mb-2 fst-italic'
+                                              >
+                                                {index == 0 &&
+                                                  `${moment(
+                                                    option.createdAt
+                                                  ).format(
+                                                    'HH:MM A'
+                                                  )} | ${moment(
+                                                    option.createdAt
+                                                  ).format(
+                                                    'MMMM DD, YYYY'
+                                                  )} ${moment(
+                                                    option.createdAt
+                                                  ).fromNow()}`}
+
+                                                {dateOne !== dateTwo &&
+                                                  index !== 0 &&
+                                                  `${moment(
+                                                    option.createdAt
+                                                  ).format(
+                                                    'HH:MM A'
+                                                  )} | ${moment(
+                                                    option.createdAt
+                                                  ).format(
+                                                    'MMMM DD, YYYY'
+                                                  )}  ${moment(
+                                                    option.createdAt
+                                                  ).fromNow()}`}
+                                              </div>
+
+                                              <div className='d-flex align-items-center flex-wrap justify-content-between gap-4 mb-2'>
+                                                <div
+                                                  className={`rounded-2 w-80px text-center py-1  fw-bold fs-7 ${
+                                                    option.transactionType ===
+                                                    'Debit'
+                                                      ? 'bg-success'
+                                                      : 'bg-danger'
+                                                  }`}
+                                                >
+                                                  {option.transactionType ===
+                                                  'Debit'
+                                                    ? 'BOUGHT'
+                                                    : 'SOLD'}
+                                                </div>
+
+                                                {expDate && openDays ? (
+                                                  <div className='d-flex align-items-center fw-semibold fs-8'>
+                                                    <div className='bg-gray-600 text-white-gray-600 rounded-start-2 p-2'>
+                                                      {expDate}
+                                                    </div>
+
+                                                    <div className='bg-white-gray-600 bg-opacity-25 text-gray-600 p-2 rounded-end-2'>
+                                                      {`${openDays}D`}
+                                                    </div>
+                                                  </div>
+                                                ) : null}
+
+                                                {strikePrice &&
+                                                option?.tradeDirection ? (
+                                                  <div className='d-flex align-items-center fw-semibold fs-8'>
+                                                    <div className='bg-gray-600 text-white-gray-600 rounded-start-2 p-2'>
+                                                      {`$${strikePrice}`}
+                                                    </div>
+                                                    <div className='bg-white-gray-600 bg-opacity-25 text-gray-600 p-2 rounded-end-2'>
+                                                      {option?.tradeDirection ===
+                                                      'BTO'
+                                                        ? 'C'
+                                                        : 'P'}
+                                                    </div>
+                                                  </div>
+                                                ) : null}
+
+                                                <div className='d-flex align-items-center fw-semibold fs-8 gap-2'>
+                                                  <div>@</div>
+                                                  <div className='bg-gray-600 text-white-gray-600 rounded-2 p-2'>
+                                                    {`$${
+                                                      option.price
+                                                        ? option.price
+                                                        : entryPrice
+                                                    }`}
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      )
+                                    }
+                                  )}
 
                                   {summary?.tradeData?.find(
                                     (x: any) => x?.comment
@@ -332,9 +522,9 @@ export function TradeWidget({
                                   ) : null}
                                 </div>
                               </div>
-                            </td>
-                          </tr>
-                        )}
+                            </div>
+                          </div>
+                        </div>
                       </>
                     )
                   })}
