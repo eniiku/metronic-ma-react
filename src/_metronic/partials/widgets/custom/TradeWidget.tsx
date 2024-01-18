@@ -36,8 +36,7 @@ export function TradeWidget({
   // Function to toggle the dropdown for a specific row
   const toggleDropdown = (
     id: string,
-
-    e: React.MouseEvent<HTMLTableRowElement>
+    e: React.MouseEvent<HTMLButtonElement>
   ) => {
     // Stop event propagation to prevent interference with toggleDropdown
     e.stopPropagation()
@@ -130,7 +129,7 @@ export function TradeWidget({
                           data-bs-toggle='modal'
                           data-bs-target='#kt_modal_custom'
                           className='bg-hover-light hover-elevate-down cursor-pointer'
-                          onClick={(e) => handleClick(summary?._id, e)}
+                          onClick={(e) => handleClick(summary?._id)}
                         >
                           <td className='d-flex align-items-center justify-content-start'>
                             <div

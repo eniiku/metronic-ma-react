@@ -304,7 +304,7 @@ export const CustomModal = ({ show, handleClose }: Props) => {
   const [marketPrice, setMarketPrice] = useState<any>({})
   const [optionChainData, setOptionChainData] = useState<any>({})
   const [isOptionChainLoading, setIsOptionChainLoading] = useState(false)
-  const [openAccordion, setOpenAccordion] = useState<number>(null)
+  const [openAccordion, setOpenAccordion] = useState<number | null>(null)
 
   useEffect(() => {
     setAllowOptionChain(false)
