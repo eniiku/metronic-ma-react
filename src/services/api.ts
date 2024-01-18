@@ -585,3 +585,26 @@ export const fetchOptionChainData = async (ticker: string): Promise<any> => {
     throw new Error('Error fetching option chain data')
   }
 }
+
+export const updateTradeData = async (message: {
+  trade_id: string
+  summary_id: string
+  target_price: string
+  stop_loss: string
+  comment: string
+}): Promise<any> => {
+  try {
+    const response: AxiosResponse = await api.post(
+      '/trades/update-trade-data',
+      message,
+      {
+        headers: {
+          Authorization: `Bearer ${BEARER_TOKEN}`,
+        },
+      }
+    )
+    return response.data
+  } catch (error) {
+    throw new Error('Error updating trade data')
+  }
+}

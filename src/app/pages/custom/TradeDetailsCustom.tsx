@@ -2,6 +2,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   fetchMarketPrice,
   fetchTradeSummaryDetails,
+  updateTradeData,
 } from '../../../services/api'
 import { useQuery } from 'react-query'
 import {
@@ -14,8 +15,8 @@ import {
   getForexTicker,
   getStrikePrice,
 } from '../../../lib/utils'
-import { useEffect, useMemo, useState } from 'react'
-import { KTIcon } from '../../../_metronic/helpers'
+import React, { useEffect, useMemo, useState } from 'react'
+import { KTIcon, KTSVG } from '../../../_metronic/helpers'
 import moment from 'moment'
 import { StatisticsWidgetCustom2 } from '../../../_metronic/partials/widgets/statistics/StatisticsWidgetCustom2'
 import { useAuth } from '../../modules/auth'
@@ -156,6 +157,38 @@ export const TradeDetailsCustom = () => {
     </script>
   </div>
 `
+
+  const [updateData, setUpdateData] = useState({
+    trade_id: '',
+    summary_id: '',
+    target_price: '',
+    stop_loss: '',
+    comment: '',
+    // [k]: string,
+  })
+
+  // Handle form input changes
+  const handleInputChange = (event: any) => {
+    const { name, value } = event.target
+    setUpdateData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }))
+  }
+
+  useEffect(() => {
+    setUpdateData((prevData) => ({
+      ...prevData,
+      trade_id: tradeDetailsData?._id,
+      summary_id: tradeId ? tradeId : '',
+    }))
+  }, [tradeId])
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    await updateTradeData(updateData)
+  }
 
   return (
     <div className='container-fluid oveflow-lg-hidden'>
@@ -547,7 +580,8 @@ export const TradeDetailsCustom = () => {
             </button>
             <button
               className='btn btn-sm btn-info w-100'
-              onClick={() => navigate('/wall-post')}
+              data-bs-toggle='modal'
+              data-bs-target='#kt_modal_update'
             >
               Post Update
             </button>
@@ -561,6 +595,105 @@ export const TradeDetailsCustom = () => {
           </button>
         </div>
       )}
+
+      {/* MODAL */}
+      <div className='modal fade' tabIndex={-1} id='kt_modal_update'>
+        <div className='modal-dialog modal-dialog-centered'>
+          <div className='modal-content'>
+            <div className='modal-header border-0'>
+              <div>
+                <h5 className='modal-title'>Update Your Trade Idea</h5>
+              </div>
+
+              <div
+                className='btn btn-icon btn-sm btn-active-light-primary ms-2'
+                data-bs-dismiss='modal'
+                aria-label='Close'
+              >
+                <KTSVG
+                  path='media/icons/duotune/arrows/arr061.svg'
+                  className='svg-icon svg-icon-2x'
+                />
+              </div>
+            </div>
+
+            <div className='modal-body modal-body-centered'>
+              <form onSubmit={handleSubmit}>
+                <div>
+                  <div>
+                    <label className='d-flex align-items-center form-label fw-bold mb-2 me-2'>
+                      <span>Trade Reason: (Optional)</span>
+                    </label>
+                  </div>
+
+                  <textarea
+                    className='form-control resize-none form-control-solid mb-10'
+                    rows={4}
+                    name='comment'
+                    value={updateData.comment}
+                    onChange={handleInputChange}
+                    placeholder='Enter trade reason'
+                  ></textarea>
+                </div>
+
+                <div className='mb-10 gap-8 d-flex align-items-center'>
+                  <div>
+                    <div>
+                      <label className='d-flex align-items-center form-label fw-bold mb-2 me-2'>
+                        <span>Price Target: (Optional)</span>
+                      </label>
+                    </div>
+
+                    <input
+                      type='text'
+                      className='form-control form-control-md form-control-solid'
+                      name='target_price'
+                      placeholder='Price Target (Optional)'
+                      value={updateData.target_price}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+
+                  <div>
+                    <div>
+                      <label className='d-flex align-items-center form-label fw-bold mb-2 me-2'>
+                        <span>Stop Loss: (Optional)</span>
+                      </label>
+                    </div>
+
+                    <input
+                      type='text'
+                      className='form-control form-control-md form-control-solid'
+                      name='stop_loss'
+                      value={updateData.stop_loss}
+                      onChange={handleInputChange}
+                      placeholder='Stop Loss'
+                    />
+                  </div>
+                </div>
+
+                <div className='d-flex justify-content-end'>
+                  <button
+                    type='reset'
+                    data-bs-dismiss='modal'
+                    className='btn btn-md btn-light btn-active-light-primary me-2'
+                  >
+                    Skip
+                  </button>
+
+                  <button
+                    type='submit'
+                    className='btn btn-md btn-primary'
+                    data-kt-menu-dismiss='true'
+                  >
+                    Add Detail
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
