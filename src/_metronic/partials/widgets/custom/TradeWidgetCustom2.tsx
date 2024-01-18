@@ -51,14 +51,12 @@ export function TradeWidgetCustom2({ className, data }: any) {
             {/* begin::Table head */}
             <thead>
               <tr className='fw-bold text-muted bg-light'>
-                <th className='min-w-60px rounded-start'>Coin</th>
+                <th className='min-w-60px rounded-start'>Ticker</th>
                 <th className='min-w-60px'>Option</th>
                 <th className='min-w-60px'>Price Profit/Loss</th>
                 <th className='min-w-60px'>% Profit/Loss</th>
-                <th className='min-w-60px'>Date</th>
                 <th className='min-w-60px'>Trade</th>
-                <th className='min-w-60px'>$(c)</th>
-                <th className='min-w-60px rounded-end'>@</th>
+                <th className='min-w-60px rounded-end'>Entry Price</th>
               </tr>
             </thead>
             {/* end::Table head */}
@@ -98,23 +96,9 @@ export function TradeWidgetCustom2({ className, data }: any) {
                   </div>
                 </td>
                 <td>
-                  {openDays ? (
-                    <div className={` fw-bold  mb-1 fs-9 `}>
-                      {expDate} {`(${openDays}D)`}
-                    </div>
-                  ) : null}
-                </td>
-                <td>
                   <div className={` fw-bold  mb-1 fs-9 `}>
                     {isOpen ? 'Open' : 'Closed'}
                   </div>
-                </td>
-                <td>
-                  {strikePrice ? (
-                    <div className='text-gray-900 fw-bold  mb-1 fs-9'>
-                      {`$${strikePrice}`} ({tradeDirection})
-                    </div>
-                  ) : null}
                 </td>
                 <td>
                   <div className='text-gray-900 fw-bold  mb-1 fs-9'>

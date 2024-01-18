@@ -198,7 +198,7 @@ export function TradeWidget({
                         {openDropdownId === summary?._id && (
                           <tr className='bg-secondary rounded-bottom-sm hover-elevate-up cursor-pointer'>
                             <td colSpan={12} className='ps-16'>
-                              <div className='d-flex align-items-center justify-content-start gap-20'>
+                              <div className='d-flex align-items-start justify-content-start gap-20'>
                                 <Link
                                   to={`/user/${userId}`}
                                   className='d-flex align-items-center text-gray-800'
