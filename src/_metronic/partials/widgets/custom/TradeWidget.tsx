@@ -65,13 +65,25 @@ export function TradeWidget({
             {/* begin::Table head */}
             <thead>
               <tr className='fw-bold text-muted bg-light'>
-                <th className='min-w-125px rounded-start'>Ticker</th>
-                <th className='min-w-125px'>Equity Type</th>
-                <th className='min-w-125px'>Price Profit/Loss</th>
-                <th className='min-w-125'>% Profit/Loss</th>
-                <th className='min-w-125px'>Trade</th>
-                <th className='min-w-125px'>Entry Price</th>
-                <th className='min-w-70px rounded-end'></th>
+                <th className='min-w-90px min-w-lg-125px rounded-start fs-7 fs-lg-6'>
+                  Ticker
+                </th>
+                <th className='min-w-90px min-w-lg-125px fs-7 fs-lg-6'>
+                  Equity Type
+                </th>
+                <th className='min-w-90px min-w-lg-125px fs-7 fs-lg-6'>
+                  Price Profit/Loss
+                </th>
+                <th className='min-w-90px min-w-lg-125px fs-7 fs-lg-6'>
+                  % Profit/Loss
+                </th>
+                <th className='min-w-90px min-w-lg-125px fs-7 fs-lg-6'>
+                  Trade
+                </th>
+                <th className='min-w-90px min-w-lg-125px fs-7 fs-lg-6'>
+                  Entry Price
+                </th>
+                <th className='min-w-50px min-w-lg-70px  rounded-end'></th>
               </tr>
             </thead>
             {/* end::Table head */}
@@ -121,7 +133,10 @@ export function TradeWidget({
                           onClick={(e) => handleClick(summary?._id, e)}
                         >
                           <td className='d-flex align-items-center justify-content-start'>
-                            <div className='fw-bold mb-1 fs-6 w-auto ps-16'>
+                            <div
+                              style={{ width: 'fit-content' }}
+                              className='fw-bold mb-1 fs-8 fs-lg-6 ps-4 ps-lg-16'
+                            >
                               <img
                                 src={toAbsoluteUrl(
                                   summary?.tradeDirection === 'BTO'
@@ -133,20 +148,20 @@ export function TradeWidget({
                                     // filter: 'sepia(100%) saturate(300%) brightness(70%) hue-rotate(120deg)',
                                   }
                                 }
-                                className='w-30px me-4'
+                                className='w-20px w-lg-30px me-2 me-lg-4'
                                 alt='sentiment icon'
                               />
                               <span>{tickerName}</span>
                             </div>
                           </td>
                           <td>
-                            <div className={`fw-bold mb-1 fs-6`}>
+                            <div className='fw-bold mb-1 fs-8 fs-lg-6'>
                               {equityType?.toUpperCase()}
                             </div>
                           </td>
                           <td>
                             <div
-                              className={` fw-bold  mb-1 fs-6 ${
+                              className={` fw-bold  mb-1 fs-8 fs-lg-6 ${
                                 profitOrLossDifference > 0
                                   ? 'text-success'
                                   : profitOrLossDifference < 0
@@ -161,29 +176,29 @@ export function TradeWidget({
                             </div>
                           </td>
                           <td>
-                            <div className={`fw-bold  mb-1 fs-6 `}>
+                            <div className='fw-bold mb-1 fs-8 fs-lg-6'>
                               {profitOrLossPercentage}
                             </div>
                           </td>
                           <td>
-                            <div className={` fw-bold  mb-1 fs-6 `}>
+                            <div className='fw-bold mb-1 fs-8 fs-lg-6'>
                               {summary?.isOpen ? 'Open' : 'Closed'}
                             </div>
                           </td>
 
                           <td>
-                            <div className='text-gray-900 fw-bold  mb-1 fs-6'>
+                            <div className='text-gray-900 fw-bold  mb-1 fs-8 fs-lg-6'>
                               {`$${entryPrice}`}
                             </div>
                           </td>
 
-                          <div className='w-30px h-30px'>
+                          <div className='w-20px h-20px w-lg-30px h-lg-30px'>
                             <button
                               className='btn btn-icon p-0 btn-secondary '
                               onClick={(e) => toggleDropdown(summary?._id, e)}
                             >
                               <KTIcon
-                                className='fs-1'
+                                className='fs-3 fs-lg-1'
                                 iconName={
                                   openDropdownId === summary?._id
                                     ? 'up'
@@ -197,27 +212,27 @@ export function TradeWidget({
                         {/* Additional content that slides down when the dropdown is open */}
                         {openDropdownId === summary?._id && (
                           <tr className='bg-secondary rounded-bottom-sm hover-elevate-up cursor-pointer'>
-                            <td colSpan={12} className='ps-16'>
+                            <td colSpan={12} className='ps-8 ps-lg-16'>
                               <div className='d-flex align-items-start justify-content-start gap-20'>
                                 <Link
                                   to={`/user/${userId}`}
                                   className='d-flex align-items-center text-gray-800'
                                 >
-                                  <div className='symbol symbol-40px me-4'>
+                                  <div className='symbol symbol-20px symbol-lg-40px me-4'>
                                     {profilePicture ? (
                                       <img
                                         alt={`${username} Profile Pictute`}
                                         src={profilePicture}
                                       />
                                     ) : (
-                                      <div className='symbol-label fs-2 fw-bold bg-info text-inverse-info'>
+                                      <div className='symbol-label fs-4 fs-lg-2 fw-bold bg-info text-inverse-info'>
                                         {username.slice(0, 1)}
                                       </div>
                                     )}
                                   </div>
 
                                   <div className='d-flex flex-column justify-content-start fw-bold'>
-                                    <span className='fs-7 fw-bold text-hover-info'>
+                                    <span className='fs-9 fs-lg-7 fw-bold text-hover-info'>
                                       {username}
                                     </span>
                                   </div>
@@ -254,10 +269,10 @@ export function TradeWidget({
                                       return (
                                         <div
                                           key={option._id}
-                                          className='d-flex align-items-center justify-content-between gap-12 mb-2'
+                                          className='d-flex align-items-center justify-content-between gap-6 gap-lg-12 mb-2'
                                         >
                                           <div
-                                            className={`rounded-2 w-80px text-center py-1  fw-bold fs-7 ${
+                                            className={`rounded-2 w-60px w-lg-80px text-center py-1  fw-bold fs-9 fs-lg-7 ${
                                               option.transactionType === 'Debit'
                                                 ? 'bg-success'
                                                 : 'bg-danger'
@@ -269,12 +284,12 @@ export function TradeWidget({
                                           </div>
 
                                           {expDate && openDays ? (
-                                            <div className='d-flex align-items-center fw-semibold fs-8'>
-                                              <div className='bg-gray-600 text-white-gray-600 rounded-start-2 p-2'>
+                                            <div className='d-flex align-items-center fw-semibold fs-9 fs-lg-8'>
+                                              <div className='bg-gray-600 text-white-gray-600 rounded-start-2 p-1 p-lg-2'>
                                                 {expDate}
                                               </div>
 
-                                              <div className='bg-white-gray-600 bg-opacity-25 text-gray-600 p-2 rounded-end-2'>
+                                              <div className='bg-white-gray-600 bg-opacity-25 text-gray-600 p-1 p-lg-2 rounded-end-2'>
                                                 {`${openDays}D`}
                                               </div>
                                             </div>
@@ -282,11 +297,11 @@ export function TradeWidget({
 
                                           {strikePrice &&
                                           option?.tradeDirection ? (
-                                            <div className='d-flex align-items-center fw-semibold fs-8'>
-                                              <div className='bg-gray-600 text-white-gray-600 rounded-start-2 p-2'>
+                                            <div className='d-flex align-items-center fw-semibold fs-9 fs-lg-8'>
+                                              <div className='bg-gray-600 text-white-gray-600 rounded-start-2 p-1 p-lg-2'>
                                                 {`$${strikePrice}`}
                                               </div>
-                                              <div className='bg-white-gray-600 bg-opacity-25 text-gray-600 p-2 rounded-end-2'>
+                                              <div className='bg-white-gray-600 bg-opacity-25 text-gray-600 p-1 p-lg-2 rounded-end-2'>
                                                 {option?.tradeDirection ===
                                                 'BTO'
                                                   ? 'C'
@@ -295,9 +310,9 @@ export function TradeWidget({
                                             </div>
                                           ) : null}
 
-                                          <div className='d-flex align-items-center fw-semibold fs-8 gap-2'>
+                                          <div className='d-flex align-items-center fw-semibold fs-9 fs-lg-8 gap-2'>
                                             <div>@</div>
-                                            <div className='bg-gray-600 text-white-gray-600 rounded-2 p-2'>
+                                            <div className='bg-gray-600 text-white-gray-600 rounded-2 p-1 p-lg-2'>
                                               {`$${
                                                 option.price
                                                   ? option.price
