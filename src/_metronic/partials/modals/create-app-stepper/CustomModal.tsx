@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Modal } from 'react-bootstrap'
-import { KTIcon } from '../../../helpers'
+import { KTIcon, KTSVG } from '../../../helpers'
 import {
   fetchMarketPrice,
   fetchOptionChainData,
@@ -47,7 +47,8 @@ export const CustomModal = ({ show, handleClose }: Props) => {
     ticker: '',
     optionType: 'call',
     price: 'm',
-    date: moment().format('YYYY-MM-DD'),
+    // date: moment().format('YYYY-MM-DD'),
+    date: '',
     strike: '',
     riskType: [],
     copyTradeUsername: '',
@@ -63,14 +64,14 @@ export const CustomModal = ({ show, handleClose }: Props) => {
     Partial<Record<keyof FilterData, string>>
   >({})
 
-  const { data: marketPrice } = useQuery('marketPrice', () =>
-    fetchMarketPrice(filterData.equityType, filterData.ticker)
-  )
+  // const { data: marketPrice } = useQuery('marketPrice', () =>
+  //   fetchMarketPrice(filterData.equityType, filterData.ticker)
+  // )
 
-  const { data: optionChainData, isLoading: isOptionChainLoading } = useQuery(
-    'optionChainData',
-    () => fetchOptionChainData(filterData.ticker)
-  )
+  // const { data: optionChainData, isLoading: isOptionChainLoading } = useQuery(
+  //   'optionChainData',
+  //   () => fetchOptionChainData(filterData.ticker)
+  // )
 
   // Function to handle radio button changes
   const handleRadioChange = (name: keyof FilterData, value: string) => {
@@ -190,13 +191,13 @@ export const CustomModal = ({ show, handleClose }: Props) => {
         errors.ticker = 'Please enter ticker name'
       }
 
-      if (!date) {
-        errors.date = 'Exp date can not be empty'
-      }
+      // if (!date) {
+      //   errors.date = 'Exp date can not be empty'
+      // }
 
-      if (!strike) {
-        errors.strike = 'Strike price can not be empty'
-      }
+      // if (!strike) {
+      //   errors.strike = 'Strike price can not be empty'
+      // }
 
       if (!optionType) {
         errors.optionType = 'Please select optionType'
@@ -240,6 +241,19 @@ export const CustomModal = ({ show, handleClose }: Props) => {
     }
 
     setErrors(errors)
+
+    try {
+      // Make a POST request using Axios
+      await postTrades(message, currentUser ? `${currentUser?.id}` : '')
+
+      // Close the modal
+      handleClose()
+    } catch (error: any) {
+      console.log('error', error)
+      console.error('Error submitting data:', error)
+      // Show an alert with the API's error message
+      alert(`Error: ${error?.response.data.message}`)
+    }
   }
 
   const handleSubmitQuick = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -279,7 +293,7 @@ export const CustomModal = ({ show, handleClose }: Props) => {
       position: 'buy',
       ticker: '',
       price: 'm',
-      date: moment().format('YYYY-MM-DD'),
+      date: '',
       strike: '',
       optionType: 'call',
       riskType: [],
@@ -287,31 +301,47 @@ export const CustomModal = ({ show, handleClose }: Props) => {
     })
   }
 
+  const [marketPrice, setMarketPrice] = useState<any>({})
+  const [optionChainData, setOptionChainData] = useState<any>({})
+  const [isOptionChainLoading, setIsOptionChainLoading] = useState(false)
+  const [openAccordion, setOpenAccordion] = useState<number>(null)
+
   useEffect(() => {
     setAllowOptionChain(false)
 
-    const timer = setTimeout(() => {
-      setFilterData((prevData) => ({
-        ...prevData,
-        date: '',
-        strike: '',
-      }))
+    const timer = setTimeout(async () => {
+      if (filterData.equityType !== 'Option') {
+        setIsOptionChainLoading(true)
+        const market = await fetchMarketPrice(
+          filterData.equityType,
+          filterData.ticker
+        )
+        setMarketPrice(market)
+        setIsOptionChainLoading(false)
 
-      if (filterData.ticker !== '') {
-        fetchOptionChainData(filterData.ticker)
+        console.log('market', market)
+      } else if (filterData.ticker !== '' && filterData.ticker.length > 2) {
+        setIsOptionChainLoading(true)
+        const option = await fetchOptionChainData(filterData.ticker)
+        setOptionChainData(option)
 
-        if (filterData.equityType !== 'Option')
-          fetchMarketPrice(filterData.equityType, filterData.ticker)
+        setIsOptionChainLoading(false)
+        setAllowOptionChain(true)
       }
-    }, 1000)
+    }, 500)
+
     return () => clearTimeout(timer)
   }, [filterData.ticker])
+
+  const [isOptionContract, setIsOptionContract] = useState(false)
+
+  const toggleOptionContract = () => setIsOptionContract((prev) => !prev)
 
   useEffect(() => {
     if (marketPrice && filterData.ticker !== '') {
       // Update the price state based on real market price
       if (filterData.equityType !== 'Option') {
-        const price = marketPrice?.regularMarketPrice
+        const price = marketPrice?.data?.regularMarketPrice
         setFilterData((prevData) => ({
           ...prevData,
           price: `${price}`,
@@ -319,12 +349,9 @@ export const CustomModal = ({ show, handleClose }: Props) => {
       }
     }
 
-    // Update the visibility of the trade modal
-    // if (tradeModalStatus) setOpenTradeVisible(tradeModalStatus)
-
     // Fetch and set option chain data when the relevant state changes
     const callOptionChainData = async () => {
-      const optionChain = await getOptionChainData(optionChainData)
+      const optionChain = await getOptionChainData(optionChainData?.data)
 
       setCallsData(optionChain.optionCallData)
       setPutsData(optionChain.optionPutData)
@@ -387,157 +414,387 @@ export const CustomModal = ({ show, handleClose }: Props) => {
             id='kt_tab_pane_1'
             role='tabpanel'
           >
-            <form onSubmit={handleSubmitEnter} className='px-7 py-5'>
-              {/* Asset */}
-              <div className='mb-6'>
-                <label className='form-label fw-bold'>Equity Type</label>
+            {isOptionContract ? (
+              <div className='min-h-400px'>
+                <button
+                  onClick={toggleOptionContract}
+                  className='btn btn-link  btn-active-color-primary'
+                >
+                  &lt; Back
+                </button>
 
-                <div className='d-flex flex-wrap align-items-center gap-4'>
-                  {['Stock', 'Option', 'Forex', 'Crypto'].map((item) => (
-                    <label
-                      key={item}
-                      className='form-check form-check-sm form-check-custom form-check-solid me-5'
-                    >
-                      <input
-                        type='radio'
-                        name='equityType'
-                        value={item}
-                        checked={filterData.equityType === item}
-                        onChange={() => handleRadioChange('equityType', item)}
-                        className='form-check-input'
-                      />
-                      <span className='form-check-label'>{item}</span>
-                    </label>
-                  ))}
+                <div className='accordion' id='kt_accordion_1'>
+                  {dateArray?.map((item: any, index: number) => {
+                    const no = index + 1
+
+                    const currentPrice = optionChainData?.data.underlyingPrice
+
+                    const renderMiddleLine = (x: any) => {
+                      if (currentPrice > x.strike_price) {
+                        return null
+                      } else {
+                        return (
+                          <div className='w-100 separator border-dashed border-2 border-success' />
+                        )
+                      }
+                    }
+
+                    const onSelectOptionContract = (contractData: any) => {
+                      console.log({ contractData })
+
+                      setFilterData((prevData) => ({
+                        ...prevData,
+                        price: contractData.price + '',
+                        strike: contractData.strike + '',
+                        date: contractData.expDate,
+                        optionType: contractData.type,
+                      }))
+
+                      if (contractData.mType == 'bid') {
+                        //sell
+                        setFilterData((prev) => ({ ...prev, position: 'sell' }))
+                      } else {
+                        //buy
+                        setFilterData((prev) => ({ ...prev, position: 'buy' }))
+                      }
+                    }
+
+                    const onContractSelect = (
+                      type: string,
+                      data: any,
+                      expDate: string
+                    ) => {
+                      const date = moment(expDate.split(':')[0]).format(
+                        'YYYY-MM-DD'
+                      )
+                      const obj = {
+                        expDate: date,
+                        strike: data.strikePrice,
+                        price: data.mark,
+                        type: type,
+                      }
+                      onSelectOptionContract(obj)
+                      toggleOptionContract()
+                    }
+                    const handleToggle = (no: number) => {
+                      if (openAccordion === no) {
+                        setOpenAccordion(null)
+                      } else {
+                        setOpenAccordion(no)
+                      }
+                    }
+
+                    return (
+                      <div className='accordion-item' key={no}>
+                        <h2
+                          className='accordion-header'
+                          id={`kt_accordion_${no}_header_${no}`}
+                        >
+                          <button
+                            className='accordion-button fs-6 fw-bold collapsed'
+                            type='button'
+                            onClick={() => handleToggle(no)}
+                            data-toggle='collapse'
+                            data-target={`#kt_accordion_${no}_body_${no}`}
+                            aria-expanded={openAccordion === no}
+                            aria-controls={`#kt_accordion_${no}_body_${no}`}
+                          >
+                            {item?.date
+                              ? moment(item?.date.split(':')[0]).format(
+                                  'DD MMM YYYY'
+                                )
+                              : ''}{' '}
+                            ({item?.date.split(':')[1]} Days to expire)
+                          </button>
+                        </h2>
+                        {openAccordion === no && (
+                          <div
+                            id={`kt_accordion_${no}_body_${no}`}
+                            className='accordion-collapse'
+                            aria-labelledby={`kt_accordion_${no}_header_${no}`}
+                            data-parent='#kt_accordion_1'
+                          >
+                            <div className='accordion-body'>
+                              <div className='w-100 d-flex align-items-center justify-content-around pe-6 pb-4'>
+                                <div className='fs-2 fw-bold'>CALLS</div>
+
+                                <div>
+                                  <KTIcon
+                                    className='fs-1 text-info'
+                                    iconName='setting-2'
+                                  />
+                                </div>
+
+                                <div className='fs-2 fw-bold'>PUT</div>
+                              </div>
+
+                              <div>
+                                {item?.strike_data
+                                  .slice(0, 5)
+                                  .map((x: any, i: any) => {
+                                    const isDivider =
+                                      Math.trunc(currentPrice).toString() +
+                                        '.0' ===
+                                        x.strike_price ||
+                                      (currentPrice < x.strike_price &&
+                                        currentPrice > x.strike_price)
+                                    return (
+                                      <>
+                                        <div className='d-flex text-center justify-content-around align-items-center'>
+                                          <div className='col-5 d-flex justify-content-between bg-light-primary'>
+                                            <button
+                                              onClick={() =>
+                                                onContractSelect(
+                                                  'bid',
+                                                  x.callData,
+                                                  item?.date
+                                                )
+                                              }
+                                              className='fs-6 fw-semibold w-100 btn btn-link '
+                                            >
+                                              {x?.callData?.bid}
+                                            </button>
+                                            <button
+                                              onClick={() =>
+                                                onContractSelect(
+                                                  'ask',
+                                                  x.callData,
+                                                  item?.date
+                                                )
+                                              }
+                                              className='fs-6 fw-semibold w-100 btn btn-link'
+                                            >
+                                              {x?.callData?.ask}
+                                            </button>
+                                            <button
+                                              onClick={() =>
+                                                onContractSelect(
+                                                  'mark',
+                                                  x.callData,
+                                                  item?.date
+                                                )
+                                              }
+                                              className='fs-6 fw-semibold w-100 btn btn-link '
+                                            >
+                                              {x?.callData?.mark}
+                                            </button>
+                                          </div>
+
+                                          <div className='bg-muted col-2'>
+                                            <text className='fs-5 fw-bold btn btn-link btn-color-muted'>
+                                              {x?.strike_price}
+                                            </text>
+                                          </div>
+
+                                          <div className='d-flex  justify-content-around bg-light-primary col-5'>
+                                            <button
+                                              onClick={() =>
+                                                onContractSelect(
+                                                  'bid',
+                                                  x.putData,
+                                                  item?.date
+                                                )
+                                              }
+                                              className='fs-6 fw-semibold btn btn-link '
+                                            >
+                                              {x?.putData.bid}
+                                            </button>
+                                            <button
+                                              onClick={() =>
+                                                onContractSelect(
+                                                  'ask',
+                                                  x.putData,
+                                                  item?.date
+                                                )
+                                              }
+                                              className='fs-6 fw-semibold btn btn-link '
+                                            >
+                                              {x?.putData.ask}
+                                            </button>
+                                            <button
+                                              onClick={() =>
+                                                onContractSelect(
+                                                  'mark',
+                                                  x.putData,
+                                                  item?.date
+                                                )
+                                              }
+                                              className='fs-6 fw-semibold btn btn-link'
+                                            >
+                                              {x?.putData.mark}
+                                            </button>
+                                          </div>
+                                        </div>
+                                        {isDivider && (
+                                          <div className='w-100 separator border-dashed border-2 border-success' />
+                                        )}
+                                        {renderMiddleLine(x)}
+                                      </>
+                                    )
+                                  })}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
-
-                {errors.equityType && (
-                  <div className='text-danger mt-2'>{errors.equityType}</div>
-                )}
               </div>
+            ) : (
+              <form onSubmit={handleSubmitEnter} className='px-7 py-5'>
+                {/* Asset */}
+                <div className='mb-6'>
+                  <label className='form-label fw-bold'>Equity Type</label>
 
-              {/* Position */}
-              <div className='mb-6'>
-                <label className='form-label fw-bold'>Position</label>
-
-                <div className='d-flex flex-wrap align-items-center gap-4'>
-                  {['buy', 'sell', 'short', 'cover'].map((item) => (
-                    <label
-                      key={item}
-                      className='form-check form-check-sm form-check-custom form-check-solid me-5'
-                    >
-                      <input
-                        type='radio'
-                        name='position'
-                        value={item}
-                        checked={filterData.position === item}
-                        onChange={() => handleRadioChange('position', item)}
-                        className='form-check-input'
-                      />
-                      <span className='form-check-label text-capitalize'>
-                        {item}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-
-                {errors.position && (
-                  <div className='text-danger mt-2'>{errors.position}</div>
-                )}
-              </div>
-
-              {/* Ticker & Option & Price */}
-
-              <div className='mb-6 row gap-2'>
-                <div className='col-5'>
-                  <div className='d-flex align-items-center'>
-                    <label className='d-flex align-items-center form-label fw-bold mb-2 me-2'>
-                      <span>Ticker</span>
-                    </label>
-
-                    {isOptionChainLoading && <Loader />}
+                  <div className='d-flex flex-wrap align-items-center gap-4'>
+                    {['Stock', 'Option', 'Forex', 'Crypto'].map((item) => (
+                      <label
+                        key={item}
+                        className='form-check form-check-sm form-check-custom form-check-solid me-5'
+                      >
+                        <input
+                          type='radio'
+                          name='equityType'
+                          value={item}
+                          checked={filterData.equityType === item}
+                          onChange={() => handleRadioChange('equityType', item)}
+                          className='form-check-input'
+                        />
+                        <span className='form-check-label'>{item}</span>
+                      </label>
+                    ))}
                   </div>
 
-                  <input
-                    type='text'
-                    className='form-control form-control-sm form-control-solid border-gray-400'
-                    name='ticker'
-                    value={filterData.ticker}
-                    onChange={handleInputChange}
-                    placeholder='E.g, AAPL'
-                  />
-
-                  {errors.ticker && (
-                    <div className='text-danger mt-2'>{errors.ticker}</div>
+                  {errors.equityType && (
+                    <div className='text-danger mt-2'>{errors.equityType}</div>
                   )}
                 </div>
 
-                {filterData.equityType === 'Option' ? (
-                  <div className='col-5'>
-                    <label className='d-flex align-items-center form-label fw-bold mb-4'>
-                      <span>Option Type</span>
-                    </label>
+                {/* Position */}
+                <div className='mb-6'>
+                  <label className='form-label fw-bold'>Position</label>
 
-                    <div className='d-flex flex-wrap align-items-center gap-4'>
-                      {['call', 'put'].map((item) => (
-                        <label
-                          key={item}
-                          className='form-check form-check-sm form-check-custom form-check-solid me-5'
-                        >
-                          <input
-                            type='radio'
-                            name='optionType'
-                            value={item}
-                            checked={filterData.optionType === item}
-                            onChange={() =>
-                              handleOptionTypeChange('optionType', item)
-                            }
-                            className='form-check-input'
-                          />
-                          <span className='form-check-label text-capitalize'>
-                            {item}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
+                  <div className='d-flex flex-wrap align-items-center gap-4'>
+                    {['buy', 'sell', 'short', 'cover'].map((item) => (
+                      <label
+                        key={item}
+                        className='form-check form-check-sm form-check-custom form-check-solid me-5'
+                      >
+                        <input
+                          type='radio'
+                          name='position'
+                          value={item}
+                          checked={filterData.position === item}
+                          onChange={() => handleRadioChange('position', item)}
+                          className='form-check-input'
+                        />
+                        <span className='form-check-label text-capitalize'>
+                          {item}
+                        </span>
+                      </label>
+                    ))}
                   </div>
-                ) : (
+
+                  {errors.position && (
+                    <div className='text-danger mt-2'>{errors.position}</div>
+                  )}
+                </div>
+
+                {/* Ticker & Option & Price */}
+
+                <div className='mb-6 row gap-2'>
                   <div className='col-5'>
                     <div className='d-flex align-items-center'>
                       <label className='d-flex align-items-center form-label fw-bold mb-2 me-2'>
-                        <span>Price</span>
+                        <span>Ticker</span>
                       </label>
 
                       {isOptionChainLoading && <Loader />}
                     </div>
 
-                    <div className='d-flex align-items-center gap-2'>
-                      <span>$</span>
+                    <input
+                      type='text'
+                      className='form-control form-control-sm form-control-solid border-gray-400'
+                      name='ticker'
+                      value={filterData.ticker.toLocaleUpperCase()}
+                      onChange={handleInputChange}
+                      placeholder='E.g, AAPL'
+                    />
 
-                      <input
-                        type='number'
-                        className='form-control form-control-sm form-control-solid border-gray-400'
-                        name='price'
-                        value={filterData.price}
-                        onChange={handleInputChange}
-                        placeholder='1.30'
-                      />
-                    </div>
-                    {errors.price && (
-                      <div className='text-danger mt-2'>{errors.price}</div>
+                    {errors.ticker && (
+                      <div className='text-danger mt-2'>{errors.ticker}</div>
                     )}
                   </div>
-                )}
-              </div>
 
-              {filterData.equityType === 'Option' &&
-                dateArray?.length > 0 &&
-                filterData?.ticker !== '' &&
-                allowOptionChain && (
+                  {filterData.equityType === 'Option' ? (
+                    <div className='col-5'>
+                      <label className='d-flex align-items-center form-label fw-bold mb-4'>
+                        <span>Option Type</span>
+                      </label>
+
+                      <div className='d-flex flex-wrap align-items-center gap-4'>
+                        {['call', 'put'].map((item) => (
+                          <label
+                            key={item}
+                            className='form-check form-check-sm form-check-custom form-check-solid me-5'
+                          >
+                            <input
+                              type='radio'
+                              name='optionType'
+                              value={item}
+                              checked={filterData.optionType === item}
+                              onChange={() =>
+                                handleOptionTypeChange('optionType', item)
+                              }
+                              readOnly
+                              disabled
+                              className='form-check-input'
+                            />
+                            <span className='form-check-label text-capitalize'>
+                              {item}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className='col-5'>
+                      <div className='d-flex align-items-center'>
+                        <label className='d-flex align-items-center form-label fw-bold mb-2 me-2'>
+                          <span>Price</span>
+                        </label>
+
+                        {isOptionChainLoading && <Loader />}
+                      </div>
+
+                      <div className='d-flex align-items-center gap-2'>
+                        <span>$</span>
+
+                        <input
+                          type='number'
+                          className='form-control form-control-sm form-control-solid border-gray-400'
+                          name='price'
+                          value={filterData.price}
+                          onChange={handleInputChange}
+                          readOnly
+                          disabled
+                        />
+                      </div>
+                      {errors.price && (
+                        <div className='text-danger mt-2'>{errors.price}</div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {filterData.equityType === 'Option' && (
                   <div className='mb-6'>
                     <button
+                      type='button'
                       className='btn btn-sm btn-info w-100'
-                      // onClick={select option contract}
+                      onClick={toggleOptionContract}
+                      disabled={Object.keys(optionChainData).length === 0}
                     >
                       Select Option contract
                     </button>
@@ -550,172 +807,206 @@ export const CustomModal = ({ show, handleClose }: Props) => {
                   </div>
                 )}
 
-              {/* Date & Strike*/}
+                {/* Date & Strike*/}
 
-              <div className='mb-6 row gap-2'>
-                <div className='col-5'>
-                  <div className='d-flex align-items-center'>
-                    <label className='d-flex align-items-center form-label fw-bold mb-2 me-2'>
-                      <span>Date</span>
-                    </label>
+                {filterData.equityType === 'Option' && (
+                  <div className='mb-6 row gap-2'>
+                    <div className='col-5'>
+                      <div className='d-flex align-items-center'>
+                        <label className='d-flex align-items-center form-label fw-bold mb-2 me-2'>
+                          <span>Date</span>
+                        </label>
 
-                    {isOptionChainLoading && <Loader />}
-                  </div>
-
-                  <Flatpickr
-                    render={({ defaultValue }, ref) => (
-                      <div
-                        defaultValue={defaultValue}
-                        ref={ref}
-                        className='btn btn-sm btn-flex fw-medium gap-2 bg-light-dark py-3 px-6 w-auto btn-active-light-info'
-                        data-kt-menu-trigger='click'
-                        data-kt-menu-placement='bottom-end'
-                      >
-                        <KTIcon
-                          iconName='calendar'
-                          className='fs-3 text-dark me-1'
-                        />
-                        <span>{filterData.date}</span>
+                        {isOptionChainLoading && <Loader />}
                       </div>
-                    )}
-                    name='date'
-                    value={filterData.date}
-                    onChange={handleDateChange}
-                  />
-                  {errors.date && (
-                    <div className='text-danger mt-2'>{errors.date}</div>
-                  )}
-                </div>
 
-                <div className='col-5'>
-                  <div className='d-flex align-items-center '>
-                    <label className='d-flex align-items-center form-label fw-bold mb-2 me-2'>
-                      <span>Strike</span>
-                    </label>
-
-                    {isOptionChainLoading && <Loader />}
-                  </div>
-
-                  <div className='d-flex align-items-center gap-2'>
-                    <input
-                      type='number'
-                      className='form-control form-control-sm form-control-solid border-gray-400'
-                      name='strike'
-                      value={filterData.strike}
-                      onChange={handleInputChange}
-                      placeholder='473'
-                    />
-                  </div>
-                  {errors.strike && (
-                    <div className='text-danger mt-2'>{errors.strike}</div>
-                  )}
-                </div>
-              </div>
-
-              {/* Risk Type  */}
-              <div className='mb-6'>
-                <div className='d-flex flex-wrap align-items-center gap-4'>
-                  {[
-                    { title: 'Risky', value: 'risky' },
-                    { title: 'Swing', value: 'swing' },
-                    { title: 'Day Trade', value: 'daytrade' },
-                    { title: 'Hedge', value: 'hedge' },
-                  ].map((item) => (
-                    <label
-                      key={item.value}
-                      className='form-check form-check-sm form-check-custom form-check-solid me-5'
-                    >
-                      <input
-                        type='checkbox'
-                        name='riskType'
-                        value={item.value}
-                        checked={filterData.riskType.includes(item.value)}
-                        onChange={() =>
-                          handleCheckboxChange('riskType', item.value)
-                        }
-                        className='form-check-input'
-                      />
-                      <span className='form-check-label text-capitalize'>
-                        {item.title}
-                      </span>
-
-                      {errors.riskType &&
-                        errors.riskType.includes(item.value) && (
-                          <div className='text-danger mt-2'>{`Please select ${item.title}`}</div>
+                      <Flatpickr
+                        render={({ defaultValue }, ref) => (
+                          <div
+                            defaultValue={defaultValue}
+                            ref={ref}
+                            className='btn btn-sm btn-flex fw-medium gap-2 bg-light-dark py-3 px-6 btn-active-light-info w-100'
+                            data-kt-menu-trigger='click'
+                            data-kt-menu-placement='bottom-end'
+                          >
+                            <KTIcon
+                              iconName='calendar'
+                              className='fs-3 text-dark me-1'
+                            />
+                            <span>{filterData.date}</span>
+                          </div>
                         )}
-                    </label>
-                  ))}
+                        name='date'
+                        value={filterData.date}
+                        onChange={handleDateChange}
+                        readOnly
+                        disabled
+                      />
+                      {errors.date && (
+                        <div className='text-danger mt-2'>{errors.date}</div>
+                      )}
+                    </div>
+
+                    <div className='col-5'>
+                      <div className='d-flex align-items-center '>
+                        <label className='d-flex align-items-center form-label fw-bold mb-2 me-2'>
+                          <span>Strike</span>
+                        </label>
+
+                        {isOptionChainLoading && <Loader />}
+                      </div>
+
+                      <div className='d-flex align-items-center gap-2'>
+                        <input
+                          type='number'
+                          className='form-control form-control-sm form-control-solid border-gray-400'
+                          name='strike'
+                          value={filterData.strike}
+                          onChange={handleInputChange}
+                          readOnly
+                          disabled
+                        />
+                      </div>
+                      {errors.strike && (
+                        <div className='text-danger mt-2'>{errors.strike}</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className='mb-6 row gap-2'>
+                  {filterData.equityType === 'Option' && (
+                    <div className='col-5'>
+                      <div className='d-flex align-items-center'>
+                        <label className='d-flex align-items-center form-label fw-bold mb-2 me-2'>
+                          <span>Price</span>
+                        </label>
+
+                        {isOptionChainLoading && <Loader />}
+                      </div>
+
+                      <div className='d-flex align-items-center gap-2'>
+                        <span>$</span>
+
+                        <input
+                          type='number'
+                          className='form-control form-control-sm form-control-solid border-gray-400'
+                          name='price'
+                          value={filterData.price}
+                          onChange={handleInputChange}
+                          readOnly
+                          disabled
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
 
-              {/* Copy Trade */}
-              <div className='px-3 rounded bg-light-dark fw-bold w-100 mb-6 d-flex align-items-center justify-content-between border border-gray-200'>
-                <span className='me-4 w-100 text-start text-gray-700'>
-                  <input
-                    ref={tradeTextRef}
-                    type='text'
-                    readOnly
-                    className='form-control-plaintext'
-                    value={
-                      filterData.equityType === 'Option'
-                        ? `${returnPosition(
-                            filterData.position
-                          )} ${filterData.ticker.toLocaleUpperCase()} ${
-                            filterData.strike
-                          } ${filterData.optionType === 'call' ? 'C' : 'P'} ${
-                            filterData.date.split(':')[0]
-                              ? moment(filterData.date.split(':')[0]).format(
-                                  'MM/DD/YYYY'
-                                )
-                              : ''
-                          } @ ${filterData.price} ${
-                            filterData.riskType &&
-                            filterData.riskType.length > 0
-                              ? '(' + filterData.riskType + ')'
-                              : ''
-                          }`
-                        : `${returnPosition(
-                            filterData.position
-                          )} ${filterData.ticker.toLocaleUpperCase()} @ ${
-                            filterData.price ? filterData.price : 'm'
-                          } ${
-                            filterData.riskType &&
-                            filterData.riskType.length > 0
-                              ? '(' + filterData.riskType + ')'
-                              : ''
-                          }`
-                    }
-                  />
-                </span>
+                {/* Risk Type  */}
+                <div className='mb-6'>
+                  <div className='d-flex flex-wrap align-items-center gap-4'>
+                    {[
+                      { title: 'Risky', value: 'risky' },
+                      { title: 'Swing', value: 'swing' },
+                      { title: 'Day Trade', value: 'daytrade' },
+                      { title: 'Hedge', value: 'hedge' },
+                    ].map((item) => (
+                      <label
+                        key={item.value}
+                        className='form-check form-check-sm form-check-custom form-check-solid me-5'
+                      >
+                        <input
+                          type='checkbox'
+                          name='riskType'
+                          value={item.value}
+                          checked={filterData.riskType.includes(item.value)}
+                          onChange={() =>
+                            handleCheckboxChange('riskType', item.value)
+                          }
+                          className='form-check-input'
+                        />
+                        <span className='form-check-label text-capitalize'>
+                          {item.title}
+                        </span>
 
-                <button
-                  className='btn btn-sm fs-8 px-3 py-1 btn-secondary'
-                  type='button'
-                  onClick={handleCopyClick}
-                >
-                  {copySuccess ? 'Copied!' : 'Copy'}
-                </button>
-              </div>
-              {/* Action Buttons */}
+                        {errors.riskType &&
+                          errors.riskType.includes(item.value) && (
+                            <div className='text-danger mt-2'>{`Please select ${item.title}`}</div>
+                          )}
+                      </label>
+                    ))}
+                  </div>
+                </div>
 
-              <div className='d-flex justify-content-end'>
-                <button
-                  type='reset'
-                  onClick={handleReset}
-                  className='btn btn-sm btn-light btn-active-light-primary me-2'
-                >
-                  Reset
-                </button>
+                {/* Copy Trade */}
+                <div className='px-3 rounded bg-light-dark fw-bold w-100 mb-6 d-flex align-items-center justify-content-between border border-gray-200'>
+                  <span className='me-4 w-100 text-start text-gray-700'>
+                    <input
+                      ref={tradeTextRef}
+                      type='text'
+                      readOnly
+                      className='form-control-plaintext'
+                      value={
+                        filterData.equityType === 'Option'
+                          ? `${returnPosition(
+                              filterData.position
+                            )} ${filterData.ticker.toLocaleUpperCase()} ${
+                              filterData.strike
+                            } ${filterData.optionType === 'call' ? 'C' : 'P'} ${
+                              filterData.date.split(':')[0]
+                                ? moment(filterData.date.split(':')[0]).format(
+                                    'MM/DD/YYYY'
+                                  )
+                                : ''
+                            } @ ${filterData.price} ${
+                              filterData.riskType &&
+                              filterData.riskType.length > 0
+                                ? '(' + filterData.riskType + ')'
+                                : ''
+                            }`
+                          : `${returnPosition(
+                              filterData.position
+                            )} ${filterData.ticker.toLocaleUpperCase()} @ ${
+                              filterData.price ? filterData.price : 'm'
+                            } ${
+                              filterData.riskType &&
+                              filterData.riskType.length > 0
+                                ? '(' + filterData.riskType + ')'
+                                : ''
+                            }`
+                      }
+                    />
+                  </span>
 
-                <button
-                  type='submit'
-                  className='btn btn-sm btn-primary'
-                  data-kt-menu-dismiss='true'
-                >
-                  Share Trade Idea
-                </button>
-              </div>
-            </form>
+                  <button
+                    className='btn btn-sm fs-8 px-3 py-1 btn-secondary'
+                    type='button'
+                    onClick={handleCopyClick}
+                  >
+                    {copySuccess ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+                {/* Action Buttons */}
+
+                <div className='d-flex justify-content-end'>
+                  <button
+                    type='reset'
+                    onClick={handleReset}
+                    className='btn btn-sm btn-light btn-active-light-primary me-2'
+                  >
+                    Reset
+                  </button>
+
+                  <button
+                    type='submit'
+                    className='btn btn-sm btn-primary'
+                    data-kt-menu-dismiss='true'
+                  >
+                    Share Trade Idea
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
 
           {/* Quick Trade tab */}
